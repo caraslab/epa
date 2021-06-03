@@ -1,4 +1,4 @@
-function plot(obj,src,event)
+function pObj = plot(obj,src,event)
 
 S = obj.curSession;
 C = obj.curClusters;
@@ -51,10 +51,10 @@ for s = 1:length(S)
         
         SC = S(s).find_Cluster(C(c).Name);
         
-        pObj = feval(ps,SC,par);
-        pObj.plot;
+        pObj(c,s) = feval(ps,SC,par);
+        pObj(c,s).plot;
         
-        set(par.ax,'UserData',pObj);
+        drawnow
     end
 end
 

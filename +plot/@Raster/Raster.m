@@ -57,7 +57,7 @@ classdef Raster < epa.plot.PlotType
             
             
             if isempty(eidx)
-                fprintf(2,'No data found for event "%s" in cluster "%s"\n',E.Name,obj.Name)
+                fprintf(2,'No data found for event "%s" in cluster "%s"\n',E.Name,C.Name)
                 return
             end
             

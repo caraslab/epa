@@ -161,7 +161,7 @@ classdef helper < handle
             if any(ind)
                 idx = find(ind);
                 for i = 1:length(idx)
-                    tpv = epa.helper.tokenize(pv{idx(i)});
+                    tpv = strsplit(pv{idx(i)},',');
                     tpv(1) = [];
                     tpv{1}(tpv{1} == '{') = [];
                     tpv{end}(tpv{end} == '}'|tpv{end} == ')') = [];
