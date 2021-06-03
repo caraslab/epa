@@ -38,7 +38,11 @@ par.parent = f;
 m = length(C);
 n = length(S);
 
-t = tiledlayout(m,n);
+if m == 1 || n == 1
+    t = tiledlayout('flow');
+else
+    t = tiledlayout(m,n);
+end
 
 for s = 1:length(S)
     for c = 1:length(C)

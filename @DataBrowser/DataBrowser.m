@@ -411,6 +411,22 @@ classdef DataBrowser < handle
             obj.select_parameter;
 
         end
+        
+        function launch_plot(obj,src,event)
+            h = obj.handles;
+            h.PlotButton.Text = 'Plotting...';
+            h.PlotButton.Enable = 'off';
+            drawnow
+            try
+                obj.plot;
+                h.PlotButton.Text = 'Plot';
+                h.PlotButton.Enable = 'on';
+            catch me
+                h.PlotButton.Text = 'Plot';
+                h.PlotButton.Enable = 'on';
+                rethrow(me)
+            end
+        end
     end
     
 end

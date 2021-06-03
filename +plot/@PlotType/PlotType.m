@@ -65,7 +65,7 @@ classdef PlotType < handle & dynamicprops
             obj.ax.Title.Position(1) = obj.ax.XLim(1);
             obj.ax.Title.FontName = 'Consolas';
             obj.ax.Title.FontSize = obj.titlefontsize;
-            obj.ax.TitleFontSizeMultiplier = 1;
+%             obj.ax.TitleFontSizeMultiplier = .8;
         end
         
         
@@ -92,7 +92,7 @@ classdef PlotType < handle & dynamicprops
             obj.ax.Title.Position(1) = obj.ax.XLim(1);
             obj.ax.Title.FontName = 'Consolas';
             obj.ax.Title.FontSize = obj.titlefontsize;
-            obj.ax.TitleFontSizeMultiplier = 1;
+%             obj.ax.TitleFontSizeMultiplier = .8;
         end
         
         

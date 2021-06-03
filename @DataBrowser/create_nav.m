@@ -176,7 +176,7 @@ h = uibutton(PlotGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 4;
 h.Text = 'Plot';
-h.ButtonPushedFcn = @obj.plot;
+h.ButtonPushedFcn = @obj.launch_plot;
 obj.handles.PlotButton = h;
 
 
