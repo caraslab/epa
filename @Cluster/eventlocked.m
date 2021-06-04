@@ -3,11 +3,11 @@ function [t,eidx,vid] = eventlocked(obj,varargin)
 % [t,eidx,vid] = eventlocked(ClusterObj,'Name',Value,...)
 %  
 % Input:
-%   eventname     ... char event name
+%   event         ... char event name
 %   eventvalue    ... specify event value(s) or 'all', default = 'all'
 %   window        ... [1x2] window relative to event onset in seconds, or
 %                     [1x1] window duration, default = 1
-%   sorton          ... Determines how trials should be sorted. 'original' or
+%   sorton        ... Determines how trials should be sorted. 'original' or
 %                     'events'. 'events' orders the trials by event value.
 % 
 % 
