@@ -3,7 +3,7 @@
 
 DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-228-210219-122948/Organized/210223_concat_organized';
 
-% TDTTankPath = DataPath;
+TDTTankPath = DataPath;
 S = epa.kilosort2session(DataPath,TDTTankPath);
 
 %% DataBrowser GUI finds valid Session objects in the base workspace
@@ -69,42 +69,5 @@ load('MyFigure.mat')
 disp(h)
 figure;
 h.plot
-
-
-
-
-% %%
-% 
-% Sam = S(1:3);
-% 
-% 
-% C = [Sam(:).Clusters];
-% 
-% par = [];
-% par.event = "AMdepth";
-% par.window = [0 1];
-% 
-% for i = 1:length(C) 
-%     [t,eidx,v] = C(i).eventlocked(par);
-%     
-%     uv = unique(v);
-%     uv(uv==0) = [];
-%     
-%     refI
-%     
-%     for j = 1:length(uv)
-%         ind = uv(j) == v;
-%         data = t(ind)
-%         dp(j) = epa.metric.neurometric_dprime(
-%     end
-% end
-% 
-% 
-% % epa.metric.neurometric_dprime
-% 
-
-
-
-
 
 
