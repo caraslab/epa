@@ -15,7 +15,7 @@ end
 
 % main grid Layout
 NavGrid = uigridlayout(obj.parent);
-NavGrid.ColumnWidth = {'0.3x','0.24x','0.13x','0.13x','0.2x'};
+NavGrid.ColumnWidth = {'0.3x','0.24x','0.12x','0.12x','0.22x'};
 NavGrid.RowHeight   = {25,25,'1x'};
 obj.handles.NavGrid = NavGrid;
 
@@ -63,10 +63,15 @@ h.handle.Tooltip = 'Select a Session';
 obj.handles.SelectSession = h;
 
 
+
+
+
+
+% Datatype Tab Group
 h = uitabgroup(NavGrid);
 h.Layout.Column = 2;
 h.Layout.Row = [2 3];
-obj.handles.TabGroup = h;
+obj.handles.DataTypeTabGroup = h;
 tg = h;
 
 
@@ -104,7 +109,7 @@ h.handle.Tooltip = 'Select Clusters';
 obj.handles.SelectClusters = h;
 
 % select ClustersTab by default
-obj.handles.TabGroup.SelectedTab = obj.handles.ClustersTab;
+obj.handles.DataTypeTabGroup.SelectedTab = obj.handles.ClustersTab;
 
 
 % Event1
@@ -143,15 +148,22 @@ obj.handles.SelectEvent2Values = h;
 
 
 
+% Process Tab Group
+h = uitabgroup(NavGrid);
+h.Layout.Column = 5;
+h.Layout.Row = [2 length(NavGrid.RowHeight)];
+obj.handles.ProcessTabGroup = h;
+tg = h;
 
 
 % Plot
-PlotGrid = uigridlayout(NavGrid);
+h = uitab(tg,'Title','Plot');
+obj.handles.PlotTab = h;
+
+PlotGrid = uigridlayout(h);
 PlotGrid.ColumnWidth = {'1x','1x'};
 PlotGrid.RowHeight = {25,'1x',25,50};
 PlotGrid.Padding = [0 0 0 0];
-PlotGrid.Layout.Column = 5;
-PlotGrid.Layout.Row = [2 length(NavGrid.RowHeight)];
 obj.handles.PlotGrid = PlotGrid;
 
 h = uidropdown(PlotGrid,'CreateFcn',@obj.create_plotdropdown);
@@ -180,8 +192,9 @@ h.ButtonPushedFcn = @obj.launch_plot;
 obj.handles.PlotButton = h;
 
 
-obj.handles.AutoUpdatePlotButton = h;
-
+% Analyze
+h = uitab(tg,'Title','Analyze');
+obj.handles.AnalyzeTab = h;
 
 
 
