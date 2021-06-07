@@ -110,6 +110,10 @@ classdef (Abstract) PlotType < handle & dynamicprops
             if obj.showinfo, obj.show_infotext; end
             if obj.showlegend, obj.handles.legend = legend([obj.handles.plot]); end
 
+            % Calling drawnow here really slows things down, but seems to
+            % be required to get the titles to display correctly
+            drawnow limitrate
+            
             epa.helper.setfont(obj.ax);
 
             obj.ax.Color = 'none';

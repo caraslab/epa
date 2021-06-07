@@ -35,27 +35,81 @@ par.showlegend = false;
 
 par.parent = f;
 
-m = length(C);
-n = length(S);
+% vvvv sloppy code... clean up at some point vvvvv
+if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
+    
+    if length(S) == 1
+        n = length(C);
+        A = C;
+    else
+        n = length(S);
+        A = S;
+    end
+    
+    uv = E1.DistinctValues;
 
-if m == 1 || n == 1
-    t = tiledlayout('flow');
+    m = length(uv);
+    
+    if m == 1 && n == 1
+        t = tiledlayout('flow');
+    else
+        t = tiledlayout(n,m);
+    end
+    
+    
+    
+    t.Padding = 'loose';
+    t.TileSpacing = 'loose';
+    
+    
+    for a = 1:length(A)
+        for e = 1:length(uv)
+            ax = nexttile(t);
+            
+            par.ax = ax;
+            
+            par.eventvalue = uv(e);
+            
+            if length(S) == 1
+                pObj(e,a) = feval(ps,A(a),par);
+            else
+                AC = A(a).find_Cluster(C.Name);
+                pObj(e,a) = feval(ps,AC,par);
+            end
+            
+            pObj(e,a).plot;
+            
+            par.ax.Title.String{end+1} = sprintf('%s = %1g%s',E1.Name,uv(e),E1.Units);
+        end
+    end
 else
-    t = tiledlayout(m,n);
-end
 
-for s = 1:length(S)
-    for c = 1:length(C)
-        ax = nexttile(t);
-        par.ax = ax;
-        
-        SC = S(s).find_Cluster(C(c).Name);
-        
-        pObj(c,s) = feval(ps,SC,par);
-        pObj(c,s).plot;
-        
-        drawnow
+    m = length(C);
+    n = length(S);
+
+    if m == 1 || n == 1
+        t = tiledlayout('flow');
+    else
+        t = tiledlayout(m,n);
+    end
+    
+    t.Padding = 'loose';
+    t.TileSpacing = 'loose';
+    
+    
+    for s = 1:length(S)
+        for c = 1:length(C)
+            ax = nexttile(t);
+            par.ax = ax;
+            
+            SC = S(s).find_Cluster(C(c).Name);
+            
+            pObj(c,s) = feval(ps,SC,par);
+            pObj(c,s).plot;
+            
+            drawnow
+        end
     end
 end
 
-
+f.UserData = t;

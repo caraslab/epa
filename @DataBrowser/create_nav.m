@@ -201,7 +201,7 @@ obj.handles.AnalyzeTab = h;
 h = obj.handles;
 
 % Set fonts
-epa.helper.setfont(obj.parent,12);
+epa.helper.setfont(obj.parent);
 
 
 
