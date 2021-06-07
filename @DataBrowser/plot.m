@@ -60,10 +60,6 @@ if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
     end
     
     
-    t.Padding = 'loose';
-    t.TileSpacing = 'loose';
-    
-    
     for a = 1:length(A)
         for e = 1:length(uv)
             ax = nexttile(t);
@@ -104,9 +100,6 @@ else
     else
         t = tiledlayout(m,n);
     end
-    
-    t.Padding = 'loose';
-    t.TileSpacing = 'loose';
     
     
     for s = 1:length(S)
