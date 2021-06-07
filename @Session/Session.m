@@ -72,13 +72,19 @@ classdef Session < handle
         
         
         function remove_Event(obj,name)
-            ind = strcmpi([obj.Events.Name],name);
-            obj.Events(ind) = [];
+            name = string(name);
+            for i = 1:length(obj)
+                ind = strcmpi([obj(i).Events.Name],name);
+                obj(i).Events(ind) = [];
+            end
         end
         
         function remove_Cluster(obj,name)
-            ind = strcmpi([obj.Clusters.Name],name);
-            obj.Clusters(ind) = [];
+            name = string(name);
+            for i = 1:length(obj)
+                ind = strcmpi([obj(i).Clusters.Name],name);
+                obj(i).Clusters(ind) = [];
+            end
         end
         
         
