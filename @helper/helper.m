@@ -111,11 +111,10 @@ classdef helper < handle
             end
         end
         
-        function setfont(h,sz)
-            if nargin < 2 || isempty(sz), sz = 10; end
+        function setfont(h)
             fnt = getpref('epa','FontName','Consolas');
             hs = findobj(h,'-property','FontName');
-            set(hs,'FontName',fnt,'FontSize',sz);
+            set(hs,'FontName',fnt);
         end
         
         function t = plot_types
