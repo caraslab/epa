@@ -73,7 +73,7 @@ classdef (Abstract) PlotType < handle & dynamicprops
             if isequal(obj.Cluster,0)
                 s = {''};
             else
-                s = sprintf('%s %d',obj.Cluster.TitleStr,obj.Cluster.N);
+                s = obj.Cluster.TitleStr;
             end
         end
         
@@ -117,6 +117,7 @@ classdef (Abstract) PlotType < handle & dynamicprops
             epa.helper.setfont(obj.ax);
 
             obj.ax.Color = 'none';
+            obj.ax.Title.Units = 'normalized';
         end
         
         

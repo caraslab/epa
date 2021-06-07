@@ -2,7 +2,7 @@ function create_nav(obj)
 
 if isempty(obj.parent)
     % figure
-    fpos = getpref('epa_DataViewer','FigurePosition',[150 300 850 325]);
+    fpos = getpref('epa_DataViewer','FigurePosition',[150 300 850 460]);
     f = uifigure('Position',fpos);
     f.DeleteFcn = @obj.delete_fig;
     f.WindowKeyPressFcn = @obj.process_keys;
@@ -11,7 +11,7 @@ if isempty(obj.parent)
 end
 
 
-
+obj.handles.DataBrowser = f;
 
 % main grid Layout
 NavGrid = uigridlayout(obj.parent);
@@ -162,7 +162,7 @@ obj.handles.PlotTab = h;
 
 PlotGrid = uigridlayout(h);
 PlotGrid.ColumnWidth = {'1x','1x'};
-PlotGrid.RowHeight = {25,'1x',25,50};
+PlotGrid.RowHeight = {25,'1x',25,'1x'};
 PlotGrid.Padding = [0 0 0 0];
 obj.handles.PlotGrid = PlotGrid;
 
@@ -184,12 +184,40 @@ h.Layout.Row    = 3;
 h.ValueChangedFcn = @obj.parameter_edit;
 obj.handles.ParameterEdit = h;
 
-h = uibutton(PlotGrid);
+
+
+PlotOptGrid = uigridlayout(PlotGrid);
+PlotOptGrid.Layout.Column = [1 2];
+PlotOptGrid.Layout.Row = 4;
+PlotOptGrid.ColumnWidth = {'1x','1x'};
+PlotOptGrid.RowHeight = repmat({'1x'},1,4);
+obj.handles.PlotOptGrid = PlotOptGrid;
+
+
+h = uicheckbox(PlotOptGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row = 1;
+h.Text = 'reuse fig';
+obj.handles.ReuseFigureCheck = h;
+
+
+
+h = uicheckbox(PlotOptGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row = 2;
+h.Text = 'equal ylim';
+obj.handles.EqualYLim = h;
+
+
+h = uibutton(PlotOptGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 4;
 h.Text = 'Plot';
 h.ButtonPushedFcn = @obj.launch_plot;
 obj.handles.PlotButton = h;
+
+
+
 
 
 % Analyze

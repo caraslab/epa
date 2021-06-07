@@ -6,8 +6,12 @@ C = obj.curClusters;
 E1 = obj.curEvent1;
 E2 = obj.curEvent2;
 
-f = figure('NumberTitle','off');
-f.Color = 'w';
+if obj.handles.ReuseFigureCheck.Value == 0 || ~isfield(obj.Par,'parent') || isempty(obj.Par.parent) || ~isvalid(obj.Par.parent)
+    f = figure('NumberTitle','off');
+    f.Color = 'w';
+    obj.Par.parent = f;
+end
+clf(obj.Par.parent,'reset')
 
 ps = obj.curPlotStyle;
 ps = ['epa.plot.' ps];
@@ -33,7 +37,6 @@ end
 
 par.showlegend = false;
 
-par.parent = f;
 
 % vvvv sloppy code... clean up at some point vvvvv
 if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
@@ -55,7 +58,6 @@ if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
     else
         t = tiledlayout(n,m);
     end
-    
     
     
     t.Padding = 'loose';
@@ -80,6 +82,16 @@ if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
             pObj(e,a).plot;
             
             par.ax.Title.String{end+1} = sprintf('%s = %1g%s',E1.Name,uv(e),E1.Units);
+            
+            if m > 1 && n > 1
+                if e > 1
+                    par.ax.YAxis.Label.String = '';
+                end
+                
+                if a < length(A)
+                    par.ax.XAxis.Label.String = '';
+                end
+            end
         end
     end
 else
@@ -106,10 +118,19 @@ else
             
             pObj(c,s) = feval(ps,SC,par);
             pObj(c,s).plot;
-            
-            drawnow
         end
     end
 end
 
+
+if obj.handles.EqualYLim.Value == 1
+    ax = findobj(obj.Par.parent,'type','axes');
+    y = cell2mat(get(ax,'ylim'));
+    set(ax,'ylim',[min(y(:,1)) max(y(:,2))]);
+end
+
 f.UserData = t;
+
+
+
+
