@@ -24,6 +24,10 @@ function [dprime,dV,M,V] = neurometric_dprime(obj,varargin)
 %                  Any function specified must also accept the par
 %                  structure as its second input.
 %                  Default computes firing rate over the entire window.
+%   complete ...   Optionally compute all comparisons for all combinations
+%                  of eventvalue.  If true, then dprime and vals are
+%                  returned as square matrices and referencevalue will be
+%                  ignored. Default = false.
 % 
 % Output:
 %   dprime  ...     [Nx1] Result(s) of the d-prime calculation.
@@ -40,37 +44,52 @@ par.event = "";
 par.eventvalue = 'all';
 par.referencevalue = [];
 par.window = [0 1];
-par.metric = [];
+par.complete = false;
+par.metric = @averagefr;
 
 
 par = epa.helper.parse_params(par,varargin{:});
 
 [trials,V] = triallocked(obj,par);
 
-if isempty(par.metric)
-    dw = diff(par.window);
-    M = cellfun(@(a) numel(a)./dw,trials);
-else
-    M = feval(par.metric,trials,par);
-end
+M = feval(par.metric,trials,par);
+
 
 if isempty(par.referencevalue)
     par.referencevalue = min(V);
 end
 
-refInd = V == par.referencevalue;
+if ~par.complete
+    refInd = V == par.referencevalue;
+end
 
 dV = unique(V(:));
 % uvals(uvals == par.referencevalue) = []; % might as well explicitly compute this
 
-dprime = nan(size(dV));
-for i = 1:length(dV)
-    ind = dV(i) == V;
-    data = [M(refInd); M(ind)]';
-    tind = [false(1,sum(refInd)) true(1,sum(ind))];
-    dprime(i) = epa.metric.neurometric_dprime(data,tind);
+if par.complete
+    dprime = nan(length(dV));
+    for i = 1:length(dV)
+        for j = i:length(dV)
+            ind = dV(i) == V;
+            refInd = dV(j) == V;
+            data = [M(refInd); M(ind)]';
+            tind = [false(1,sum(refInd)) true(1,sum(ind))];
+            dprime(i,j) = epa.metric.neurometric_dprime(data,tind);
+        end
+    end
+else
+    dprime = nan(size(dV));
+    for i = 1:length(dV)
+        ind = dV(i) == V;
+        data = [M(refInd); M(ind)]';
+        tind = [false(1,sum(refInd)) true(1,sum(ind))];
+        dprime(i) = epa.metric.neurometric_dprime(data,tind);
+    end
 end
 
+end
 
-
-
+function M = averagefr(trials,par)
+    dw = diff(par.window);
+    M = cellfun(@(a) numel(a)./dw,trials);
+end
