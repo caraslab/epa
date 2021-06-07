@@ -1,4 +1,4 @@
-classdef PlotType < handle & dynamicprops
+classdef (Abstract) PlotType < handle & dynamicprops
     
     properties (Abstract,Constant)
         DataFormat
