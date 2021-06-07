@@ -71,6 +71,76 @@ classdef Session < handle
         
         
         
+        function remove_Event(obj,name)
+            ind = strcmpi([obj.Events.Name],name);
+            obj.Events(ind) = [];
+        end
+        
+        function remove_Cluster(obj,name)
+            ind = strcmpi([obj.Clusters.Name],name);
+            obj.Clusters(ind) = [];
+        end
+        
+        
+        
+        
+        
+        
+        
+        
+        function e = find_Event(obj,name)
+            e = [];
+            if isempty(name), return ;end
+            name = string(name);
+            e = obj.Events(strcmpi([obj.Events.Name],name));
+        end
+        
+        function c = find_Cluster(obj,name)
+            name = string(name);
+            c = obj.Clusters(strcmpi([obj.Clusters.Name],name));
+        end
+        
+        function s = find_Session(obj,name)
+            name = cellstr(name);
+            s = obj(contains(cellstr([obj.Name]),name));
+        end
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        function c = common_Clusters(obj)
+            C = [obj.Clusters];
+            [~,ia,ib] = unique([C.Name]);
+            
+            s = arrayfun(@(x) sum(x == ib),ia);
+            ind = s == length(obj);
+            
+            c = C(ia(ind));
+        end
+        
+        
+        function c = common_Events(obj)
+            E = [obj.Events];
+            [~,ia,ib] = unique([E.Name]);
+            
+            s = arrayfun(@(x) sum(x == ib),ia);
+            ind = s == length(obj);
+            
+            c = E(ia(ind));
+        end
+        
+        
+        
+        
+        
+        
+        
+        
         function v = get.DistinctEventValues(obj)
             v = arrayfun(@(a) a.DistinctValues,obj.Events,'uni',0);
         end
@@ -98,50 +168,6 @@ classdef Session < handle
         end
         
         
-        
-        
-        
-        
-        
-        function e = find_Event(obj,name)
-            e = [];
-            if isempty(name), return ;end
-            name = string(name);
-            e = obj.Events(strcmpi([obj.Events.Name],name));
-        end
-        
-        function c = find_Cluster(obj,name)
-            name = string(name);
-            c = obj.Clusters(strcmpi([obj.Clusters.Name],name));
-        end
-        
-        function s = find_Session(obj,name)
-            name = cellstr(name);
-            s = obj(contains(cellstr([obj.Name]),name));
-        end
-        
-        
-        
-        function c = common_Clusters(obj)
-            C = [obj.Clusters];
-            [~,ia,ib] = unique([C.Name]);
-            
-            s = arrayfun(@(x) sum(x == ib),ia);
-            ind = s == length(obj);
-            
-            c = C(ia(ind));
-        end
-        
-        
-        function c = common_Events(obj)
-            E = [obj.Events];
-            [~,ia,ib] = unique([E.Name]);
-            
-            s = arrayfun(@(x) sum(x == ib),ia);
-            ind = s == length(obj);
-            
-            c = E(ia(ind));
-        end
         
         
     end
