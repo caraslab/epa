@@ -100,11 +100,19 @@ classdef Session < handle
             e = [];
             if isempty(name), return ;end
             name = string(name);
+            if numel(obj) > 1
+                e = arrayfun(@(a) a.find_Event(name),obj,'uni',0);
+                return
+            end
             e = obj.Events(strcmpi([obj.Events.Name],name));
         end
         
         function c = find_Cluster(obj,name)
             name = string(name);
+            if numel(obj) > 1
+                c = arrayfun(@(a) a.find_Cluster(name),obj,'uni',0);
+                return
+            end
             c = obj.Clusters(strcmpi([obj.Clusters.Name],name));
         end
         
