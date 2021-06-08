@@ -1,4 +1,4 @@
-function add_Streams(S,TDTTankPath,varargin)
+function add_TDTStreams(S,TDTTankPath,varargin)
 % NOT YET FUNCTIONAL
 
 par = [];
