@@ -9,6 +9,9 @@ C = [S_AM.Clusters];
 
 
 % add a new property, called "neurodprime" only if it doesn't already exist
+% note: you don't need to add a property in this way.  You could just make
+% a new variable in the workspace of course, but it's often convenient to
+% keep the data together.
 ind = ~isprop(C,'neurodprime');
 addprop(C(ind),'neurodprime');
 
@@ -51,5 +54,7 @@ for i = 1:length(S_AM)
     end
 end
 
+%% fit
 
+x = 
 
