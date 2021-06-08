@@ -5,7 +5,7 @@ classdef Cluster < handle & dynamicprops
     
     
     properties
-        ID       (1,1) uint16 {mustBeFinite}
+        ID       (1,1) uint16 {mustBeFinite} = -1;
         Name     string
         Type     string {mustBeMember(Type,["SU","MSU","MU","Noise",""])} = ""
 
@@ -41,10 +41,9 @@ classdef Cluster < handle & dynamicprops
         
         
         function obj = Cluster(SessionObj,ID,SpikeTimes,SpikeWaveforms)
-            narginchk(2,4)
             
-            obj.Session = SessionObj;
-            obj.ID = ID;
+            if nargin >= 1 && ~isempty(SessionObj), obj.Session = SessionObj; end
+            if nargin >= 2 && ~isempty(ID), obj.ID = ID; end
             
             
             if nargin == 3
