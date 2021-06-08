@@ -27,7 +27,8 @@ classdef Session < handle
     end
     
     methods
-        add_Streams(obj,TDTTankPath)
+        add_TDTStreams(obj,TDTTankPath)
+        add_TDTEvents(obj,TDTTankPath)
         
         function obj = Session(SamplingRate,Clusters,Events)
             if nargin >= 1 && ~isempty(SamplingRate), obj.SamplingRate = SamplingRate; end

@@ -1,22 +1,16 @@
-function S = kilosort2session(DataPath,TDTTankPath)
-% S = kilosort2session(DataPath,[TDTTankPath])
+function S = kilosort2session(DataPath)
+% S = kilosort2session(DataPath)
 % 
 % ex:   DataPath = 'C:\Path\To\Sorted\Data\';
 %       S = epa.kilosort2session(DataPath);
-% 
-% ex:   TDTTankPath = 'C:\Path\To\TDTTank\';
-%       S = epa.kilosort2session(DataPath,TDTTankPath);
 % 
 % Returns an array of Session object (S) derived from the DataPath, where
 % DataPath is an array with one or more strings (or cell array of strings)
 % pointing to the root directory of the Kilosort data output.
 % 
-% You may optionally specify a TDTTankPath which will add Event data
-% directly from the TDT Tank found at the specified location.
-% 
-% Important note: This function looks for files located at DataPath and
-% TDTTankPath (if specified) that have similar names. These names are
-% derived from the first column within the '*concat_breakpoints.csv' file.
+% Important note: This function looks for files located under DataPath that
+% have similar names. These names are derived from the first column within
+% the '*concat_breakpoints.csv' file.
 % 
 % Expected files at the DataPath location:
 %   config.mat 
@@ -137,35 +131,3 @@ for i = 1:length(S)
     fprintf(' done\n')
 end
 
-
-
-if isempty(TDTTankPath), return; end
-
-%% Read Events from TDT Tank
-addpath(fullfile(epa.helper.rootdir,'+epa','TDTbin2mat'));
-
-d = dir(fullfile(TDTTankPath,['**' filesep '*.Tbk']));
-sn = cellstr([S.Name]);
-for t = 1:length(d)    
-    blockPth = d(t).folder;
-    [~,blockName,~] = fileparts(d(t).name);
-    
-    ind = cellfun(@(a) contains(blockName,a),sn);
-    
-    assert(sum(ind) == 1,'epa:kilosort2ssession:InvalidTDTBlock', ...
-        'Found %d TDT blocks matching "%s"',sum(ind),blockName)
-       
-    
-    fprintf('Adding Events from TDT Tank for Session "%s" ...',S(ind).Name)
-    
-    data = TDTbin2mat(blockPth,'TYPE',2,'VERBOSE',0);
-    
-    eventInfo = data.epocs;
-    eventNames = fieldnames(eventInfo);
-    for i = 1:length(eventNames)
-        e = eventInfo.(eventNames{i});
-        onoffs = [e.onset e.offset];
-        S(ind).add_Event(eventNames{i}, onoffs, e.data);
-    end
-    
-end
