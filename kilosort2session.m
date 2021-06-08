@@ -144,7 +144,7 @@ if isempty(TDTTankPath), return; end
 %% Read Events from TDT Tank
 addpath(fullfile(epa.helper.rootdir,'+epa','TDTbin2mat'));
 
-d = dir(fullfile(DataPath,['**' filesep '*.Tbk']));
+d = dir(fullfile(TDTTankPath,['**' filesep '*.Tbk']));
 sn = cellstr([S.Name]);
 for t = 1:length(d)    
     blockPth = d(t).folder;
