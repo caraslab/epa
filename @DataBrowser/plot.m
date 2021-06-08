@@ -11,7 +11,7 @@ if obj.handles.ReuseFigureCheck.Value == 0 || ~isfield(obj.Par,'parent') || isem
     f.Color = 'w';
     obj.Par.parent = f;
 end
-clf(obj.Par.parent,'reset')
+clf(obj.Par.parent);
 
 ps = obj.curPlotStyle;
 ps = ['epa.plot.' ps];
@@ -125,5 +125,5 @@ end
 f.UserData = t;
 
 
-
+if nargout == 0, clear pObj; end
 
