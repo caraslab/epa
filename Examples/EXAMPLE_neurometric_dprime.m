@@ -32,7 +32,7 @@ par.referenceval = 0;
 par.window = [0 1];
 par.modfreq = 5;
 % par.metric = 'cl_calcpower';
-par.metric = 'tmtf';
+par.metric = 'tmtf'; % use the temporal Modualation Transfer Function metric
 
 % compute neurometric dprime for each Cluster independently
 
