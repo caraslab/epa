@@ -75,6 +75,17 @@ classdef Cluster < handle & dynamicprops
                 tstr = obj.TitleStr;
             end
         end
+        
+        function c = copy(obj)
+            if numel(obj) > 1
+                c = arrayfun(@copy,obj);
+                return
+            end
+            p = epa.helper.obj2par(obj);
+            c = epa.Cluster(p.Session);
+            p = rmfield(p,'Session');
+            epa.helper.par2obj(c,p);
+        end
     end
 end
                 

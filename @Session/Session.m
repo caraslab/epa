@@ -32,6 +32,7 @@ classdef Session < handle
         
         function obj = Session(SamplingRate,Clusters,Events)
             addpath(fullfile(epa.helper.rootdir,'+epa','metrics'));
+            addpath(fullfile(epa.helper.rootdir,'+epa','analysis'));
             addpath(fullfile(epa.helper.rootdir,'+epa','Examples'));
             
             
@@ -189,7 +190,16 @@ classdef Session < handle
         
         
         
+        function c = copy(obj)
+            if numel(obj) > 1
+                c = arrayfun(@copy,obj);
+                return
+            end
+            p = epa.helper.obj2par(obj);
+            c = epa.Session;
+            epa.helper.par2obj(c,p);
+        end
         
-    end
+    end % methods (Access = public)
     
 end
