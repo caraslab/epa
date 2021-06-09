@@ -39,6 +39,8 @@ par.metric = 'tmtf'; % use the temporal Modualation Transfer Function metric
 % compute neurometric dprime for each Cluster independently
 
 
+dprimeThreshold = 1;
+
 figure(999);
 clf(999)
 tiledlayout('flow');
@@ -51,36 +53,45 @@ for i = 1:numel(C)
     % fit the data with a sigmoidal function
     [xfit,yfit,p_val] = fit_sigmoid(v,dp);
     
+    % determine where on the x-axis intersects with the neurometric curve
+    % at dprimeThreshold
+    if max(yfit) >= dprimeThreshold && min(yfit) <= dprimeThreshold
+        dprime_at_threshold = makima(yfit,xfit,dprimeThreshold);
+    else
+        dprime_at_threshold = nan;
+    end
     
     
-    
+    % store the results along with the Cluster object
     C(i).neurodprime.dprime = dp;
     C(i).neurodprime.vals   = v;
     C(i).neurodprime.xfit   = xfit;
     C(i).neurodprime.yfit   = yfit;
     C(i).neurodprime.p_val  = p_val;
+    C(i).neurodprime.dprimethreshold = dprime_at_threshold;
     
     
     
     
+    % plot the results
     nexttile
     
-    plot(v,dp,'--o', ...
-        xfit,yfit,'-k');
+    h = plot(v,dp,'--o', ...
+        xfit,yfit,'-k', ...
+        dprime_at_threshold,dprimeThreshold,'+r');
     
+    h(3).MarkerSize = 10;
+    h(3).LineWidth = 2;
     
     xlabel(par.event)
     ylabel('d''')
+    
     title({C(i).Session.Name; ...
            C(i).TitleStr; ...
-           sprintf('\\it{p = %g}',p_val)});
+           sprintf('\\it{threshold = %.2f; p = %.4f}',dprime_at_threshold,p_val)});
     
     grid on
 end
-
-ax = findobj(gcf,'type','axes');
-c = cell2mat(get(ax,'ylim'));
-set(ax,'ylim',[min(c(:)) max(c(:))]);
 
 %%
 
