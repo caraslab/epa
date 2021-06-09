@@ -44,8 +44,8 @@ par.metric = @epa.metric.vector_strength_cycle_by_cycle;
 % compute neurometric dprime for each Cluster independently
 dprimeThreshold = 1;
 
-figure(999);
-clf(999)
+figure
+% clf(999)
 tiledlayout('flow');
 
 for i = 1:numel(C)

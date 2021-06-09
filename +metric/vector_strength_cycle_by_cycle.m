@@ -36,7 +36,9 @@ for c = cvec
     VS = cellfun(@(th) sqrt(sum(cos(th).^2)+sum(sin(th).^2))./length(th),th);
     
     % compute vector strength with phase projection
-    VScc(:,k) = VS .* cos(phi_t - phi_c);
+    x = VS .* cos(phi_t - phi_c);
+    x(isnan(x)) = 0;
+    VScc(:,k) = x;
     k = k + 1;
 end
 
