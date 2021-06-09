@@ -1,4 +1,5 @@
 function [xfit,yfit,p_val] = fit_sigmoid(x,y,beta0)
+% 
 % [xfit,yfit,p_val] = fit_sigmoid(x,y,[beta0])
 % 
 % Adapted from caraslab/ephys-analysis/cl_fitneurometric.m
@@ -20,8 +21,8 @@ end
 %The parameters (p) that govern the function are:
 %p(1):  y0 = min
 %p(2):   a = max - min
-%p(3):   b = slope
-%p(4):  x0 = x coordinate at inflection point
+%p(3):  x0 = x coordinate at inflection point 
+%p(4):   b = slope
 f = @(p,x) p(1) + p(2) ./ (1 + exp(-(x-p(3))/p(4)));
 
 
