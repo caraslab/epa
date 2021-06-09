@@ -6,7 +6,8 @@ S_AM = [S.find_Session("Passive") S.find_Session("Aversive")];
 
 % process all Clusters independently
 C = [S_AM.Clusters];
-
+% C = S_AM.find_Cluster("cluster582");
+% C = [C{:}];
 
 % add a new property, called "neurodprime" only if it doesn't already exist
 % note: you don't need to add a property in this way.  You could just make
@@ -20,6 +21,9 @@ par = [];
 par.event = "AMdepth";
 par.referenceval = 0;
 par.window = [0 1];
+par.modfreq = 5;
+% par.metric = 'cl_calcpower';
+par.metric = 'tmtf';
 
 % compute neurometric dprime for each Cluster independently
 for i = 1:length(C)
@@ -49,12 +53,12 @@ for i = 1:length(S_AM)
         plot(C.neurodprime.vals,C.neurodprime.dprime,'-o');
         xlabel(par.event)
         ylabel('d''')
-        title({S(i).Name; C.TitleStr});
+        title({C.Session.Name; C.TitleStr});
         grid on
     end
 end
 
 %% fit
 
-x = 
+% x = 
 
