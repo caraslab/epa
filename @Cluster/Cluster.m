@@ -1,7 +1,5 @@
 classdef Cluster < handle & dynamicprops
-    % C = epa.Cluster(ID)
-    % C = epa.Cluster(ID,epa.Spike)
-    % C = epa.Cluster(id,samples,[waveforms])
+    % C = epa.Cluster(SessionObj,[ID],[Spiketimes],[SpikeWaveforms])
     
     
     properties
@@ -50,7 +48,6 @@ classdef Cluster < handle & dynamicprops
                 obj.SpikeTimes = SpikeTimes;
                 
             elseif nargin == 4
-                
                 obj.Waveforms = SpikeWaveforms;
             end
         end
