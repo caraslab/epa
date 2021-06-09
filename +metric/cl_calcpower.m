@@ -31,7 +31,7 @@ par.pad = 2; %Padding for the FFT. -1 corresponds to no padding,
 
 
 % par.fpass = [0 10]; %[fmin fmax]
-par.fpass = par.modulationfreq .* 2 .^([-1 1]);
+par.fpass = par.modfreq .* 2 .^([-1 1]);
 %Frequency band to be used in calculation.
 
 % par.Fs = fs;        %Sampling rate
@@ -55,7 +55,7 @@ for i = 1:length(trials)
     [spectra{i},f] = mtspectrumpt(trials{i},par,fscorr); 
     
     %Find the index value closest to MF
-    [~,idx{i}] = min(abs(f-par.modulationfreq));
+    [~,idx{i}] = min(abs(f-par.modfreq));
 end
 
 M = cellfun(@(a,b) a(b),spectra,idx);
