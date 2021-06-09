@@ -50,8 +50,14 @@ for i = 1:numel(C)
     % compute neurometric_dprime
     [dp,v] = C(i).neurometric_dprime(par);
     
+    
+    
+    
     % fit the data with a sigmoidal function
     [xfit,yfit,p_val] = fit_sigmoid(v,dp);
+    
+    
+    
     
     % determine where on the x-axis intersects with the neurometric curve
     % at dprimeThreshold
