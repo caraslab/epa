@@ -12,7 +12,9 @@ S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
 % "S_AM" Session objects.  you can always access the original Session
 % object data for each Cluster by using C(1).Session. remember that you are
 % only copying the object handles and not the actual data, so changing data
-% in "C" will will change the original data as well.
+% in "C" will will change the original data as well.  you could make an
+% independent copy of the data (instead of just copying the object handle)
+% by using the "copy" function. ex: C_copied = copy(C);
 C = [S_AM.Clusters];
 
 
