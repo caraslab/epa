@@ -56,9 +56,9 @@ for i = 1:numel(C)
     % determine where on the x-axis intersects with the neurometric curve
     % at dprimeThreshold
     if max(yfit) >= dprimeThreshold && min(yfit) <= dprimeThreshold
-        dprime_at_threshold = makima(yfit,xfit,dprimeThreshold);
+        value_at_threshold = makima(yfit,xfit,dprimeThreshold);
     else
-        dprime_at_threshold = nan;
+        value_at_threshold = nan;
     end
     
     
@@ -68,7 +68,7 @@ for i = 1:numel(C)
     C(i).neurodprime.xfit   = xfit;
     C(i).neurodprime.yfit   = yfit;
     C(i).neurodprime.p_val  = p_val;
-    C(i).neurodprime.dprimethreshold = dprime_at_threshold;
+    C(i).neurodprime.threshold = value_at_threshold;
     
     
     
@@ -78,7 +78,7 @@ for i = 1:numel(C)
     
     h = plot(v,dp,'--o', ...
         xfit,yfit,'-k', ...
-        dprime_at_threshold,dprimeThreshold,'+r');
+        value_at_threshold,dprimeThreshold,'+r');
     
     h(3).MarkerSize = 10;
     h(3).LineWidth = 2;
@@ -88,7 +88,7 @@ for i = 1:numel(C)
     
     title({C(i).Session.Name; ...
            C(i).TitleStr; ...
-           sprintf('\\it{threshold = %.2f; p = %.4f}',dprime_at_threshold,p_val)});
+           sprintf('\\it{threshold = %.2f; p = %.4f}',value_at_threshold,p_val)});
     
     grid on
 end
