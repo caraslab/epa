@@ -206,7 +206,7 @@ classdef DataBrowser < handle
             plottypes = epa.helper.plot_types;
             src.Items     = plottypes;
             src.ItemsData = plottypes;
-            src.Value     = 'PSTH_Raster';
+            src.Value     = 'PSTH';
         end
         
         
