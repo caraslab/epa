@@ -1,5 +1,21 @@
 classdef helper < handle
     methods (Static)
+        function add_paths(rootdir)
+            % add_paths([rootdir])
+            %
+            % add paths excluding '.git' paths and the rootdir itself
+            % (assumes it's a toolbox)
+            if nargin == 0 || isempty(rootdir)
+                rootdir = fullfile(epa.helper.rootdir,'+epa');
+            end
+            pths = genpath(rootdir);
+            c = strsplit(pths,';');
+            c(contains(c,'.git')|cellfun(@isempty,c)) = [];
+            c(ismember(c,rootdir)) = [];
+            addpath(c);
+        end
+        
+        
         function tok = tokenize(str,delimiters)
             if nargin < 2 || isempty(delimiters), delimiters = ','; end
             tok = textscan(str,'%s',-1,'delimiter',delimiters);
@@ -9,7 +25,6 @@ classdef helper < handle
         end
         
         function p = get_settable_properties(obj)
-            
             M = metaclass(obj);
                         
             p = M.PropertyList;
@@ -21,7 +36,6 @@ classdef helper < handle
             p(ismember(p,{'Cluster','ax','parent','handles', ...
                 'DataFormat','event','eventvalue', ...
                 'eventx','eventxvalue','eventy','eventyvalue'})) = [];
-            
         end
         
         

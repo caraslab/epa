@@ -31,15 +31,13 @@ classdef Session < handle
         add_TDTEvents(obj,TDTTankPath)
         
         function obj = Session(SamplingRate,Clusters,Events)
-            addpath(fullfile(epa.helper.rootdir,'+epa','metrics'));
-            addpath(fullfile(epa.helper.rootdir,'+epa','analysis'));
-            addpath(fullfile(epa.helper.rootdir,'+epa','Examples'));
-            
+            epa.helper.add_paths;
             
             if nargin >= 1 && ~isempty(SamplingRate), obj.SamplingRate = SamplingRate; end
             if nargin >= 2 && isa(Clusters,'epa.Cluster'), obj.Clusters = Clusters; end
             if nargin >= 3 && isa(Events,'epa.Event'), obj.Events = Events; end
         end
+        
         
         function add_Event(obj,varargin)
             
@@ -201,5 +199,6 @@ classdef Session < handle
         end
         
     end % methods (Access = public)
+    
     
 end
