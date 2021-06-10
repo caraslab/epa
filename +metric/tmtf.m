@@ -13,6 +13,11 @@ tvec = par.window(1):par.binsize:par.window(2)-par.binsize;
 h = cellfun(@(a) histcounts(a,tvec,'Normalization','countdensity'),trials,'uni',0);
 h = cell2mat(h)';
 
+if isempty(h)
+    M = nan;
+    return
+end
+
 L = 2^nextpow2(size(h,1));
 Y = fft(h,L,1);
 P2 = abs(Y./L);
@@ -24,5 +29,5 @@ f = Fs*(0:round(L/2))/L;
 [~,i] = min((f - par.modfreq).^2);
 M = mean(P1(i,:),1);
 
-end
+
 

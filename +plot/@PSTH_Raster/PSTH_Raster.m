@@ -75,8 +75,8 @@ classdef PSTH_Raster < epa.plot.PlotType
             
             if isempty(R) || isempty(R.ax) || ~ishandle(R.ax) || ~isvalid(R.ax)
                 axR = nexttile(obj.handles.tiledlayout);
-                axR.Layout.Tile = 2;
-                axR.Layout.TileSpan = [3 1];
+                axR.Layout.Tile = 1;
+                axR.Layout.TileSpan = [2 1];
             else
                 axR = R.ax;
             end

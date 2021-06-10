@@ -49,11 +49,11 @@ if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
         A = S;
     end
     
-    uv = E1.DistinctValues;
+    uv = obj.curEvent1Values;
 
     m = length(uv);
     
-    if m == 1 && n == 1
+    if obj.handles.FlowTiling.Value || m == 1 && n == 1
         t = tiledlayout('flow');
     else
         t = tiledlayout(n,m);
@@ -77,15 +77,17 @@ if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
             
             pObj(e,a).plot;
             
-            par.ax.Title.String{end+1} = sprintf('%s = %1g%s',E1.Name,uv(e),E1.Units);
+            if length(uv) > 1
+                pObj(e,a).ax.Title.String{end+1} = sprintf('%s = %1g%s',E1.Name,uv(e),E1.Units);
+            end
             
             if m > 1 && n > 1
                 if e > 1
-                    par.ax.YAxis.Label.String = '';
+                    pObj(e,a).ax.YAxis.Label.String = '';
                 end
                 
                 if a < length(A)
-                    par.ax.XAxis.Label.String = '';
+                    pObj(e,a).ax.XAxis.Label.String = '';
                 end
             end
         end
@@ -95,7 +97,7 @@ else
     m = length(C);
     n = length(S);
 
-    if m == 1 || n == 1
+    if  obj.handles.FlowTiling.Value || m == 1 || n == 1
         t = tiledlayout('flow');
     else
         t = tiledlayout(m,n);

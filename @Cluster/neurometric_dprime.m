@@ -45,7 +45,7 @@ par.eventvalue = 'all';
 par.referencevalue = [];
 par.window = [0 1];
 par.complete = false;
-par.metric = @averagefr;
+par.metric = @epa.metric.trial_firingrate;
 
 
 par = epa.helper.parse_params(par,varargin{:});
@@ -65,7 +65,7 @@ if ~par.complete
 end
 
 dV = unique(V(:));
-% uvals(uvals == par.referencevalue) = []; % might as well explicitly compute this
+dV(dV == par.referencevalue) = []; % don't calculate reference value against itself
 
 par.values = V(:);
 
@@ -94,4 +94,4 @@ else
     end
 end
 
-end
+

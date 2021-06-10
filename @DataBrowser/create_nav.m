@@ -209,6 +209,13 @@ h.Text = 'equal ylim';
 obj.handles.EqualYLim = h;
 
 
+h = uicheckbox(PlotOptGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row = 3;
+h.Text = 'flow tiling';
+obj.handles.FlowTiling = h;
+
+
 h = uibutton(PlotOptGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 4;

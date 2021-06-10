@@ -27,9 +27,10 @@ for c = cvec
     uv = unique(par.values);
     phi_c = nan(size(phi_t));
     for i = 1:length(uv)
+        % compute across all trials of the same stimulus
         ind = par.values == uv(i);
-        p = cellfun(phi,th(ind));
-        phi_c(ind) = mean(p);
+        th_subset = cell2mat(th(ind));
+        phi_c(ind) = phi(th_subset);
     end
     
     % compute normal vector strength
