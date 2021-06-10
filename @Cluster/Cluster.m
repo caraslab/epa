@@ -14,6 +14,8 @@ classdef Cluster < handle & dynamicprops
         Shank    (1,1) double {mustBePositive,mustBeFinite,mustBeInteger} = 1;
         Coords   (1,3) double {mustBeFinite} = [0 0 0];
         
+        UserData 
+        
         Note     (:,1) string   % User notes
         
         TitleStr (1,1) string   % auto generated if empty
