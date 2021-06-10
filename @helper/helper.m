@@ -12,7 +12,8 @@ classdef helper < handle
             c = strsplit(pths,';');
             c(contains(c,'.git')|cellfun(@isempty,c)) = [];
             c(ismember(c,rootdir)) = [];
-            addpath(c);
+            pths = strjoin(c,';');
+            addpath(pths);
         end
         
         
