@@ -14,6 +14,11 @@ function add_TDTEvents(obj,TDTTankPath)
 % TDTTankPath = DataPath;
 % S.add_TDTEvents(TDTTankPath);
 % 
+% 
+% The standard TDT data tank files (*.tin,*.tev,*.Tdx,*.Tbk,*.tnt,*.tsq)
+% are expected. Note that other files, like *.sev do not need to be located
+% there since only Event data is read by this function.  
+% 
 % DJS 2021
 
 narginchk(2,2)

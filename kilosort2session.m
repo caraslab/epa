@@ -23,11 +23,6 @@ function S = kilosort2session(DataPath)
 % 
 % Note that the asterisk, '*', is a wildcard that can stand for any string.
 % 
-% If specified, the standard TDT data tank files
-% (*.tin,*.tev,*.Tdx,*.Tbk,*.tnt,*.tsq) are expected. Note that other
-% files, like *.sev do not need to be located there since only Event data
-% is read by this function.  
-% 
 % 
 % DJS 2021
 
