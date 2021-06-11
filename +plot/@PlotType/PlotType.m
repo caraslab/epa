@@ -60,7 +60,8 @@ classdef (Abstract) PlotType < handle & dynamicprops
         end
         
         function show_infotext(obj)
-            obj.ax.Title.String{end+1} = obj.info;
+            str = char(obj.ax.Title.String);
+            obj.ax.Title.String = {[str ' ' obj.info]};
             obj.ax.Title.HorizontalAlignment = 'left';
             obj.ax.Title.Position(1) = obj.ax.XLim(1);
             obj.ax.Title.FontName = 'Consolas';
