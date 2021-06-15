@@ -39,60 +39,60 @@ par.showlegend = false;
 
 
 % vvvv sloppy code... clean up at some point vvvvv
-if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
-    
-    if length(S) == 1
-        n = length(C);
-        A = C;
-    else
-        n = length(S);
-        A = S;
-    end
-    
-    uv = obj.curEvent1Values;
-
-    m = length(uv);
-    
-    if obj.handles.FlowTiling.Value || m == 1 && n == 1
-        t = tiledlayout('flow');
-    else
-        t = tiledlayout(n,m);
-    end
-    
-    
-    for a = 1:length(A)
-        for e = 1:length(uv)
-            ax = nexttile(t);
-            
-            par.ax = ax;
-            
-            par.eventvalue = uv(e);
-            
-            if length(S) == 1
-                pObj(e,a) = feval(ps,A(a),par);
-            else
-                AC = A(a).find_Cluster(C.Name);
-                pObj(e,a) = feval(ps,AC,par);
-            end
-            
-            pObj(e,a).plot;
-            
-            if length(uv) > 1
-                pObj(e,a).ax.Title.String{end+1} = sprintf('%s = %1g%s',E1.Name,uv(e),E1.Units);
-            end
-            
-            if m > 1 && n > 1
-                if e > 1
-                    pObj(e,a).ax.YAxis.Label.String = '';
-                end
-                
-                if a < length(A)
-                    pObj(e,a).ax.XAxis.Label.String = '';
-                end
-            end
-        end
-    end
-else
+% if ~isequal(tmpObj.DataFormat,'2D') && (length(S) == 1 || length(C) == 1)
+%     
+%     if length(S) == 1
+%         n = length(C);
+%         A = C;
+%     else
+%         n = length(S);
+%         A = S;
+%     end
+%     
+%     uv = obj.curEvent1Values;
+% 
+%     m = length(uv);
+%     
+%     if obj.handles.FlowTiling.Value || m == 1 && n == 1
+%         t = tiledlayout('flow');
+%     else
+%         t = tiledlayout(n,m);
+%     end
+%     
+%     
+%     for a = 1:length(A)
+%         for e = 1:length(uv)
+%             ax = nexttile(t);
+%             
+%             par.ax = ax;
+%             
+%             par.eventvalue = uv(e);
+%             
+%             if length(S) == 1
+%                 pObj(e,a) = feval(ps,A(a),par);
+%             else
+%                 AC = A(a).find_Cluster(C.Name);
+%                 pObj(e,a) = feval(ps,AC,par);
+%             end
+%             
+%             pObj(e,a).plot;
+%             
+%             if length(uv) > 1
+%                 pObj(e,a).ax.Title.String{end+1} = sprintf('%s = %1g%s',E1.Name,uv(e),E1.Units);
+%             end
+%             
+%             if m > 1 && n > 1
+%                 if e > 1
+%                     pObj(e,a).ax.YAxis.Label.String = '';
+%                 end
+%                 
+%                 if a < length(A)
+%                     pObj(e,a).ax.XAxis.Label.String = '';
+%                 end
+%             end
+%         end
+%     end
+% else
 
     m = length(C);
     n = length(S);
@@ -115,10 +115,10 @@ else
             pObj(c,s).plot;
         end
     end
-end
+% end
 
 
-if obj.handles.EqualYLim.Value == 1
+if obj.handles.EqualYLim.Value == 1 && numel(ax) > 1
     ax = findobj(obj.Par.parent,'type','axes');
     y = cell2mat(get(ax,'ylim'));
     set(ax,'ylim',[min(y(:,1)) max(y(:,2))]);

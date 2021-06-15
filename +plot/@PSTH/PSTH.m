@@ -54,30 +54,26 @@ classdef PSTH < epa.plot.PlotType
             
             [c,b,uv] = C.psth(obj);
             
-            cm = epa.helper.colormap(obj.colormap,size(c,1));
+%             cm = epa.helper.colormap(obj.colormap,size(c,1));
             
             cla(axe,'reset');
-            hold(axe,'on')
             
             if obj.showeventonset
                 obj.handles.eventonset = line(axe,[0 0],[0 max(c(:))*1.1],'color',[0.6 0.6 0.6],'linewidth',1,'tag','ZeroMarker');
             end
             
-            for i = 1:size(c,1)
-                obj.handles.plot(i) = histogram(axe, ...
-                    'BinEdges',b, ...
-                    'BinCounts',c(i,:), ...
-                    'FaceColor',cm(i,:), ...
-                    'EdgeColor','none', ...
-                    'EdgeAlpha',0.6, ...
-                    'FaceAlpha',1, ...
-                    'DisplayName',sprintf('%s = %g%s',E.Name,uv(i),E.Units), ...
-                    'Tag',sprintf('%s = %g%s',E.Name,uv(i),E.Units));
-            end
-            hold(axe,'off')
+            b = [b; b+obj.binsize];
+            b = b(:)';
             
-            if size(c,1) > 1
-                set([obj.handles.plot],'FaceAlpha',0.7);
+            b = [b b(end) b(1)];
+            
+            mc = max(c(:));
+            for i = 1:length(uv)
+                x = c(i,:);
+                x = [x; x];
+                x = x(:)';
+                x = [x 0 0];
+                obj.handles.plot(i) = patch(axe,b,(i-1)*mc+x,[0 0 0]);
             end
             
             xlabel(axe,'time (s)');

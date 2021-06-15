@@ -7,10 +7,13 @@ classdef Raster < epa.plot.PlotType
         
         window         (1,2) double {mustBeFinite} = [0 1];
         
-        showeventonset (1,1) logical = true;
-        
         sortevents     (1,:) char {mustBeMember(sortevents,{'original','events'})} = 'original';
         
+        markersize     (1,1) double {mustBePositive,mustBeFinite} = 2;
+        markerstyle    (1,:) char {mustBeMember(markerstyle,{'plus','circle','asterisk','point','x','square','diamond','downtriangle','triangle','righttriangle','lefttriangle','pentagram','hexagram','vbar','hbar','none'})} = 'vbar';
+        
+        showeventonset (1,1) logical = true;
+        showeventlabel (1,1) logical = true;    
     end
     
     
@@ -42,14 +45,7 @@ classdef Raster < epa.plot.PlotType
             cla(axe,'reset');
 
             
-            S = obj.Cluster.Session;
             C = obj.Cluster;
-            
-
-            if ~isa(obj.event,'epa.Event')
-                obj.event = S.find_Event(obj.event);
-            end
-            E = obj.event;
 
             par = epa.helper.obj2par(obj);
             
@@ -61,51 +57,56 @@ classdef Raster < epa.plot.PlotType
                 return
             end
             
+
+
             uv = unique(v);
-            
-            
-            cm = epa.helper.colormap(par.colormap,numel(uv));
-            
-            % TODO: OPTION TO SHADE BEHIND SPIKES BASED ON EVENT
-            
-            if par.showeventonset
-                par.handles.eventonset = line(axe,[0 0],[0 max(eidx)+1],'color',[0.6 0.6 0.6],'linewidth',1,'tag','ZeroMarker');
-            end
-            
-            if isfield(obj.handles,'raster'), obj.handles = rmfield(obj.handles,'raster'); end
             for i = 1:length(uv)
-                ind = uv(i) == v;
-                obj.handles.raster(i) = line(axe,t(ind),eidx(ind),'color',cm(i,:), ...
-                    'linestyle','none','marker','.', ...
-                    'markersize',2,'markerfacecolor',cm(i,:), ...
-                    'DisplayName',sprintf('%g%s',uv(i),E.Units), ...
-                    'Tag',sprintf('%s_%s = %g%s',C.TitleStr,E.Name,uv(i),E.Units));
+                idx = find(uv(i) == v,1);
+                sep(i) = eidx(idx)-1;
+                obj.handles.seperator(i) = line(axe,par.window,[1 1].*sep(i),'color',[0.8 0.8 0.8]);
             end
             
-            
+            obj.handles.raster = line(axe,t,eidx, ...
+                'linestyle','none','color',[0 0 0], ...
+                'markersize',obj.markersize,'marker','.');
+                
             axe.XLim = par.window;
             axe.YLim = [min(eidx)-1 max(eidx)+1];
             
             axe.XAxis.TickDirection = 'out';
             axe.YAxis.TickDirection = 'out';
             
+            tv = [diff(sep)./2 (max(eidx)-sep(end))./2+sep(end)];
+            axe.YAxis.TickValues = tv;
+            axe.YAxis.TickLabels = num2str(uv);
+            
+            if isa(par.event,'epa.Event')
+                axe.YAxis.Label.String = par.event.Name;
+            else
+                axe.YAxis.Label.String = par.event;
+            end
+            axe.YAxis.Label.FontSize = 10;
+            axe.YAxis.FontSize = 8;
+            
+            axe.XAxis.Label.String = 'time (s)';
+            axe.XAxis.Label.FontSize = 10;
+            axe.XAxis.FontSize = 8;
+            
             if par.showlegend
                 legend([par.handles.raster],'location','EastOutside');
             end
             
-            switch lower(par.sortevents)
-                case 'original'
-                    ylabel(axe,'trial');
-                case 'events'
-                    ylabel(axe,'by event');
-            end
+%             switch lower(par.sortevents)
+%                 case 'original'
+%                     ylabel(axe,'trial');
+%                 case 'events'
+%                     ylabel(axe,'by event');
+%             end
             
-            
-            xlabel(axe,'time (s)');
                         
             % uncertain why, but this needs to be at the end to work properly
             drawnow
-            set([obj.handles.raster.MarkerHandle],'Style','vbar');
+            set([obj.handles.raster.MarkerHandle],'Style',obj.markerstyle);
             
 
             obj.standard_plot_postamble;

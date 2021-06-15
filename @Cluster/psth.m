@@ -50,4 +50,4 @@ for i = 1:length(uv)
         c(i,:) = hc;
     end
 end
-
+b(end) = [];
