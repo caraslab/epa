@@ -1,6 +1,6 @@
 function [n,lags] = interspike_interval(obj,varargin)
 % [n,lags] = interspike_interval(ClusterObj,par)
-% [n,lags] = interspike_interval(ClusterObj,'Name','Value',...)
+% [n,lags] = interspike_interval(ClusterObj,'Name',Value,...)
 % interspike_interval(ClusterObj,...)
 % 
 % Compute interspike interval for Cluster object.
