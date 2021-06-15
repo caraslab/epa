@@ -319,15 +319,26 @@ classdef DataBrowser < handle
         end
         
         function select_cluster_updated(obj,src,event)
+            h = obj.handles;
             c = obj.curClusters;
             if isempty(c)
-                obj.handles.PlotButton.Enable = 'off';
+                h.PlotButton.Enable = 'off';
+                h.SelectClusters.handle.Tooltip = "";
             else
-                obj.handles.PlotButton.Enable = 'on';
+                h.PlotButton.Enable = 'on';
+                if numel(c) == 1
+                    if isempty(c.Note)
+                        h.SelectClusters.handle.Tooltip = c.TitleStr;
+                    else
+                        h.SelectClusters.handle.Tooltip = c.Note;
+                    end
+                else
+                    h.SelectClusters.handle.Tooltip = {c.TitleStr};
+                end
             end
         end
         
-        function process_keys(obj,src,event)
+        function clusternote_updated(obj,src,event)
             
         end
         
@@ -427,6 +438,13 @@ classdef DataBrowser < handle
                 rethrow(me)
             end
         end
+        
+        
+        
+        function process_keys(obj,src,event)
+            
+        end
+        
     end
     
 end
