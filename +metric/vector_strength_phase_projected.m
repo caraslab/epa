@@ -1,5 +1,6 @@
-function M = vector_strength_phase_projected(trials,par)
+function [M,VS,phi_t,phi_c] = vector_strength_phase_projected(trials,par)
 % M = vector_strength_phase_projected(trials,par)
+% [M,VS,phi_t,phi_c] = vector_strength_phase_projected(trials,par)
 % 
 % Yin et al, 2010, J. Neurophysiol 105: 582-600, 2011
 
