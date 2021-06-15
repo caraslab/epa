@@ -39,6 +39,7 @@ classdef Cluster < handle & dynamicprops
         [c,b,v] = psth(obj,varargin)
         [dprime,vals,M,V] = neurometric_dprime(obj,varargin)
         [n,lags] = interspike_interval(obj,varargin)
+        [r,lags] = xcorr(obj,varargin)
         
         function obj = Cluster(SessionObj,ID,SpikeTimes,SpikeWaveforms)
             
