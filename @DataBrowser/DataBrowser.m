@@ -215,7 +215,6 @@ classdef DataBrowser < handle
             
             h = obj.handles;
             
-            
             if nargin > 1 && isequal(src,'init')
                 a = evalin('base','whos'); 
                 ind = ismember({a.class},'epa.Session');
@@ -269,9 +268,27 @@ classdef DataBrowser < handle
             h.SelectEvent2Values.Enable    = 'on';
             
             
-            C = S.common_Clusters;
             E = S.common_Events;
+
+            if isempty(E)
+                h.SelectEvent1.handle.Enable   = 'off';
+                h.SelectEvent2.handle.Enable   = 'off';
+                h.SelectEvent1Values.Enable    = 'off';
+                h.SelectEvent2Values.Enable    = 'off';
+                uialert(obj.parent,'No Events were found to be in common across the selected Sessions.', ...
+                    'No Events','Icon','warning','Modal',true);
+                return
+            end
             
+                            
+            C = S.common_Clusters;
+            
+            selectedUnitTypes = string(h.UnitTypeListbox.Value);
+            if isempty(selectedUnitTypes)
+                selectedUnitTypes = h.UnitTypeListbox.Items;
+            end
+            ind = ismember([C.Type],selectedUnitTypes);
+            C(~ind) = [];
             
             if isempty(C)
                 h.SelectClusters.handle.Enable = 'off';
@@ -282,19 +299,11 @@ classdef DataBrowser < handle
             end
             h.PlotButton.Enable = 'on';
             
-            if isempty(E)
-                h.SelectEvent1.handle.Enable   = 'off';
-                h.SelectEvent2.handle.Enable   = 'off';
-                h.SelectEvent1Values.Enable    = 'off';
-                h.SelectEvent2Values.Enable    = 'off';
-                uialert(obj.parent,'No Events were found to be in common across the selected Sessions.', ...
-                    'No Events','Icon','warning','Modal',true);
-                return
-            end
-                            
             h.SelectClusters.Object = C;
-            h.SelectEvent1.Object   = E;
-                        
+            h.SelectClusters.handle.Items = {C.TitleStr};
+            obj.select_cluster_updated;
+            
+            h.SelectEvent1.Object   = E;                        
             obj.select_event_updated(h.SelectEvent1);
             if length(E) > 1
                 h.SelectEvent2.Object  = E;

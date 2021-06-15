@@ -97,16 +97,31 @@ h = uitab(tg,'Title','Clusters');
 obj.handles.ClustersTab = h;
 
 ClustGrid = uigridlayout(h);
-ClustGrid.ColumnWidth = {'1x'};
-ClustGrid.RowHeight   = {'1x'};
+ClustGrid.ColumnWidth = {'1x','1x'};
+ClustGrid.RowHeight   = [{'1x'},repmat({25},1,5)];
 obj.handles.ClustGrid = ClustGrid;
 
 h = epa.ui.SelectObject(ClustGrid,'epa.Cluster','uilistbox');
+h.handle.Layout.Row = 1;
+h.handle.Layout.Column = [1 2];
 h.handle.Enable = 'off';
 h.handle.Tag = 'SelectClusters';
 h.handle.Multiselect = 'on';
 h.handle.Tooltip = 'Select Clusters';
 obj.handles.SelectClusters = h;
+
+h = uilistbox(ClustGrid,'Tag','UnitTypeList');
+h.Layout.Row = [2 3];
+h.Layout.Column = 1;
+h.Multiselect = 'on';
+h.Items = ["SU","MSU","MU","Noise"];
+h.Tooltip = 'Filter by Cluster type';
+h.ValueChangedFcn = @obj.select_session_updated;
+obj.handles.UnitTypeListbox = h;
+
+
+
+
 
 % select ClustersTab by default
 obj.handles.DataTypeTabGroup.SelectedTab = obj.handles.ClustersTab;
