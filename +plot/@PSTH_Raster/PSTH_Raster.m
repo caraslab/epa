@@ -2,17 +2,15 @@ classdef PSTH_Raster < epa.plot.PlotType
     
     
     properties (SetObservable, AbortSet)
-        
-        event           % event name
-        eventvalue     (1,:)
-        
         binsize        (1,1) double {mustBeNonempty,mustBePositive,mustBeFinite} = 0.01;
         window         (1,2) double {mustBeNonempty,mustBeFinite} = [0 1];
         normalization  (1,:) char {mustBeNonempty,mustBeMember(normalization,{'count','firingrate','countdensity','probability','cumcount','cdf','pdf'})} = 'count';
         showeventonset (1,1) logical {mustBeNonempty} = true;
         
+        orientation    (1,1) string {mustBeMember(orientation,["vertical","horizontal"])} = "horizontal";
+        stacking       (1,1) string {mustBeMember(stacking,["seperate","unified"])} = "unified";
         
-        sortevents     (1,:) char {mustBeMember(sortevents,{'original','events'})} = 'original';
+        
     end
     
     
@@ -51,6 +49,9 @@ classdef PSTH_Raster < epa.plot.PlotType
             par = rmfield(par,{'Cluster','DataFormat'});
             fn  = fieldnames(par);
 
+            
+            
+            
             %obj.setup_plot; % do not call here
             if isempty(obj.handles)
                 obj.ax = gca;
@@ -59,7 +60,20 @@ classdef PSTH_Raster < epa.plot.PlotType
                 
                 obj.ax.Visible = 'off';
                 
-                t = tiledlayout(obj.ax.Parent,10,1);
+                
+                
+                switch obj.orientation
+                    case "vertical"
+                        r = 2;
+                        c = 1;
+                    case "horizontal"
+                        r = 1;
+                        c = 2;
+                end
+                
+                
+                t = tiledlayout(obj.ax.Parent,r,c);
+                
                 t.Padding = 'none';
                 t.TileSpacing = 'none';
                 
@@ -73,13 +87,19 @@ classdef PSTH_Raster < epa.plot.PlotType
             
             
             
+%                 switch obj.stacking
+%                     case "seperate"
+%                        
+%                     case "unified"
+%                 end
+%                 
             
             % Raster
             R = obj.Raster;
             if isempty(R) || isempty(R.ax) || ~ishandle(R.ax) || ~isvalid(R.ax)
-                axR = nexttile(obj.handles.tiledlayout);
+                axR = nexttile(t);
                 axR.Layout.Tile = 1;
-                axR.Layout.TileSpan = [2 1];
+%                 axR.Layout.TileSpan = 1;
             else
                 axR = R.ax;
             end
@@ -90,8 +110,15 @@ classdef PSTH_Raster < epa.plot.PlotType
             parv = [fn parv]';
             R = epa.plot.Raster(obj.Cluster,parv{:});
             R.plot;
-            axR.XAxis.Color = 'none';
-            axR.XAxis.Label.String = 'none';
+            
+            switch obj.orientation
+                case "vertical"
+                    %axR.XAxisLocation = 'top';
+                    axR.YAxisLocation = 'right';
+                    axR.XAxis.Color = 'none';
+                case "horizontal"
+                    axR.XAxis.Label.String = 'time (s)';
+            end
             
             obj.Raster = R;
             
@@ -104,8 +131,8 @@ classdef PSTH_Raster < epa.plot.PlotType
             P = obj.PSTH;
             if isempty(P) || isempty(P.ax) || ~ishandle(P.ax) || ~isvalid(P.ax)
                 axP = nexttile(t);
-                axP.Layout.Tile = 3;
-                axP.Layout.TileSpan = [7 1];
+                axP.Layout.Tile = 2;
+%                 axP.Layout.TileSpan = 1;
             else
                 axP = P.ax;
             end
@@ -118,13 +145,35 @@ classdef PSTH_Raster < epa.plot.PlotType
             P.plot;
             axP.Color = 'none';
             
+            switch obj.orientation
+                case "vertical"
+                   
+                case "horizontal"
+                    axP.YAxisLocation = 'right';
+            end
+            
             obj.PSTH = P;
+            
+            
+            
+            
+            
+            
+            
+            
+            
             
             t.Toolbar = axtoolbar;
             
             epa.helper.setfont(obj.ax);
             
             linkaxes([axR axP],'x');
+            
+            
+            
+            
+            
+            
             
             obj.handles.Raster = R.handles;
             obj.handles.PSTH   = P.handles;

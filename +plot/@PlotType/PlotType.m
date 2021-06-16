@@ -13,8 +13,8 @@ classdef (Abstract) PlotType < handle & dynamicprops
     
     
     properties (SetObservable,AbortSet)
-        Cluster        (1,1) %epa.Cluster
-        colormap      = [];
+        Cluster         (1,1) %epa.Cluster
+        colormap = [];
         
         showtitle       (1,1) logical = true
         title
@@ -22,9 +22,12 @@ classdef (Abstract) PlotType < handle & dynamicprops
         
         showinfo        (1,1) logical = true
         info
-        infofontsize   (1,1) double {mustBePositive,mustBeFinite,mustBeNonempty} = 8;
+        infofontsize    (1,1) double {mustBePositive,mustBeFinite,mustBeNonempty} = 8;
         
-        showlegend     (1,1) logical {mustBeNonempty} = false;
+        showlegend      (1,1) logical {mustBeNonempty} = false;
+        
+        event           (1,1) %epa.Event
+        eventvalue      (1,:)
     end
     
     properties
@@ -54,6 +57,7 @@ classdef (Abstract) PlotType < handle & dynamicprops
             obj.els = epa.helper.listen_for_props(obj,@obj.plot);
         end
         
+        
         function set.listenforchanges(obj,tf)
             obj.listenforchanges = tf;
             obj.els.Enabled = tf;
@@ -69,6 +73,13 @@ classdef (Abstract) PlotType < handle & dynamicprops
 %             obj.ax.TitleFontSizeMultiplier = .8;
         end
         
+        
+        function evnt = get.event(obj)
+            if ~isa(obj.event,'epa.Event') && isa(obj.Cluster,'epa.Cluster')
+                obj.event = obj.Cluster.Session.find_Event(obj.event);
+            end
+            evnt = obj.event;
+        end
         
         function s = get.info(obj)
             if isequal(obj.Cluster,0)

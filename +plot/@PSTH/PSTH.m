@@ -2,9 +2,6 @@ classdef PSTH < epa.plot.PlotType
     
     
     properties (SetObservable, AbortSet)
-        event           % event name
-        eventvalue     (1,:)
-        
         binsize        (1,1) double {mustBeNonempty,mustBePositive,mustBeFinite} = 0.01;
         window         (1,2) double {mustBeNonempty,mustBeFinite} = [0 1];
         normalization  (1,:) char {mustBeNonempty,mustBeMember(normalization,{'count','firingrate','countdensity','probability','cumcount','cdf','pdf'})} = 'firingrate';
@@ -45,9 +42,7 @@ classdef PSTH < epa.plot.PlotType
             cla(axe,'reset');
             
             
-            if ~isa(obj.event,'epa.Event')
-                obj.event = S.find_Event(obj.event);
-            end
+            
                         
             
             [c,b,uv] = C.psth(obj);

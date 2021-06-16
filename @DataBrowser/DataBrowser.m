@@ -373,11 +373,13 @@ classdef DataBrowser < handle
                 h.ParameterEdit.Value = mat2str(v);
             end
             
-            p = obj.plotMeta.PropertyList;
-            p = p(ismember({p.Name},pv));
-            str = epa.helper.metaprop2str(p);
-            
-            h.ParameterEdit.Tooltip = str;
+            if ~isempty(obj.plotMeta)
+                p = obj.plotMeta.PropertyList;
+                p = p(ismember({p.Name},pv));
+                str = epa.helper.metaprop2str(p);
+                
+                h.ParameterEdit.Tooltip = str;
+            end
         end
         
         function parameter_edit(obj,src,event)

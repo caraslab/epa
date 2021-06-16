@@ -1,10 +1,7 @@
 classdef Raster < epa.plot.PlotType
     
     
-    properties (SetObservable, AbortSet)        
-        event           % event name
-        eventvalue     (1,:)
-        
+    properties (SetObservable, AbortSet)
         window         (1,2) double {mustBeFinite} = [0 1];
         
         sortevents     (1,:) char {mustBeMember(sortevents,{'original','events'})} = 'original';
@@ -46,14 +43,17 @@ classdef Raster < epa.plot.PlotType
 
             
             C = obj.Cluster;
-
+            if ~isa(obj.event,'epa.Event')
+                obj.event = S.find_Event(obj.event);
+            end
+            
             par = epa.helper.obj2par(obj);
             
             [t,eidx,v] = C.eventlocked(par);
             
             
             if isempty(eidx)
-                fprintf(2,'No data found for event "%s" in cluster "%s"\n',E.Name,C.Name)
+                fprintf(2,'No data found for event "%s" in cluster "%s"\n',obj.event.Name,C.Name)
                 return
             end
             
