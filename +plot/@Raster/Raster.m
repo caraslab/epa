@@ -69,9 +69,16 @@ classdef Raster < epa.plot.PlotType
             obj.handles.raster = line(axe,t,eidx, ...
                 'linestyle','none','color',[0 0 0], ...
                 'markersize',obj.markersize,'marker','.');
+            
+            
                 
             axe.XLim = par.window;
             axe.YLim = [min(eidx)-1 max(eidx)+1];
+            
+            
+            obj.handles.onset = line(axe,[0 0],axe.YLim, ...
+                'color',[.6 .6 .6],'Visible',obj.showeventonset);
+            
             
             axe.XAxis.TickDirection = 'out';
             axe.YAxis.TickDirection = 'out';
