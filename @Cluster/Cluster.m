@@ -35,7 +35,7 @@ classdef Cluster < handle & dynamicprops
     
     methods
         [t,eidx,vid] = eventlocked(obj,varargin)
-        [trials,V]   = triallocked(obj,varargin)
+        [trials,V,eidx]   = triallocked(obj,varargin)
         [c,b,v] = psth(obj,varargin)
         [dprime,vals,M,V] = neurometric_dprime(obj,varargin)
         [n,lags] = interspike_interval(obj,varargin)

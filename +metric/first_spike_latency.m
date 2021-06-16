@@ -34,38 +34,57 @@ par = epa.helper.parse_params(par,varargin{:});
 mustBePositive([par.minlag par.maxlag]);
 mustBeFinite([par.minlag par.maxlag]);
 
-st = cell2mat(trials);
-
-n = length(trials);
-
-lambda = sum(st >= par.minlag-par.windur & st < par.minlag)./n;
-thr = poissinv(par.p_value,lambda);
-
-
+t = nan(size(trials));
 
 tvec = par.minlag:par.windur:par.maxlag;
-ct = cell(n,1);
-for i = 1:length(tvec)-1
-    for j = 1:n
-        ind = trials{j} >= tvec(i) & trials{j} < tvec(i+1);
-        ct{j}(i) = sum(ind);
+    
+uv = unique(par.values);
+
+lambda = nan(size(uv));
+thr = lambda;
+for k = 1:length(uv)
+    ind = par.values == uv(k);
+    n = sum(ind);
+
+    kidx = find(ind);
+    
+    ktrials = trials(ind);
+    
+    st = cell2mat(ktrials);
+    
+    % average spike count preceeding minimum lag
+    lambda(k) = sum(st >= par.minlag-par.windur & st < par.minlag)./n;
+    
+    % threshold assuming poisson distribution with mean of lambda
+    thr(k) = poissinv(par.p_value,lambda(k));   
+    
+    % bin spikes by par.windur between par.minlag and par.maxlag
+    ct = cell(n,1);
+    for i = 1:length(tvec)
+        for j = 1:n
+            ind = ktrials{j} >= tvec(i) & ktrials{j} < tvec(i)+par.windur;
+            ct{j}(i) = sum(ind);
+        end
     end
+    
+    for i = 1:n
+        % find earliest bin with spike count greater than or equal to threshold
+        idx = find(ct{i} >= thr(k),1);
+        
+        if isempty(idx), continue; end
+        
+        % first spike bin
+        fsb = tvec(idx);
+        
+        % first spike within bin
+        fsidx = find(ktrials{i}>=fsb&ktrials{i}<par.maxlag,1);
+        
+        if isempty(fsidx), continue; end
+        
+        t(kidx(i)) = ktrials{i}(fsidx);
+    end
+    
 end
-
-t = nan(n,1);
-for i = 1:n
-    idx = find(ct{i} >= thr,1);
-    
-    if isempty(idx), continue; end
-   
-    fsb = tvec(idx);
-    
-    fsidx = find(trials{i}>=fsb,1);
-    
-    t(i) = trials{i}(fsidx);
-end
-
-
 
 
 
