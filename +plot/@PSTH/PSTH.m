@@ -48,32 +48,37 @@ classdef PSTH < epa.plot.PlotType
             if ~isa(obj.event,'epa.Event')
                 obj.event = S.find_Event(obj.event);
             end
-            
-            E = obj.event;
-            
+                        
             
             [c,b,uv] = C.psth(obj);
-            
-%             cm = epa.helper.colormap(obj.colormap,size(c,1));
+            nvals = length(uv);
+            % cm = epa.helper.colormap(obj.colormap,size(c,1));
             
             cla(axe,'reset');
             
-            if obj.showeventonset
-                obj.handles.eventonset = line(axe,[0 0],[0 max(c(:))*1.1],'color',[0.6 0.6 0.6],'linewidth',1,'tag','ZeroMarker');
-            end
-            
             b = [b; b+obj.binsize];
             b = b(:)';
-            
             b = [b b(end) b(1)];
             
             mc = max(c(:));
-            for i = 1:length(uv)
-                x = c(i,:);
-                x = [x; x];
-                x = x(:)';
-                x = [x 0 0];
-                obj.handles.plot(i) = patch(axe,b,(i-1)*mc+x,[0 0 0]);
+            for i = 1:nvals
+                x = [c(i,:); c(i,:)];
+                x = [x(:)' 0 0];
+                x = (i-1)*mc+x;
+                obj.handles.plot(i) = patch(axe,b,x,[0 0 0]);
+                
+                str = sprintf('%s = %g%s',obj.event.Name,uv(i),obj.event.Units);
+                obj.handles.label(i) = text(axe,max(b),i*mc-0.05*mc,str);
+            end
+            
+            set(obj.handles.label,'HorizontalAlignment','right', ...
+                'VerticalAlignment','top', ...
+                'FontName','Consolas', ...
+                'FontSize',8);
+            
+            if obj.showeventonset
+                obj.handles.eventonset = line(axe,[0 0],[0 nvals*mc], ...
+                    'color',[0.6 0.6 0.6],'linewidth',1,'tag','ZeroMarker');
             end
             
             xlabel(axe,'time (s)');
@@ -85,14 +90,31 @@ classdef PSTH < epa.plot.PlotType
                     ylabel(axe,obj.normalization);
             end
             
-            
-            
+            axe.YLim = [0 nvals*mc];
             axe.XLim = obj.window;
             
             axe.XAxis.TickDirection = 'out';
             axe.YAxis.TickDirection = 'out';
             
-            axis(axe,'tight');
+            tv = []; tvl = [];
+            for i = 1:nvals
+                y = floor(linspace(0,mc,5));
+                tvl = [tvl y];
+                tv  = [tv y+(i-1)*mc];
+            end
+            ind = tvl == 0;
+            tv(ind) = []; tvl(ind) = [];
+            tv = [0 tv]; tvl = [0 tvl];
+            axe.YAxis.TickValues = tv;
+            axe.YAxis.TickLabels = tvl;
+            
+            axe.YAxis.Label.FontSize = 10;
+            axe.YAxis.FontSize = 8;
+            
+            axe.XAxis.Label.String = 'time (s)';
+            axe.XAxis.Label.FontSize = 10;
+            axe.XAxis.FontSize = 8;
+            
 
             obj.standard_plot_postamble;
             
