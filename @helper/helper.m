@@ -9,11 +9,10 @@ classdef helper < handle
                 rootdir = fullfile(epa.helper.rootdir,'+epa');
             end
             pths = genpath(rootdir);
-            c = strsplit(pths,';');
+            c = strsplit(pths,{';',':'});
             c(contains(c,'.git')|cellfun(@isempty,c)) = [];
             c(ismember(c,rootdir)) = [];
-            pths = strjoin(c,';');
-            addpath(pths);
+            addpath(c{:});
         end
         
         

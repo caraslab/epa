@@ -83,8 +83,7 @@ classdef Raster < epa.plot.PlotType
             axe.XAxis.TickDirection = 'out';
             axe.YAxis.TickDirection = 'out';
             
-            tv = [diff(sep)./2 (max(eidx)-sep(end))./2+sep(end)];
-            axe.YAxis.TickValues = tv;
+            axe.YAxis.TickValues = sep;
             axe.YAxis.TickLabels = num2str(uv);
             
             if isa(par.event,'epa.Event')

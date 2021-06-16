@@ -1,11 +1,12 @@
 %% Create a new Session object(s)
 
 
-DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-228-210219-122948/Organized/210223_concat_organized';
+DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-228-210219-122948/Concat with FreqTuning/210227_concat';
 
 S = epa.kilosort2session(DataPath);
 
-TDTTankPath = DataPath;
+TDTTankPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-228-210219-122948/Concat with FreqTuning/Organized/210227_concat_organized';
+
 S.add_TDTEvents(TDTTankPath);
 
 % S.add_TDTStreams(TDTTankPath);

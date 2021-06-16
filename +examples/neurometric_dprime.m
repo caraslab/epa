@@ -5,6 +5,7 @@
 S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
 
 
+%% 
 
 
 % process all Clusters independently.
@@ -17,6 +18,7 @@ S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
 % by using the "copy" function. ex: C_copied = copy(C);
 C = [S_AM.Clusters];
 
+%% 
 
 
 
@@ -43,6 +45,8 @@ par.metric = @epa.metric.vector_strength_cycle_by_cycle;
 
 % compute neurometric dprime for each Cluster independently
 dprimeThreshold = 1;
+
+%% 
 
 figure
 % clf(999)
