@@ -1,18 +1,18 @@
 %% Create a new Session object(s)
 
 
-DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-228-210219-122948/Concat with FreqTuning/210227_concat';
+DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/210611_concat';
 
 S = epa.kilosort2session(DataPath);
 
-TDTTankPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-228-210219-122948/Concat with FreqTuning/Organized/210227_concat_organized';
+TDTTankPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/Tank/210611';
 
 S.add_TDTEvents(TDTTankPath);
 
 % S.add_TDTStreams(TDTTankPath);
 
 %% DataBrowser GUI finds valid Session objects in the base workspace
-
+S.remove_Event("Cam1")
 D = epa.DataBrowser;
 
 %% Access currently selected data in the DataBrowser
