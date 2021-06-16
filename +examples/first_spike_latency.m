@@ -22,18 +22,25 @@ par.window = [-.2 0.4];
 par.values = values;
 
 
-
-par.minlag = 0.05;
+% speciy parameters for first_spike_latency function
+par.minlag = 0.1;
 par.maxlag = 0.25;
-par.windur = 0.005;
-par.p_value = 0.95;
+par.windur = 0.01;
+par.p_value = 0.99;
 
-firstSpikeLatency = epa.metric.first_spike_latency(trials,par);
+[firstSpikeLatency,thr,lambda] = epa.metric.first_spike_latency(trials,par);
 
-figure(999);
-clf
 
-subplot(211)
+
+
+% plot result
+figure;
+
+subplot(311)
+p = epa.plot.PSTH(C,par);
+p.plot;
+
+subplot(312)
 p = epa.plot.Raster(C,par);
 p.markerstyle = 'point';
 p.markersize = 10;
@@ -43,7 +50,7 @@ hold(p.ax,'on');
 plot(p.ax,firstSpikeLatency,eidx,'or','markersize',5);
 
 
-subplot(212)
+subplot(313)
 x = par.minlag:par.windur:par.maxlag;
 uv = unique(values);
 cla
@@ -57,6 +64,8 @@ xlim(par.window);
 xlabel('time to first spike');
 ylabel('probability');
 grid on
+
+title(sprintf('\\lambda = %.4f',lambda));
 
 h = legend(num2str(uv));
 h.Title.String = par.event.Name;

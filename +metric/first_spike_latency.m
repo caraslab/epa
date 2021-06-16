@@ -1,7 +1,7 @@
-function [t,thr] = first_spike_latency(trials,varargin)
+function [t,thr,lambda] = first_spike_latency(trials,varargin)
 % t = first_spike_latency(ClusterObj,par)
 % t = first_spike_latency(ClusterObj,'Name',value,...)
-% [t,thr] = first_spike_latency(ClusterObj,...)
+% [t,thr,lambda] = first_spike_latency(ClusterObj,...)
 %
 % Find latency to first spike of each trial constrained by par.minlag and
 % par.maxlag.
@@ -19,14 +19,16 @@ function [t,thr] = first_spike_latency(trials,varargin)
 %   t       ... first spike latency for each trial. returns as a matrix
 %               the same size as trials. NaNs are returned where no spikes
 %               are found after minlag and before maxlag.
-% 
+%   thr     ... estimated threshold based on Poisson distribution with mean
+%               lambda.
+%   lambda  ... mean firing rate computed over all trials from windur just
+%               prior to minlag. 
 % DJS 2021
 
 
-par = [];
-par.minlag = 0.01;
-par.maxlag = 0.2;
-par.windur = 0.05;
+par.minlag = 0.05;
+par.maxlag = 0.25;
+par.windur = 0.005;
 par.p_value = 0.95;
 
 par = epa.helper.parse_params(par,varargin{:});
@@ -40,8 +42,15 @@ tvec = par.minlag:par.windur:par.maxlag;
     
 uv = unique(par.values);
 
-lambda = nan(size(uv));
-thr = lambda;
+st = cell2mat(trials);
+
+% average spike count preceeding minimum lag
+lambda = sum(st >= par.minlag-par.windur & st < par.minlag)./length(trials);
+
+% threshold assuming poisson distribution with mean of lambda
+thr = poissinv(par.p_value,lambda);
+
+
 for k = 1:length(uv)
     ind = par.values == uv(k);
     n = sum(ind);
@@ -50,13 +59,7 @@ for k = 1:length(uv)
     
     ktrials = trials(ind);
     
-    st = cell2mat(ktrials);
     
-    % average spike count preceeding minimum lag
-    lambda(k) = sum(st >= par.minlag-par.windur & st < par.minlag)./n;
-    
-    % threshold assuming poisson distribution with mean of lambda
-    thr(k) = poissinv(par.p_value,lambda(k));   
     
     % bin spikes by par.windur between par.minlag and par.maxlag
     ct = cell(n,1);
@@ -69,7 +72,7 @@ for k = 1:length(uv)
     
     for i = 1:n
         % find earliest bin with spike count greater than or equal to threshold
-        idx = find(ct{i} >= thr(k),1);
+        idx = find(ct{i} >= thr,1);
         
         if isempty(idx), continue; end
         
