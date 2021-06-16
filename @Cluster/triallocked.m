@@ -1,5 +1,5 @@
-function [trials,V] = triallocked(obj,varargin)
-% [trials,V] = triallocked(obj,varargin)
+function [trials,V,eidx] = triallocked(obj,varargin)
+% [trials,V,eidx] = triallocked(obj,varargin)
 % 
 % Functions similar to eventlocked, but returns a cell array of spike times
 % relative to event onsets.
@@ -38,3 +38,4 @@ for i = 1:length(ue)
     trials{i} = t(ind);
     V(i) = v(find(ind,1));
 end
+eidx = ue;
