@@ -70,7 +70,7 @@ classdef Cluster < handle & dynamicprops
         
         function tstr = get.TitleStr(obj)
             if obj.TitleStr == ""
-                tstr = sprintf('%s[%d]',obj.Type,obj.ID);
+                tstr = sprintf('%s-%d[%d]',obj.Type,obj.ID,obj.N);
                 if obj.Name ~= ""
                     tstr = sprintf('%s-%s',obj.Name,tstr);
                 end
