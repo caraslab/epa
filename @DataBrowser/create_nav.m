@@ -15,7 +15,7 @@ obj.handles.DataBrowser = f;
 
 % main grid Layout
 NavGrid = uigridlayout(obj.parent);
-NavGrid.ColumnWidth = {'0.3x','0.24x','0.12x','0.12x','0.22x'};
+NavGrid.ColumnWidth = {'0.4x','0.25x','0.1x','0.25x'};
 NavGrid.RowHeight   = {25,25,'1x'};
 obj.handles.NavGrid = NavGrid;
 
@@ -25,7 +25,7 @@ obj.handles.NavGrid = NavGrid;
 
 % toolbar
 TbarGrid = uigridlayout(NavGrid);
-TbarGrid.Layout.Column = [1 5];
+TbarGrid.Layout.Column = [1 length(NavGrid.ColumnWidth)];
 TbarGrid.Layout.Row    = 1;
 TbarGrid.ColumnWidth   = repmat({120},1,5);
 TbarGrid.RowHeight     = {'1x'};
@@ -127,35 +127,49 @@ obj.handles.UnitTypeListbox = h;
 obj.handles.DataTypeTabGroup.SelectedTab = obj.handles.ClustersTab;
 
 
+
+
+
+% Events
+EventGrid = uigridlayout(NavGrid);
+EventGrid.Layout.Column = 3;
+EventGrid.Layout.Row    = [2 3];
+EventGrid.ColumnWidth = {'1x'};
+EventGrid.RowHeight   = {25,'1x',25','1x'};
+EventGrid.ColumnSpacing = 0;
+EventGrid.RowSpacing = 5;
+EventGrid.Padding = [0 0 0 0];
+obj.handles.EventGrid = EventGrid;
+
 % Event1
-h = epa.ui.SelectObject(NavGrid,'epa.Event','uidropdown');
-h.handle.Layout.Column = 3;
-h.handle.Layout.Row = 2;
+h = epa.ui.SelectObject(EventGrid,'epa.Event','uidropdown');
+h.handle.Layout.Column = 1;
+h.handle.Layout.Row = 1;
 h.handle.Enable = 'off';
 h.handle.Tag = 'SelectEvent1';
 h.handle.Tooltip = 'Select Event 1';
 obj.handles.SelectEvent1 = h;
 
-h = uilistbox(NavGrid);
-h.Layout.Column = 3;
-h.Layout.Row = 3;
+h = uilistbox(EventGrid);
+h.Layout.Column = 1;
+h.Layout.Row = 2;
 h.Enable = 'off';
 h.Tag = 'SelectEvent1Values';
 h.Multiselect = 'on';
 obj.handles.SelectEvent1Values = h;
 
 % Event2
-h = epa.ui.SelectObject(NavGrid,'epa.Event','uidropdown');
-h.handle.Layout.Column = 4;
-h.handle.Layout.Row = 2;
+h = epa.ui.SelectObject(EventGrid,'epa.Event','uidropdown');
+h.handle.Layout.Column = 1;
+h.handle.Layout.Row = 3;
 h.handle.Enable = 'off';
 h.handle.Tag = 'SelectEvent2';
 h.handle.Tooltip = 'Select Event 2';
 obj.handles.SelectEvent2 = h;
 
-h = uilistbox(NavGrid);
-h.Layout.Column = 4;
-h.Layout.Row = 3;
+h = uilistbox(EventGrid);
+h.Layout.Column = 1;
+h.Layout.Row = 4;
 h.Enable = 'off';
 h.Tag = 'SelectEvent2Values';
 h.Multiselect = 'on';
@@ -165,7 +179,7 @@ obj.handles.SelectEvent2Values = h;
 
 % Process Tab Group
 h = uitabgroup(NavGrid);
-h.Layout.Column = 5;
+h.Layout.Column = length(NavGrid.ColumnWidth);
 h.Layout.Row = [2 length(NavGrid.RowHeight)];
 obj.handles.ProcessTabGroup = h;
 tg = h;

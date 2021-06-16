@@ -268,6 +268,7 @@ classdef DataBrowser < handle
             h.SelectEvent2Values.Enable    = 'on';
             
             
+            % update Events
             E = S.common_Events;
 
             if isempty(E)
@@ -280,7 +281,20 @@ classdef DataBrowser < handle
                 return
             end
             
-                            
+            h.SelectEvent1.Object   = E;                        
+            obj.select_event_updated(h.SelectEvent1);
+            if length(E) > 1
+                h.SelectEvent2.Object  = E;
+                h.SelectEvent2.CurrentObject = E(2);
+                obj.select_event_updated(h.SelectEvent2);
+            else
+                h.SelectEvent2.handle.Enable = 'off';
+                h.SelectEvent2Values.Enable = 'off';
+            end
+            
+            
+            
+            % update Clusters
             C = S.common_Clusters;
             
             selectedUnitTypes = string(h.UnitTypeListbox.Value);
@@ -303,17 +317,9 @@ classdef DataBrowser < handle
             h.SelectClusters.handle.Items = {C.TitleStr};
             obj.select_cluster_updated;
             
-            h.SelectEvent1.Object   = E;                        
-            obj.select_event_updated(h.SelectEvent1);
-            if length(E) > 1
-                h.SelectEvent2.Object  = E;
-                h.SelectEvent2.CurrentObject = E(2);
-                obj.select_event_updated(h.SelectEvent2);
-            else
-                h.SelectEvent2.handle.Enable = 'off';
-                h.SelectEvent2Values.Enable = 'off';
-            end
-
+            
+            
+            % update Streams
         end
         
         function select_event_updated(obj,src,event)
