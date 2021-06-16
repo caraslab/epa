@@ -70,9 +70,12 @@ classdef PSTH_Raster < epa.plot.PlotType
                 obj.handles.tiledlayout = t;
             end
             
-            R = obj.Raster;
-            P = obj.PSTH;
             
+            
+            
+            
+            % Raster
+            R = obj.Raster;
             if isempty(R) || isempty(R.ax) || ~ishandle(R.ax) || ~isvalid(R.ax)
                 axR = nexttile(obj.handles.tiledlayout);
                 axR.Layout.Tile = 1;
@@ -87,16 +90,18 @@ classdef PSTH_Raster < epa.plot.PlotType
             parv = [fn parv]';
             R = epa.plot.Raster(obj.Cluster,parv{:});
             R.plot;
-            axR.Color = 'none';
             axR.XAxis.Color = 'none';
             axR.XAxis.Label.String = 'none';
-            axR.YAxis.Color = 'none';
-            axR.YAxis.Label.String = 'none';
             
             obj.Raster = R;
             
             
             
+            
+            
+            
+            % PSTH
+            P = obj.PSTH;
             if isempty(P) || isempty(P.ax) || ~ishandle(P.ax) || ~isvalid(P.ax)
                 axP = nexttile(t);
                 axP.Layout.Tile = 3;
