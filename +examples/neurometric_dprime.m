@@ -69,7 +69,14 @@ for i = 1:numel(C)
     % determine where on the x-axis intersects with the neurometric curve
     % at dprimeThreshold
     if max(yfit) >= dprimeThreshold && min(yfit) <= dprimeThreshold
-        value_at_threshold = makima(yfit,xfit,dprimeThreshold);
+        try
+            value_at_threshold = spline(yfit,xfit,dprimeThreshold);
+        catch
+            % spline doesn't like some extreme fits, so fall back on
+            % finding the nearest point
+            [~,m] = min((yfit - dprimeThreshold).^2);
+            value_at_threshold = xfit(m);
+        end
     else
         value_at_threshold = nan;
     end

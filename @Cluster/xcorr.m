@@ -69,6 +69,16 @@ function plot_xcorr(obj,lags,r)
 clf;
 ax = gca;
 
+if size(r,2) == 1
+    plot(ax,lags,r,'-k');
+    grid(ax,'on');
+    axis(ax,'tight');
+    xlabel('lag (seconds)');
+    title(obj.TitleStr);
+    return
+end
+
+
 [m,n,p] = size(r);
 mr = zeros(m*n,p);
 r = r ./ max(abs(r(:)));
@@ -89,7 +99,7 @@ axis(ax,'tight');
 
 hold(ax,'on');
 hx = plot(ax,[seps; seps],ylim,'-','linewidth',0.5,'color',[0.6 0.6 0.6]);
-hy = plot(ax,xlim,repmat(1:p-1,2,1),'-','linewidth',0.5,'color',[0.6 0.6 0.6]);
+hy = plot(ax,xlim,repmat(y,2,1),'-','linewidth',0.5,'color',[0.6 0.6 0.6]);
 hz = plot(ax,[zers; zers],ylim,':','linewidth',0.5,'color',[0.6 0.6 0.6]);
 hold(ax,'off');
 
