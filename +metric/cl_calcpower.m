@@ -48,13 +48,13 @@ M = nan(size(trials));
 for i = 1:length(trials)
     fprintf('Trial %d of %d ...',i,length(trials))
     
-    if numel(trials{i})<2
+    if numel(trials{i})<3
         fprintf(2,' too few spikes, skipping\n')
         continue
     end
     
-    if numel(trials{i}) < 3
-        par.pad = 6;
+    if numel(trials{i}) < 4
+        par.pad = 7;
     else
         par.pad = 3;
     end
