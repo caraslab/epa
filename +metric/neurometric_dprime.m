@@ -1,5 +1,5 @@
-function dp = neurometric_dprime(data,targetTrials)
-% dp = neurometric_dprime(data,targetTrials)
+function dp = neurometric_dprime(data,targetTrials,omitnan)
+% dp = neurometric_dprime(data,targetTrials,[omitnan])
 % 
 % Computes a neurometric d' comparing data samples where targetTrials is true
 % vs where it is false.
@@ -14,6 +14,8 @@ function dp = neurometric_dprime(data,targetTrials)
 %                     True values indicate positive cases (signal
 %                     presented) and false values indicate negative cases
 %                     (no signal or reference signal presented).
+%   omitnan     ... 1x1 logical determines if the calculations should or
+%                   should not ignore NaN values. default = true
 % 
 % formula:  dp = 2.*(mT - mF) ./ (sT + sF);
 % 
@@ -26,6 +28,11 @@ function dp = neurometric_dprime(data,targetTrials)
 
 narginchk(2,3);
 
+nanflag = 'omitnan';
+if nargin == 3 && ~omitnan
+    nanflag = 'includenan';
+end
+
 if isvector(data)
     data = data(:)';
 end
@@ -35,10 +42,10 @@ assert(isequal(size(data,2),length(targetTrials)),'epa:metric:neurometric_dprime
 
 
 
-mT = mean(data(:,targetTrials));
-mF = mean(data(:,~targetTrials));
+mT = mean(data(:,targetTrials),nanflag);
+mF = mean(data(:,~targetTrials),nanflag);
 
-sT = std(data(:,targetTrials));
-sF = std(data(:,~targetTrials));
+sT = std(data(:,targetTrials),nanflag);
+sF = std(data(:,~targetTrials),nanflag);
 
 dp = 2.*(mT - mF) ./ (sT + sF);
