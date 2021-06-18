@@ -2,7 +2,7 @@ classdef DataBrowser < handle
     
     properties (SetObservable = true)
         Session
-        Par
+        plotSettings
     end
     
     properties
@@ -28,6 +28,7 @@ classdef DataBrowser < handle
         curClusters
         curSession
         curPlotStyle
+        curMetric
     end
     
     
@@ -101,6 +102,10 @@ classdef DataBrowser < handle
             s = obj.handles.SelectPlotStyle.Value;
         end
         
+        
+        function m = get.curMetric(obj)
+            m = obj.handles.SelectMetricListbox.Value;
+        end
         
         function o = get.curSession(obj)
             o = obj.handles.SelectSession.CurrentObject;
@@ -257,6 +262,7 @@ classdef DataBrowser < handle
                 h.SelectEvent2Values.Items = {};
                 h.SelectEvent2Values.Enable = 'off';
                 h.PlotButton.Enable = 'off';
+                h.SelectPlotStyle.Enable = 'off';
                 return
             end
                         
@@ -266,7 +272,7 @@ classdef DataBrowser < handle
             h.SelectEvent2.handle.Enable   = 'on';
             h.SelectEvent1Values.Enable    = 'on';
             h.SelectEvent2Values.Enable    = 'on';
-            
+            h.SelectPlotStyle.Enable       = 'on';
             
             % update Events
             E = S.common_Events;
@@ -276,6 +282,7 @@ classdef DataBrowser < handle
                 h.SelectEvent2.handle.Enable   = 'off';
                 h.SelectEvent1Values.Enable    = 'off';
                 h.SelectEvent2Values.Enable    = 'off';
+                h.SelectPlotStyle.Enable       = 'off';
                 uialert(obj.parent,'No Events were found to be in common across the selected Sessions.', ...
                     'No Events','Icon','warning','Modal',true);
                 return
@@ -320,6 +327,11 @@ classdef DataBrowser < handle
             
             
             % update Streams
+            
+            
+            
+            
+            h.SelectPlotStyle.Enable = 'on';
         end
         
         function select_event_updated(obj,src,event)
@@ -353,16 +365,12 @@ classdef DataBrowser < handle
             end
         end
         
-        function clusternote_updated(obj,src,event)
-            
-        end
-        
         function select_parameter(obj,src,event)
             h = obj.handles;
             
             pv = h.ParameterList.Value;
             
-            v = obj.Par.(pv);
+            v = obj.plotSettings.(pv);
             if isempty(v)
                 h.ParameterEdit.Value = '[]';
             elseif isstring(v) || ischar(v)
@@ -382,6 +390,18 @@ classdef DataBrowser < handle
             end
         end
         
+        
+        function select_metric(obj,src,event)            
+            v = obj.curMetric;
+            
+            fprintf('\n\n%s\n\n',repmat('v',1,50))
+            fprintf('help for the function "%s"\n\n',v)
+            help(v)
+            fprintf([repmat('^',1,50) '\n'])
+        end
+        
+        
+        
         function parameter_edit(obj,src,event)
             h = obj.handles;
             
@@ -394,7 +414,7 @@ classdef DataBrowser < handle
             mp = obj.plotMeta.PropertyList;
             
             
-            if isnumeric(obj.Par.(p)) || islogical(obj.Par.(p))
+            if isnumeric(obj.plotSettings.(p)) || islogical(obj.plotSettings.(p))
                 nv = str2num(nv);
             end
             
@@ -404,7 +424,7 @@ classdef DataBrowser < handle
             
 
             if isValidValue(m.Validation,nv)
-                obj.Par.(p) = nv;
+                obj.plotSettings.(p) = nv;
                 src.BackgroundColor = [0.4 1 0.4]; 
                 pause(0.3);
                 src.BackgroundColor = [1 1 1];
@@ -421,7 +441,7 @@ classdef DataBrowser < handle
         function plot_style_value_changed(obj,src,event)
             h = obj.handles;
             
-            pst = h.SelectPlotStyle.Value;
+            pst = obj.curPlotStyle;
                 
             tmpObj = epa.plot.(pst);
             
@@ -429,11 +449,11 @@ classdef DataBrowser < handle
             
             obj.plotMeta = metaclass(tmpObj);
             
-            h.ParameterList.Items = p;
+            h.ParameterList.Items = sort(p);
             
-            obj.Par = [];
+            obj.plotSettings = [];
             for i = 1:length(p)
-                obj.Par.(p{i}) = tmpObj.(p{i});
+                obj.plotSettings.(p{i}) = tmpObj.(p{i});
             end
             
             obj.select_parameter;
@@ -456,7 +476,51 @@ classdef DataBrowser < handle
             end
         end
         
+        function save_plot_settings(obj,src,event)
+            plotSettings = obj.plotSettings;
+            plotStyle = obj.curPlotStyle;
+            
+            pth = getpref('epa_DataBrowser','PlotSettings',cd);
+            
+            [fn,pth] = uiputfile({'*.mat','MAT-files (*.mat'}, ...
+                'Save Plot Settings',pth);
+            
+            if isequal(fn,0), return; end
+            
+            ffn = fullfile(pth,fn);
+            
+
+            save(ffn,'plotSettings','plotStyle');
+            
+            setpref('epa_DataBrowser','PlotSettings',pth);
+            
+            fprintf('Current plot settings saved to: "%s"\n',ffn)
+        end
         
+        function load_plot_settings(obj,src,event)
+            
+            pth = getpref('epa_DataBrowser','PlotSettings',cd);
+            
+            [fn,pth] = uigetfile({'*.mat','MAT-files (*.mat'}, ...
+                'Load Plot Settings',pth);
+            
+            if isequal(fn,0), return; end
+            
+            ffn = fullfile(pth,fn);
+
+            load(ffn,'plotSettings','plotStyle');
+            
+            setpref('epa_DataBrowser','PlotSettings',pth);
+            
+            
+            obj.handles.SelectPlotStyle.Value = plotStyle;
+            obj.plot_style_value_changed;
+            obj.plotSettings = plotSettings; %#ok<PROPLC>
+            
+            fprintf('Updated plot settings saved from: "%s"\n',ffn)
+            
+            figure(ancestor(obj.parent,'figure'));
+        end
         
         function process_keys(obj,src,event)
             

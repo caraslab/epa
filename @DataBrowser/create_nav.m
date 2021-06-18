@@ -199,6 +199,7 @@ h = uidropdown(PlotGrid,'CreateFcn',@obj.create_plotdropdown);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 1;
 h.ValueChangedFcn = @obj.plot_style_value_changed;
+h.Enable = 'off';
 obj.handles.SelectPlotStyle = h;
 
 h = uilistbox(PlotGrid);
@@ -219,24 +220,38 @@ PlotOptGrid = uigridlayout(PlotGrid);
 PlotOptGrid.Layout.Column = [1 2];
 PlotOptGrid.Layout.Row = 4;
 PlotOptGrid.ColumnWidth = {'1x','1x'};
-PlotOptGrid.RowHeight = repmat({'1x'},1,4);
+PlotOptGrid.RowHeight = [repmat({'1x'},1,4) {'fit'}];
 obj.handles.PlotOptGrid = PlotOptGrid;
 
+h = uibutton(PlotOptGrid);
+h.Layout.Column = 1;
+h.Layout.Row    = 1;
+h.Text = '';
+h.Icon = fullfile(iconPath,'file_open.png');
+h.Tooltip = 'Load Plot Settings';
+h.ButtonPushedFcn = @obj.load_plot_settings;
+obj.handles.LoadPlotSettingsButton = h;
+
+h = uibutton(PlotOptGrid);
+h.Layout.Column = 2;
+h.Layout.Row    = 1;
+h.Text = '';
+h.Icon = fullfile(iconPath,'file_save.png');
+h.Tooltip = 'Save Plot Settings';
+h.ButtonPushedFcn = @obj.save_plot_settings;
+obj.handles.SavePlotSettingsButton = h;
 
 h = uicheckbox(PlotOptGrid);
-h.Layout.Column = [1 2];
-h.Layout.Row = 1;
+h.Layout.Column = 1;
+h.Layout.Row = 2;
 h.Text = 'reuse fig';
 obj.handles.ReuseFigureCheck = h;
 
-
-
 h = uicheckbox(PlotOptGrid);
-h.Layout.Column = [1 2];
+h.Layout.Column = 2;
 h.Layout.Row = 2;
 h.Text = 'equal ylim';
 obj.handles.EqualYLim = h;
-
 
 h = uicheckbox(PlotOptGrid);
 h.Layout.Column = [1 2];
@@ -256,11 +271,20 @@ obj.handles.PlotButton = h;
 
 
 
-% Analyze
-h = uitab(tg,'Title','Analyze');
+% Analysis
+h = uitab(tg,'Title','Analysis');
 obj.handles.AnalyzeTab = h;
 
+AnalysisGrid = uigridlayout(h);
+AnalysisGrid.ColumnWidth = {'1x'};
+AnalysisGrid.RowHeight = {'1x','1x'};
 
+h = uilistbox(AnalysisGrid);
+m = cellfun(@(a) a(1:end-2),epa.helper.available_metrics,'uni',0);
+h.Items = m;
+h.ItemsData = cellfun(@(a) ['epa.metric.' a],m,'uni',0);
+h.ValueChangedFcn = @obj.select_metric;
+obj.handles.SelectMetricListbox = h;
 
 h = obj.handles;
 
@@ -280,3 +304,12 @@ addlistener(h.SelectClusters,'Updated',@obj.select_cluster_updated);
 obj.select_session_updated('init');
 
 obj.plot_style_value_changed;
+
+
+
+
+
+
+
+
+
