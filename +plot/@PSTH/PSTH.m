@@ -6,6 +6,7 @@ classdef PSTH < epa.plot.PlotType
         window         (1,2) double {mustBeNonempty,mustBeFinite} = [0 1];
         normalization  (1,:) char {mustBeNonempty,mustBeMember(normalization,{'count','firingrate','countdensity','probability','cumcount','cdf','pdf'})} = 'firingrate';
         showeventonset (1,1) logical {mustBeNonempty} = true;        
+        grid           (1,1) logical {mustBeNonempty} = true;
     end
     
     
@@ -110,6 +111,8 @@ classdef PSTH < epa.plot.PlotType
             axe.XAxis.Label.FontSize = 10;
             axe.XAxis.FontSize = 8;
             
+            
+            grid(axe,obj.grid);
 
             obj.standard_plot_postamble;
             
