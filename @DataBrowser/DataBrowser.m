@@ -392,12 +392,28 @@ classdef DataBrowser < handle
         
         
         function select_metric(obj,src,event)            
+            h = obj.handles;
+            
             v = obj.curMetric;
             
             fprintf('\n\n%s\n\n',repmat('v',1,50))
             fprintf('help for the function "%s"\n\n',v)
             help(v)
             fprintf([repmat('^',1,50) '\n'])
+            
+            
+            try
+                dfltpar = feval(v,'getdefaults');
+                fn = fieldnames(dfltpar);
+            catch
+                dfltpar = struct('fail',1);
+                fn = {'< no parameters or error >'};
+            end
+            
+            ph = h.SelectMetricParameterListbox;
+            ph.Items = fn;
+            ph.UserData = dfltpar;
+            
         end
         
         

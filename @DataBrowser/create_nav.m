@@ -276,17 +276,26 @@ h = uitab(tg,'Title','Analysis');
 obj.handles.AnalyzeTab = h;
 
 AnalysisGrid = uigridlayout(h);
-AnalysisGrid.ColumnWidth = {'1x'};
-AnalysisGrid.RowHeight = {'1x','1x'};
+AnalysisGrid.ColumnWidth = {'.8x','.2x'};
+AnalysisGrid.RowHeight = {'1x','1x',25,25};
 
 h = uilistbox(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 1;
 m = cellfun(@(a) a(1:end-2),epa.helper.available_metrics,'uni',0);
 h.Items = m;
 h.ItemsData = cellfun(@(a) ['epa.metric.' a],m,'uni',0);
 h.ValueChangedFcn = @obj.select_metric;
 obj.handles.SelectMetricListbox = h;
 
-h = obj.handles;
+h = uilistbox(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 2;
+obj.handles.SelectMetricParameterListbox = h;
+
+
+
+
 
 % Set fonts
 epa.helper.setfont(obj.parent);
@@ -294,6 +303,7 @@ epa.helper.setfont(obj.parent);
 
 
 
+h = obj.handles;
 
 addlistener(h.SelectSession, 'Updated',@obj.select_session_updated);
 addlistener(h.SelectEvent1,  'Updated',@obj.select_event_updated);
