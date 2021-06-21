@@ -29,6 +29,7 @@ classdef DataBrowser < handle
         curSession
         curPlotStyle
         curMetric
+        curMetricParameter
     end
     
     
@@ -105,6 +106,10 @@ classdef DataBrowser < handle
         
         function m = get.curMetric(obj)
             m = obj.handles.SelectMetricListbox.Value;
+        end
+        
+        function p = get.curMetricParameter(obj)
+            p = obj.handles.SelectMetricParameterListbox.Value;
         end
         
         function o = get.curSession(obj)
@@ -365,7 +370,7 @@ classdef DataBrowser < handle
             end
         end
         
-        function select_parameter(obj,src,event)
+        function plot_select_parameter(obj,src,event)
             h = obj.handles;
             
             pv = h.ParameterList.Value;
@@ -391,34 +396,7 @@ classdef DataBrowser < handle
         end
         
         
-        function select_metric(obj,src,event)            
-            h = obj.handles;
-            
-            v = obj.curMetric;
-            
-            fprintf('\n\n%s\n\n',repmat('v',1,50))
-            fprintf('help for the function "%s"\n\n',v)
-            help(v)
-            fprintf([repmat('^',1,50) '\n'])
-            
-            
-            try
-                dfltpar = feval(v,'getdefaults');
-                fn = fieldnames(dfltpar);
-            catch
-                dfltpar = struct('fail',1);
-                fn = {'< no parameters or error >'};
-            end
-            
-            ph = h.SelectMetricParameterListbox;
-            ph.Items = fn;
-            ph.UserData = dfltpar;
-            
-        end
-        
-        
-        
-        function parameter_edit(obj,src,event)
+        function plot_parameter_edit(obj,src,event)
             h = obj.handles;
             
             p = h.ParameterList.Value;
@@ -472,7 +450,7 @@ classdef DataBrowser < handle
                 obj.plotSettings.(p{i}) = tmpObj.(p{i});
             end
             
-            obj.select_parameter;
+            obj.plot_select_parameter;
 
         end
         
@@ -492,7 +470,7 @@ classdef DataBrowser < handle
             end
         end
         
-        function save_plot_settings(obj,src,event)
+        function plot_save_settings(obj,src,event)
             plotSettings = obj.plotSettings;
             plotStyle = obj.curPlotStyle;
             
@@ -513,7 +491,7 @@ classdef DataBrowser < handle
             fprintf('Current plot settings saved to: "%s"\n',ffn)
         end
         
-        function load_plot_settings(obj,src,event)
+        function plot_load_settings(obj,src,event)
             
             pth = getpref('epa_DataBrowser','PlotSettings',cd);
             
@@ -537,6 +515,71 @@ classdef DataBrowser < handle
             
             figure(ancestor(obj.parent,'figure'));
         end
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        function metric_select(obj,src,event)            
+            h = obj.handles;
+            
+            v = obj.curMetric;
+            
+            fprintf('\n\n%s\n\n',repmat('v',1,50))
+            fprintf('help for the function "%s"\n\n',v)
+            help(v)
+            fprintf([repmat('^',1,50) '\n'])
+            
+            
+            try
+                dfltpar = feval(v,'getdefaults');
+                fn = fieldnames(dfltpar);
+            catch
+                dfltpar = struct('fail',1);
+                fn = {'< no parameters or error >'};
+            end
+            
+            ph = h.SelectMetricParameterListbox;
+            ph.Items = fn;
+            ph.UserData = dfltpar;
+            
+            obj.metric_select_parameter;
+        end
+        
+        function metric_select_parameter(obj,src,event)
+            h = obj.handles;
+            
+            dfltpar = h.SelectMetricParameterListbox.UserData;
+            
+            v = obj.curMetricParameter;
+            
+            m = mat2str(dfltpar.(v));
+            
+            if isequal(m,'[]')
+                m = '< no default >';
+            end
+            
+            h.AnalysisParameterEdit.Value = m;
+            
+        end
+        
+        function metric_parameter_edit(obj,src,event)
+            h = obj.handles;
+            
+        end
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         function process_keys(obj,src,event)
             

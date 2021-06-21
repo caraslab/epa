@@ -205,13 +205,13 @@ obj.handles.SelectPlotStyle = h;
 h = uilistbox(PlotGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 2;
-h.ValueChangedFcn = @obj.select_parameter;
+h.ValueChangedFcn = @obj.plot_select_parameter;
 obj.handles.ParameterList = h;
 
 h = uieditfield(PlotGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 3;
-h.ValueChangedFcn = @obj.parameter_edit;
+h.ValueChangedFcn = @obj.plot_parameter_edit;
 obj.handles.ParameterEdit = h;
 
 
@@ -229,7 +229,7 @@ h.Layout.Row    = 1;
 h.Text = '';
 h.Icon = fullfile(iconPath,'file_open.png');
 h.Tooltip = 'Load Plot Settings';
-h.ButtonPushedFcn = @obj.load_plot_settings;
+h.ButtonPushedFcn = @obj.plot_load_settings;
 obj.handles.LoadPlotSettingsButton = h;
 
 h = uibutton(PlotOptGrid);
@@ -238,7 +238,7 @@ h.Layout.Row    = 1;
 h.Text = '';
 h.Icon = fullfile(iconPath,'file_save.png');
 h.Tooltip = 'Save Plot Settings';
-h.ButtonPushedFcn = @obj.save_plot_settings;
+h.ButtonPushedFcn = @obj.plot_save_settings;
 obj.handles.SavePlotSettingsButton = h;
 
 h = uicheckbox(PlotOptGrid);
@@ -285,17 +285,19 @@ h.Layout.Row    = 1;
 m = cellfun(@(a) a(1:end-2),epa.helper.available_metrics,'uni',0);
 h.Items = m;
 h.ItemsData = cellfun(@(a) ['epa.metric.' a],m,'uni',0);
-h.ValueChangedFcn = @obj.select_metric;
+h.ValueChangedFcn = @obj.metric_select;
 obj.handles.SelectMetricListbox = h;
 
 h = uilistbox(AnalysisGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 2;
+h.ValueChangedFcn = @obj.metric_select_parameter;
 obj.handles.SelectMetricParameterListbox = h;
 
 h = uieditfield(AnalysisGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 3;
+h.ValueChangedFcn = @obj.metric_parameter_edit;
 obj.handles.AnalysisParameterEdit = h;
 
 
