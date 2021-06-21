@@ -277,7 +277,7 @@ obj.handles.AnalyzeTab = h;
 
 AnalysisGrid = uigridlayout(h);
 AnalysisGrid.ColumnWidth = {'.8x','.2x'};
-AnalysisGrid.RowHeight = {'1x','1x',25,25};
+AnalysisGrid.RowHeight = {'.7x','.3x',25,25};
 
 h = uilistbox(AnalysisGrid);
 h.Layout.Column = [1 2];
@@ -293,6 +293,10 @@ h.Layout.Column = [1 2];
 h.Layout.Row    = 2;
 obj.handles.SelectMetricParameterListbox = h;
 
+h = uieditfield(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 3;
+obj.handles.AnalysisParameterEdit = h;
 
 
 
