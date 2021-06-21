@@ -2,6 +2,15 @@ function [t,eidx,vid] = eventlocked(obj,varargin)
 % [t,eidx,vid] = eventlocked(ClusterObj,par)
 % [t,eidx,vid] = eventlocked(ClusterObj,'Name',Value,...)
 %  
+% Return a column vector of original spike times relative to an event onset. 
+% Each spike time in t corresponds to an event index in eidx and a value id 
+% in vid.  This can be used, for example, to quickly plot a raster using:
+% > [t,eidx,vid] = myCluster.eventlocked('event','myStimulus');
+% > plot(t,vid,'.');
+%
+% Alternatively, use epa.Cluster.triallocked to return a cell column vector
+% with spike times arranged by event id in each cell.
+% 
 % Input:
 %   event         ... char event name
 %   eventvalue    ... specify event value(s) or 'all', default = 'all'
@@ -20,11 +29,11 @@ function [t,eidx,vid] = eventlocked(obj,varargin)
 % 
 % DJS 2021
 
-
-
 par.eventvalue = 'all';
 par.window     = [0 1];
 par.sorton     = 'events';
+
+if isequal(varargin{1},'getdefaults'), t = par; return; end
 
 par = epa.helper.parse_params(par,varargin{:});
 
