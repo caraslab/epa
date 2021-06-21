@@ -26,10 +26,9 @@ par.eventvalue = 'all';
 par.window     = [0 1];
 par.sorton     = 'events';
 
-par = epa.helper.parse_params(par,varargin{:});
-
 if isequal(varargin{1},'getdefaults'), trials = par; return; end
 
+par = epa.helper.parse_params(par,varargin{:});
 
 [t,eidx,v] = obj.eventlocked(par);
 
