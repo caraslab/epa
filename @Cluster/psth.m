@@ -24,6 +24,7 @@ par.eventvalue = 'all';
 par.normalization = 'count';
 par.window     = [0 1];
 
+if isequal(varargin{1},'getdefaults'), c = par; return; end
 
 par = epa.helper.parse_params(par,varargin{:});
 

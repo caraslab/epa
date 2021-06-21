@@ -28,6 +28,8 @@ par.binsize = 0.01;
 par.plot = false;
 par.scaleopt = 'coeff';
 
+if isequal(varargin{1},'getdefaults'), r = par; return; end
+
 par = epa.helper.parse_params(par,varargin{:});
 
 % time -> samples

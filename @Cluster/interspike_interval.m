@@ -25,6 +25,8 @@ par.maxlag = 0.1;
 par.binsize = 0.001;
 par.plot = false;
 
+if isequal(varargin{1},'getdefaults'), n = par; return; end
+
 par = epa.helper.parse_params(par,varargin{:});
 
 mustBePositive(par.maxlag);

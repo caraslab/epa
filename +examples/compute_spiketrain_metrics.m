@@ -1,7 +1,7 @@
 %% Compute spike train metrics directly
 
 
-DataPath = 'C:\Users\Daniel\Documents\ExampleCarasPhysData\SUBJ-ID-174\201116_concat';
+DataPath = 'G:\My Drive\Caras Lab\ExampleData\SUBJ-ID-174\201116_concat';
 S = epa.kilosort2session(DataPath);
 
 

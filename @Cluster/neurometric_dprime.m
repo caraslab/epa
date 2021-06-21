@@ -47,6 +47,7 @@ par.window = [0 1];
 par.complete = false;
 par.metric = @epa.metric.trial_firingrate;
 
+if isequal(varargin{1},'getdefaults'), dprime = par; return; end
 
 par = epa.helper.parse_params(par,varargin{:});
 
