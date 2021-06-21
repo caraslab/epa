@@ -277,7 +277,7 @@ obj.handles.AnalyzeTab = h;
 
 AnalysisGrid = uigridlayout(h);
 AnalysisGrid.ColumnWidth = {'.8x','.2x'};
-AnalysisGrid.RowHeight = {'.7x','.3x',25,25};
+AnalysisGrid.RowHeight = {'.7x',25,'.3x',25,25};
 
 h = uilistbox(AnalysisGrid);
 h.Layout.Column = [1 2];
@@ -288,19 +288,34 @@ h.ItemsData = cellfun(@(a) ['epa.metric.' a],m,'uni',0);
 h.ValueChangedFcn = @obj.metric_select;
 obj.handles.SelectMetricListbox = h;
 
-h = uilistbox(AnalysisGrid);
+h = uibutton(AnalysisGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 2;
+h.Text = 'Help on Metric';
+h.Tooltip = 'Show help in the command window for the selected metric';
+h.ButtonPushedFcn = @obj.metric_show_help;
+obj.handles.HelpAnalysisButton = h;
+
+
+h = uilistbox(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 3;
 h.ValueChangedFcn = @obj.metric_select_parameter;
 obj.handles.SelectMetricParameterListbox = h;
 
 h = uieditfield(AnalysisGrid);
 h.Layout.Column = [1 2];
-h.Layout.Row    = 3;
+h.Layout.Row    = 4;
 h.ValueChangedFcn = @obj.metric_parameter_edit;
 obj.handles.AnalysisParameterEdit = h;
 
-
+h = uibutton(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 5;
+h.Text = 'Run Analysis';
+h.Tooltip = 'Run currently selected analysis';
+h.ButtonPushedFcn = @obj.run_analysis;
+obj.handles.RunAnalysisButton = h;
 
 
 % Set fonts
@@ -321,6 +336,7 @@ obj.select_session_updated('init');
 
 obj.plot_style_value_changed;
 
+obj.metric_select;
 
 
 
