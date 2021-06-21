@@ -199,18 +199,19 @@ h = uidropdown(PlotGrid,'CreateFcn',@obj.create_plotdropdown);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 1;
 h.ValueChangedFcn = @obj.plot_style_value_changed;
+h.Enable = 'off';
 obj.handles.SelectPlotStyle = h;
 
 h = uilistbox(PlotGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 2;
-h.ValueChangedFcn = @obj.select_parameter;
+h.ValueChangedFcn = @obj.plot_select_parameter;
 obj.handles.ParameterList = h;
 
 h = uieditfield(PlotGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 3;
-h.ValueChangedFcn = @obj.parameter_edit;
+h.ValueChangedFcn = @obj.plot_parameter_edit;
 obj.handles.ParameterEdit = h;
 
 
@@ -219,24 +220,38 @@ PlotOptGrid = uigridlayout(PlotGrid);
 PlotOptGrid.Layout.Column = [1 2];
 PlotOptGrid.Layout.Row = 4;
 PlotOptGrid.ColumnWidth = {'1x','1x'};
-PlotOptGrid.RowHeight = repmat({'1x'},1,4);
+PlotOptGrid.RowHeight = [repmat({'1x'},1,4) {'fit'}];
 obj.handles.PlotOptGrid = PlotOptGrid;
 
+h = uibutton(PlotOptGrid);
+h.Layout.Column = 1;
+h.Layout.Row    = 1;
+h.Text = '';
+h.Icon = fullfile(iconPath,'file_open.png');
+h.Tooltip = 'Load Plot Settings';
+h.ButtonPushedFcn = @obj.plot_load_settings;
+obj.handles.LoadPlotSettingsButton = h;
+
+h = uibutton(PlotOptGrid);
+h.Layout.Column = 2;
+h.Layout.Row    = 1;
+h.Text = '';
+h.Icon = fullfile(iconPath,'file_save.png');
+h.Tooltip = 'Save Plot Settings';
+h.ButtonPushedFcn = @obj.plot_save_settings;
+obj.handles.SavePlotSettingsButton = h;
 
 h = uicheckbox(PlotOptGrid);
-h.Layout.Column = [1 2];
-h.Layout.Row = 1;
+h.Layout.Column = 1;
+h.Layout.Row = 2;
 h.Text = 'reuse fig';
 obj.handles.ReuseFigureCheck = h;
 
-
-
 h = uicheckbox(PlotOptGrid);
-h.Layout.Column = [1 2];
+h.Layout.Column = 2;
 h.Layout.Row = 2;
 h.Text = 'equal ylim';
 obj.handles.EqualYLim = h;
-
 
 h = uicheckbox(PlotOptGrid);
 h.Layout.Column = [1 2];
@@ -256,13 +271,52 @@ obj.handles.PlotButton = h;
 
 
 
-% Analyze
-h = uitab(tg,'Title','Analyze');
+% Analysis
+h = uitab(tg,'Title','Analysis');
 obj.handles.AnalyzeTab = h;
 
+AnalysisGrid = uigridlayout(h);
+AnalysisGrid.ColumnWidth = {'.8x','.2x'};
+AnalysisGrid.RowHeight = {'.7x',25,'.3x',25,25};
+
+h = uilistbox(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 1;
+m = cellfun(@(a) a(1:end-2),epa.helper.available_metrics,'uni',0);
+h.Items = m;
+h.ItemsData = cellfun(@(a) ['epa.metric.' a],m,'uni',0);
+h.ValueChangedFcn = @obj.metric_select;
+obj.handles.SelectMetricListbox = h;
+
+h = uibutton(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 2;
+h.Text = 'Help on Metric';
+h.Tooltip = 'Show help in the command window for the selected metric';
+h.ButtonPushedFcn = @obj.metric_show_help;
+obj.handles.HelpAnalysisButton = h;
 
 
-h = obj.handles;
+h = uilistbox(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 3;
+h.ValueChangedFcn = @obj.metric_select_parameter;
+obj.handles.SelectMetricParameterListbox = h;
+
+h = uieditfield(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 4;
+h.ValueChangedFcn = @obj.metric_parameter_edit;
+obj.handles.AnalysisParameterEdit = h;
+
+h = uibutton(AnalysisGrid);
+h.Layout.Column = [1 2];
+h.Layout.Row    = 5;
+h.Text = 'Run Analysis';
+h.Tooltip = 'Run currently selected analysis';
+h.ButtonPushedFcn = @obj.run_analysis;
+obj.handles.RunAnalysisButton = h;
+
 
 % Set fonts
 epa.helper.setfont(obj.parent);
@@ -270,6 +324,7 @@ epa.helper.setfont(obj.parent);
 
 
 
+h = obj.handles;
 
 addlistener(h.SelectSession, 'Updated',@obj.select_session_updated);
 addlistener(h.SelectEvent1,  'Updated',@obj.select_event_updated);
@@ -280,3 +335,13 @@ addlistener(h.SelectClusters,'Updated',@obj.select_cluster_updated);
 obj.select_session_updated('init');
 
 obj.plot_style_value_changed;
+
+obj.metric_select;
+
+
+
+
+
+
+
+

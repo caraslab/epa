@@ -34,12 +34,12 @@ classdef Cluster < handle & dynamicprops
     
     
     methods
-        [t,eidx,vid] = eventlocked(obj,varargin)
-        [trials,V,eidx]   = triallocked(obj,varargin)
-        [c,b,v] = psth(obj,varargin)
+        [t,eidx,vid]    = eventlocked(obj,varargin)
+        [trials,V,eidx] = triallocked(obj,varargin)
+        [c,b,v]         = psth(obj,varargin)
         [dprime,vals,M,V] = neurometric_dprime(obj,varargin)
-        [n,lags] = interspike_interval(obj,varargin)
-        [r,lags] = xcorr(obj,varargin)
+        [n,lags]        = interspike_interval(obj,varargin)
+        [r,lags]        = xcorr(obj,varargin)
         
         function obj = Cluster(SessionObj,ID,SpikeTimes,SpikeWaveforms)
             

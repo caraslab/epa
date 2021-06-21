@@ -31,6 +31,8 @@ par.maxlag = 0.25;
 par.windur = 0.005;
 par.p_value = 0.95;
 
+if isequal(trials,'getdefaults'), t = par; return; end
+
 par = epa.helper.parse_params(par,varargin{:});
 
 mustBePositive([par.minlag par.maxlag]);

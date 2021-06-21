@@ -29,7 +29,11 @@ classdef helper < handle
         end
         
         function p = get_settable_properties(obj)
-            M = metaclass(obj);
+            if isa(obj,'meta.class')
+                M = obj;
+            else
+                M = metaclass(obj);
+            end
                         
             p = M.PropertyList;
             ind = ismember({p.SetAccess},'public');
@@ -198,7 +202,14 @@ classdef helper < handle
                 str{end+1} = 'Validation Rules:';
                 str(end+1:end+length(pv)) = pv(:);
             end
-
         end
+        
+        
+        function m = available_metrics
+            r = fullfile(epa.helper.rootdir,'+epa','+metric','*.m');
+            d = dir(r);
+            m = {d.name};
+        end
+        
     end
 end

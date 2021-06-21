@@ -1,6 +1,4 @@
-function  M = cl_calcpower(trials,par)
-
-
+function  M = cl_calcpower(trials,varargin)
 %
 %This function performs an FFT on spike vectors pulled from the stimdata
 %input variable, which contains discrete spike times. FFTs are calculated
@@ -12,6 +10,7 @@ function  M = cl_calcpower(trials,par)
 %
 %ML Caras Dec 2015
 
+par.modfreq = [];
 
 
 %-------------------------------------------------------------------
@@ -29,10 +28,9 @@ par.pad = 3; %Padding for the FFT. -1 corresponds to no padding,
 %the efficiancy of the function and increases the
 %number of frequency bins of the result.
 
-
-% par.fpass = [0 10]; %[fmin fmax]
-par.fpass = par.modfreq .* 2 .^([-1 1]);
 %Frequency band to be used in calculation.
+% par.fpass = [0 10]; %[fmin fmax]
+par.fpass = [-1 1]; % [-1 +1] octave around modfreq
 
 % par.Fs = fs;        %Sampling rate
 
@@ -41,7 +39,14 @@ par.err = [1 .05];  %Theoretical errorbars (p = 0.05). For Jacknknife
 
 par.trialave = 0;   %If 1, average over trials or channels.
 
-fscorr = 1;            %If 1, use finite size corrections.
+par.fscorr = 1;     %If 1, use finite size corrections.
+
+
+if isequal(trials,'getdefaults'), M = par; return; end
+
+par = epa.helper.parse_params(par,varargin{:});
+
+par.fpass = par.modfreq .* 2 .^(par.fpass); % [-1 +1] octave around modfreq
 
 %-------------------------------------------------------------------
 M = nan(size(trials));
@@ -60,7 +65,7 @@ for i = 1:length(trials)
     end
     
     %Calculate the power across frequencies
-    [spectra,f] = mtspectrumpt(trials{i},par,fscorr); 
+    [spectra,f] = mtspectrumpt(trials{i},par,par.fscorr); 
     
     %Find the index value closest to MF
     [~,idx] = min(abs(f-par.modfreq));

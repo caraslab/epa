@@ -2,16 +2,19 @@ classdef DataBrowser < handle
     
     properties (SetObservable = true)
         Session
-        Par
+        plotSettings
     end
     
     properties
         Filename    (:,1) string
         DataPath    (:,1) string
+        
+        
+        metricPar
     end
     
     
-    properties (Access = public) % make protected
+    properties (Access = public)
         handles
         plotMeta
     end
@@ -28,6 +31,8 @@ classdef DataBrowser < handle
         curClusters
         curSession
         curPlotStyle
+        curMetric
+        curMetricParameter
     end
     
     
@@ -37,7 +42,7 @@ classdef DataBrowser < handle
         
         function obj = DataBrowser(varargin)
             
-
+            
             if length(varargin) > 1
                 par = epa.helper.parse_params(obj,varargin{:});
                 
@@ -102,11 +107,19 @@ classdef DataBrowser < handle
         end
         
         
+        function m = get.curMetric(obj)
+            m = obj.handles.SelectMetricListbox.Value;
+        end
+        
+        function p = get.curMetricParameter(obj)
+            p = obj.handles.SelectMetricParameterListbox.Value;
+        end
+        
         function o = get.curSession(obj)
             o = obj.handles.SelectSession.CurrentObject;
         end
         
-        function set.Session(obj,S)            
+        function set.Session(obj,S)
             
             if isempty(S), return; end
             
@@ -132,7 +145,7 @@ classdef DataBrowser < handle
             obj.DataPath = string(pth);
             
             d = dir(fullfile(pth,'*.mat'));
-                        
+            
             fn = arrayfun(@(a) fullfile(a.folder,a.name),d,'uni',0);
             
             obj.Filename = string(fn);
@@ -152,12 +165,12 @@ classdef DataBrowser < handle
                 'Pick a file',pth,'MultiSelect','on');
             
             if isequal(fn,0), return; end
-                        
+            
             fn = cellfun(@(a) fullfile(pth,a),cellstr(fn),'uni',0);
             obj.Filename = string(fn);
             
             setpref('epa_DataViewer','DataPath',pth);
-
+            
         end
         
         
@@ -216,7 +229,7 @@ classdef DataBrowser < handle
             h = obj.handles;
             
             if nargin > 1 && isequal(src,'init')
-                a = evalin('base','whos'); 
+                a = evalin('base','whos');
                 ind = ismember({a.class},'epa.Session');
                 
                 if isempty(ind) || ~any(ind)
@@ -257,31 +270,33 @@ classdef DataBrowser < handle
                 h.SelectEvent2Values.Items = {};
                 h.SelectEvent2Values.Enable = 'off';
                 h.PlotButton.Enable = 'off';
+                h.SelectPlotStyle.Enable = 'off';
                 return
             end
-                        
+            
             h.SelectSession.handle.Enable  = 'on';
             h.SelectClusters.handle.Enable = 'on';
             h.SelectEvent1.handle.Enable   = 'on';
             h.SelectEvent2.handle.Enable   = 'on';
             h.SelectEvent1Values.Enable    = 'on';
             h.SelectEvent2Values.Enable    = 'on';
-            
+            h.SelectPlotStyle.Enable       = 'on';
             
             % update Events
             E = S.common_Events;
-
+            
             if isempty(E)
                 h.SelectEvent1.handle.Enable   = 'off';
                 h.SelectEvent2.handle.Enable   = 'off';
                 h.SelectEvent1Values.Enable    = 'off';
                 h.SelectEvent2Values.Enable    = 'off';
+                h.SelectPlotStyle.Enable       = 'off';
                 uialert(obj.parent,'No Events were found to be in common across the selected Sessions.', ...
                     'No Events','Icon','warning','Modal',true);
                 return
             end
             
-            h.SelectEvent1.Object   = E;                        
+            h.SelectEvent1.Object   = E;
             obj.select_event_updated(h.SelectEvent1);
             if length(E) > 1
                 h.SelectEvent2.Object  = E;
@@ -320,6 +335,11 @@ classdef DataBrowser < handle
             
             
             % update Streams
+            
+            
+            
+            
+            h.SelectPlotStyle.Enable = 'on';
         end
         
         function select_event_updated(obj,src,event)
@@ -353,16 +373,12 @@ classdef DataBrowser < handle
             end
         end
         
-        function clusternote_updated(obj,src,event)
-            
-        end
-        
-        function select_parameter(obj,src,event)
+        function plot_select_parameter(obj,src,event)
             h = obj.handles;
             
             pv = h.ParameterList.Value;
             
-            v = obj.Par.(pv);
+            v = obj.plotSettings.(pv);
             if isempty(v)
                 h.ParameterEdit.Value = '[]';
             elseif isstring(v) || ischar(v)
@@ -382,7 +398,8 @@ classdef DataBrowser < handle
             end
         end
         
-        function parameter_edit(obj,src,event)
+        
+        function plot_parameter_edit(obj,src,event)
             h = obj.handles;
             
             p = h.ParameterList.Value;
@@ -394,7 +411,7 @@ classdef DataBrowser < handle
             mp = obj.plotMeta.PropertyList;
             
             
-            if isnumeric(obj.Par.(p)) || islogical(obj.Par.(p))
+            if isnumeric(obj.plotSettings.(p)) || islogical(obj.plotSettings.(p))
                 nv = str2num(nv);
             end
             
@@ -402,10 +419,10 @@ classdef DataBrowser < handle
             m = mp(ind);
             
             
-
+            
             if isValidValue(m.Validation,nv)
-                obj.Par.(p) = nv;
-                src.BackgroundColor = [0.4 1 0.4]; 
+                obj.plotSettings.(p) = nv;
+                src.BackgroundColor = [0.4 1 0.4];
                 pause(0.3);
                 src.BackgroundColor = [1 1 1];
             else
@@ -421,23 +438,23 @@ classdef DataBrowser < handle
         function plot_style_value_changed(obj,src,event)
             h = obj.handles;
             
-            pst = h.SelectPlotStyle.Value;
-                
+            pst = obj.curPlotStyle;
+            
             tmpObj = epa.plot.(pst);
             
             p = epa.helper.get_settable_properties(tmpObj);
             
             obj.plotMeta = metaclass(tmpObj);
             
-            h.ParameterList.Items = p;
+            h.ParameterList.Items = sort(p);
             
-            obj.Par = [];
+            obj.plotSettings = [];
             for i = 1:length(p)
-                obj.Par.(p{i}) = tmpObj.(p{i});
+                obj.plotSettings.(p{i}) = tmpObj.(p{i});
             end
             
-            obj.select_parameter;
-
+            obj.plot_select_parameter;
+            
         end
         
         function launch_plot(obj,src,event)
@@ -455,6 +472,215 @@ classdef DataBrowser < handle
                 rethrow(me)
             end
         end
+        
+        function plot_save_settings(obj,src,event)
+            plotSettings = obj.plotSettings;
+            plotStyle = obj.curPlotStyle;
+            
+            pth = getpref('epa_DataBrowser','PlotSettings',cd);
+            
+            [fn,pth] = uiputfile({'*.mat','MAT-files (*.mat'}, ...
+                'Save Plot Settings',pth);
+            
+            if isequal(fn,0), return; end
+            
+            ffn = fullfile(pth,fn);
+            
+            
+            save(ffn,'plotSettings','plotStyle');
+            
+            setpref('epa_DataBrowser','PlotSettings',pth);
+            
+            fprintf('Current plot settings saved to: "%s"\n',ffn)
+        end
+        
+        function plot_load_settings(obj,src,event)
+            
+            pth = getpref('epa_DataBrowser','PlotSettings',cd);
+            
+            [fn,pth] = uigetfile({'*.mat','MAT-files (*.mat'}, ...
+                'Load Plot Settings',pth);
+            
+            if isequal(fn,0), return; end
+            
+            ffn = fullfile(pth,fn);
+            
+            load(ffn,'plotSettings','plotStyle');
+            
+            setpref('epa_DataBrowser','PlotSettings',pth);
+            
+            
+            obj.handles.SelectPlotStyle.Value = plotStyle;
+            obj.plot_style_value_changed;
+            obj.plotSettings = plotSettings; %#ok<PROPLC>
+            
+            fprintf('Updated plot settings saved from: "%s"\n',ffn)
+            
+            figure(ancestor(obj.parent,'figure'));
+        end
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        function metric_select(obj,src,event)
+            h = obj.handles;
+            
+            v = obj.curMetric;
+            
+            try
+                dfltpar = feval(v,'getdefaults');
+                fn = fieldnames(dfltpar);
+            catch
+                dfltpar = struct('fail',1);
+                fn = {'< no parameters or error >'};
+            end
+            
+            fn(ismember(fn,'values')) = [];
+            
+            ph = h.SelectMetricParameterListbox;
+            ph.Items = fn;
+            
+            for i = 1:length(fn)
+                if ~isfield(obj.metricPar,fn{i}), continue; end
+                dfltpar.(fn{i}) = obj.metricPar.(fn{i});
+            end
+            
+            
+            obj.metricPar = dfltpar;
+            
+            obj.metric_select_parameter;
+        end
+        
+        function metric_show_help(obj,src,event)
+            v = obj.curMetric;
+            
+            fprintf('\n\n%s\n\n',repmat('v',1,50))
+            fprintf('help for the function "%s"\n\n',v)
+            help(v)
+            fprintf([repmat('^',1,50) '\n'])
+        end
+        
+        function metric_select_parameter(obj,src,event)
+            h = obj.handles;
+            
+            v = obj.curMetricParameter;
+            
+            m = obj.metricPar.(v);
+            
+            if isnumeric(m) || islogical(m)
+                m = mat2str(m);
+            end
+            
+            h.AnalysisParameterEdit.Value = m;
+            
+        end
+        
+        function metric_parameter_edit(obj,src,event)
+            v = obj.curMetricParameter;
+            
+            m = src.Value;
+            
+            if isnumeric(obj.metricPar.(v)) || islogical(obj.metricPar.(v))
+                m = str2num(m);
+            end
+            
+            obj.metricPar.(v) = m;
+        end
+        
+        function run_analysis(obj,src,event)
+            h = obj.handles.RunAnalysisButton;
+            
+            h.Enable = 'off';
+            h.Text = 'Analyzing Data ...';
+            drawnow
+            
+            try
+            
+            C = obj.curClusters;
+            S = obj.curSession;
+            E = obj.curEvent1;
+            Ev =obj.curEvent1Values;
+            
+            obj.metricPar.event = E;
+            obj.metricPar.eventvalues = Ev;
+            
+            nC = length(C);
+            nS = length(S);
+            
+            fnc = str2func(obj.curMetric);
+            
+            fprintf('Computing "%s"\n',obj.curMetric)
+            
+            for j = 1:nS
+                
+                for i = 1:nC
+                    clusterName = matlab.lang.makeValidName(C(i).Name);
+                    
+                    thisCluster = S(j).find_Cluster(C(i).Name);
+                    
+                    sessionName = thisCluster.Session.Name;
+                    sessionName = matlab.lang.makeValidName(sessionName);
+                    
+                    fprintf(' > Cluster "%s" [%2d/%2d] - Session "%s" [%d/%d] ...', ...
+                        thisCluster.Name,i,nC, ...
+                        thisCluster.Session.Name,j,nS)
+                    
+                    [trials,values] = thisCluster.triallocked(obj.metricPar);
+                    
+                    obj.metricPar.values = values;
+                    
+                    
+                    r = feval(fnc,trials,obj.metricPar);
+                    
+                    ev = obj.metricPar.eventvalues;
+                    for k = 1:length(ev)
+                        ind = ev(k) == values;
+                        eventValueName = sprintf('%s_%g',obj.metricPar.event.Name,ev(k));
+                        eventValueName = matlab.lang.makeValidName(eventValueName);
+                                                
+                        tmpR.value = ev(k);
+                        
+                        tmpR.n = sum(ind);
+                        
+                        tmpR.trialresults = r(ind);
+                        tmpR.trialindex = find(ind);
+                        tmpR.nnan = sum(isnan(r(ind)));
+                        tmpR.ninf = sum(isinf(r(ind)));
+                        
+                        tmpR.mean = mean(r(ind),'omitnan');
+                        tmpR.median = median(r(ind),'omitnan');
+                        tmpR.std = std(r(ind),'omitnan');
+                        
+                        
+                        Result.(sessionName).(clusterName).(eventValueName) = tmpR;
+                    end
+                    
+                    fprintf(' done\n')
+                end
+            end
+            assignin('base','Result',Result);
+            
+            whos Result
+            disp(Result)
+            
+            catch me
+                h.Enable = 'on';
+                h.Text = 'Run Analysis';
+                rethrow(me)
+            end
+            
+            h.Enable = 'on';
+            h.Text = 'Run Analysis';
+        end
+        
+        
+        
+        
         
         
         
