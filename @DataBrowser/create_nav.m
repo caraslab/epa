@@ -13,9 +13,13 @@ end
 
 obj.handles.DataBrowser = f;
 
+
+
+
+
 % main grid Layout
 NavGrid = uigridlayout(obj.parent);
-NavGrid.ColumnWidth = {'0.4x','0.25x','0.1x','0.25x'};
+NavGrid.ColumnWidth = {'0.25x','0.3x','0.2x','0.3x'};
 NavGrid.RowHeight   = {25,25,'1x'};
 obj.handles.NavGrid = NavGrid;
 
@@ -75,6 +79,9 @@ obj.handles.DataTypeTabGroup = h;
 tg = h;
 
 
+
+
+
 % Streams
 h = uitab(tg,'Title','Streams');
 obj.handles.StreamsTab = h;
@@ -92,13 +99,18 @@ h.handle.Tooltip = 'Select Streams';
 obj.handles.SelectClusters = h;
 
 
+
+
+
+
+
 % Clusters
 h = uitab(tg,'Title','Clusters');
 obj.handles.ClustersTab = h;
 
 ClustGrid = uigridlayout(h);
 ClustGrid.ColumnWidth = {'1x','1x'};
-ClustGrid.RowHeight   = [{'1x'},repmat({25},1,5)];
+ClustGrid.RowHeight   = {'1x',50,30};
 obj.handles.ClustGrid = ClustGrid;
 
 h = epa.ui.SelectObject(ClustGrid,'epa.Cluster','uilistbox');
@@ -111,7 +123,7 @@ h.handle.Tooltip = 'Select Clusters';
 obj.handles.SelectClusters = h;
 
 h = uilistbox(ClustGrid,'Tag','UnitTypeList');
-h.Layout.Row = [2 3];
+h.Layout.Row = 2;
 h.Layout.Column = 1;
 h.Multiselect = 'on';
 h.Items = ["SU","MSU","MU","Noise"];
@@ -119,6 +131,12 @@ h.Tooltip = 'Filter by Cluster type';
 h.ValueChangedFcn = @obj.select_session_updated;
 obj.handles.UnitTypeListbox = h;
 
+h = uibutton(ClustGrid);
+h.Layout.Row = 3;
+h.Layout.Column = [1 2];
+h.Text = 'Plot Waveforms';
+h.ButtonPushedFcn = @obj.plot_spike_waveforms;
+obj.handles.SpikeWaveformButton = h;
 
 
 
@@ -259,7 +277,6 @@ h.Layout.Row = 3;
 h.Text = 'flow tiling';
 obj.handles.FlowTiling = h;
 
-
 h = uibutton(PlotOptGrid);
 h.Layout.Column = [1 2];
 h.Layout.Row    = 4;
@@ -316,6 +333,8 @@ h.Text = 'Run Analysis';
 h.Tooltip = 'Run currently selected analysis';
 h.ButtonPushedFcn = @obj.run_analysis;
 obj.handles.RunAnalysisButton = h;
+
+
 
 
 % Set fonts
