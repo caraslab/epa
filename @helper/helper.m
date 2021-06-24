@@ -8,7 +8,7 @@ classdef helper < handle
             if nargin == 0 || isempty(rootdir)
                 rootdir = fullfile(epa.helper.rootdir,'+epa');
             end
-            pths = genpath(rootdir);
+            pths = genpath(fullfile(rootdir,'external'));
             if ispc
                 c = strsplit(pths,';');
             else
