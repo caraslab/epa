@@ -1,4 +1,4 @@
-classdef Cluster < handle & dynamicprops
+classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
     % C = epa.Cluster(SessionObj,[ID],[Spiketimes],[SpikeWaveforms])
     
     
@@ -62,21 +62,21 @@ classdef Cluster < handle & dynamicprops
         end
         
         
-        function set.Samples(obj,s)
-            if ~isempty(obj.Waveforms)
-                assert(numel(s) == obj.nSpikes, ...
-                    'epa:SpikeWaveforms:Samples:UnequalDimensions', ...
-                    'Number of Samples must equal the number of spikes')
-            end
-            obj.Samples = s(:);
-        end
+%         function set.Samples(obj,s)
+%             if ~isempty(obj.Waveforms)
+%                 assert(numel(s) == obj.nSpikes, ...
+%                     'epa:SpikeWaveforms:Samples:UnequalDimensions', ...
+%                     'Number of Samples must equal the number of spikes')
+%             end
+%             obj.Samples = s(:);
+%         end
         
         function set.Waveforms(obj,w)
-            if ~isempty(obj.Samples)
-                assert(size(w,3) == length(obj.Samples), ...
-                    'epa:SpikeWaveforms:Waveforms:UnequalDimensions', ...
-                    'Size of dimension 3 of Waveforms must equal the number of Samples')
-            end
+%             if ~isempty(obj.Samples)
+%                 assert(size(w,3) == length(obj.Samples), ...
+%                     'epa:SpikeWaveforms:Waveforms:UnequalDimensions', ...
+%                     'Size of dimension 3 of Waveforms must equal the number of Samples')
+%             end
             
             if isempty(obj.ShankChannels)
                 obj.ShankChannels = 1:size(w,1);
@@ -169,6 +169,61 @@ classdef Cluster < handle & dynamicprops
         
         
         
+        function rem_spikes(obj,s)
+            % obj.rem_spikes(samples)
+            % 
+            % Remove one or more spikes from the Cluster using the spike
+            % sample (obj.Samples).
+            ind = ismember(obj.Samples,s);
+            w = obj.Waveforms(:,:,~ind);
+            s = obj.Samples(~ind);
+            set(obj,'Samples',s,'Waveforms',w);
+        end
+        
+        
+        function [coeff,score,latent,tsquared,explained,mu] = waveform_pca(obj)
+            w = reshape(obj.Waveforms,obj.nChannels*obj.nWaveformSamples,obj.nSpikes);
+            [coeff,score,latent,tsquared,explained,mu] = pca(w');
+        end
+        
+        function h = plot_waveforms(obj,ax,maxw)
+            if nargin < 2 || isempty(ax), ax = gca; end
+            if nargin < 3 || isempty(maxw), maxw = 1000; end
+            
+            if obj.nWaveformSamples == 0
+                cla(ax);
+                title(ax,[obj.TitleStr '- NO SPIKE WAVEFORMS'])
+                return
+            end
+            
+            maxw = min(obj.nSpikes,maxw);
+            
+            idx = randperm(obj.nSpikes,maxw);
+            idx = sort(idx);
+            
+            w = squeeze(obj.Waveforms(obj.channelInd,:,idx));
+
+            
+            for i = 1:length(idx)
+                h(i) = line(ax,1e3*obj.WaveformTime,w(:,i), ...
+                    'color',[.4 .4 .4], ...
+                    'UserData',idx(i));
+            end
+            
+            xlim(ax,obj.WaveformTime([1 end])*1e3);
+            
+            grid(ax,'on');
+            box(ax,'on');
+            
+            xlabel('time (ms)');
+            
+            title(ax,obj.TitleStr);
+            
+            epa.helper.setfont(ax);
+            
+            if nargout == 0, clear h; end
+        end
+        
         
         function h = plot_waveform_mean(obj,ax)
             if nargin < 2 || isempty(ax), ax = gca; end
@@ -185,11 +240,11 @@ classdef Cluster < handle & dynamicprops
             h = plot(ax,obj.WaveformTime*1e3,m,'-k','linewidth',2);
             xlim(ax,obj.WaveformTime([1 end])*1e3);
             grid(ax,'on');
+            
             xlabel(ax,'time (ms)');
-            
-            
-            ax.Title.String = obj.TitleStr;
-            ax.Title.FontSize = 10;
+            title(ax,obj.TitleStr);
+
+            epa.helper.setfont(ax);
             
             if nargout == 0, clear h; end
         end
@@ -224,17 +279,18 @@ classdef Cluster < handle & dynamicprops
 
             h = imagesc(ax,xe,ye,n');
             ax.YDir = 'normal';
+            xlim(ax,obj.WaveformTime([1 end])*1e3);
             
             xlabel(ax,'time (ms)');
+            title(ax,obj.TitleStr);
             
-            ax.Title.String = obj.TitleStr;
-            ax.Title.FontSize = 10;
-            
+            epa.helper.setfont(ax);
+
             ax.CLim = [0 quantile(n(:),.95)];
             colormap(ax,flipud(hot));
-            hc = colorbar(ax);
-            hc.YLabel.String = normalization;
-            hc.Visible = 'off';
+%             hc = colorbar(ax);
+%             hc.YLabel.String = normalization;
+%             hc.Visible = 'off';
             
             if nargout == 0, clear h; end
         end
