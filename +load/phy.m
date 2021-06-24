@@ -111,21 +111,23 @@ for j = 1:length(groupIdx)
     spikes(j) = structfun(@(a) a(groupIdx(j)),clusterQuality,'uni',0);
 end
 
+k = 1;
 for j = 1:length(spikes)
     shankChannels = channelMap(channelShanks == spikes(j).sh);
     
     % find spike samples for this spike cluster indices 
     idx = find(spikes(j).cluster_id == spikeClusters);
+    if isempty(idx), continue; end
 
-    SW(j).Name          = string(sprintf('cluster%d',spikes(j).cluster_id));
-    SW(j).Samples       = spikeSamples(idx);
-    SW(j).SamplingRate  = Fs;
-    SW(j).Window        = par.spikewindow;
-    SW(j).Channels      = shankChannels;
-    SW(j).PrimaryChannel = spikes(j).ch;
-    SW(j).ShankID       = spikes(j).sh;
-    SW(j).OriginalDataFile = dir(datffn);
-    SW(j).Type          = spikes(j).group;
+    SW(k).Name          = string(sprintf('cluster%d',spikes(j).cluster_id));
+    SW(k).Samples       = spikeSamples(idx);
+    SW(k).SamplingRate  = Fs;
+    SW(k).Window        = par.spikewindow;
+    SW(k).Channels      = shankChannels;
+    SW(k).PrimaryChannel = spikes(j).ch;
+    SW(k).ShankID       = spikes(j).sh;
+    SW(k).OriginalDataFile = dir(datffn);
+    SW(k).Type          = spikes(j).group;
     
     if par.includespikewaveforms
         wf = zeros(length(shankChannels),length(swvec),spikes(j).n_spikes,dataType);
@@ -134,9 +136,11 @@ for j = 1:length(spikes)
             sidx = [spikeSamples(idx(i))-swvec_neg, spikeSamples(idx(i))+swvec_pos];
             wf(:,:,i) = mmf.Data.x(shankChannels,sidx);
         end
-        SW(j).Waveforms = cast(wf,'single'); clear wf
+        SW(k).Waveforms = cast(wf,'single'); clear wf
         fprintf('.')
     end
+    
+    k = k + 1;
 end
 
 fprintf(' done\n')
@@ -161,23 +165,28 @@ for i = 1:length(BPfileroot)
     fprintf('Creating Session "%s" ',BPfileroot{i})
     S(i) = epa.Session(ops.fs);
     S(i).Name = BPfileroot{i};
+    k = 1;
     for j = 1:length(SW)
         ind = SW(j).Samples > BPsamples(i) & SW(j).Samples <= BPsamples(i+1);
+        if ~any(ind), continue; end
         
-        S(i).add_Cluster(j);
+        
+        S(i).add_Cluster(k);
         C = S(i).Clusters(end);
-        C.Name = SW(j).Name;
-        C.Type = SW(j).Type;
-        C.Samples = SW(j).Samples(ind);
-        C.Channel = SW(j).PrimaryChannel;
-        C.Shank   = SW(j).ShankID;
-        C.ShankChannels = SW(j).Channels;
-        C.WaveformWindow = SW(j).Window;
-        C.OriginalDataFile = SW(j).OriginalDataFile;
+        C.Name      = SW(j).Name;
+        C.Type      = SW(j).Type;
+        C.Samples   = SW(j).Samples(ind);
+        C.Channel   = SW(j).PrimaryChannel;
+        C.Shank     = SW(j).ShankID;
+        C.ShankChannels     = SW(j).Channels;
+        C.WaveformWindow    = SW(j).Window;
+        C.OriginalDataFile  = SW(j).OriginalDataFile;
         
         if par.includespikewaveforms
             C.Waveforms = SW(j).Waveforms(:,:,ind);
         end
+        
+        k = k + 1;
         fprintf('.')
     end
     fprintf(' done\n')
@@ -186,52 +195,5 @@ end
 
 
 
-
-
-% Read Events from CSV files with event information
-d = dir(fullfile(DataPath,['**' filesep '*trialInfo.csv']));
-
-if isempty(d)
-    warning(sprintf('No *trialInfo.csv files were found on the DataPath: "%s"',DataPath));
-end
-
-onsetEvent  = 'Trial_onset';
-offsetEvent = 'Trial_offset';
-
-for i = 1:length(S)
-    c = contains(string({d.name}),S(i).Name);
-    
-    if ~any(c), continue; end
-    
-    
-    fprintf('Adding Events from file for "%s" ...',S(i).Name);
-    
-    fid = fopen(fullfile(d(c).folder,d(c).name),'r');
-    dat = {};
-    while ~feof(fid), dat{end+1} = fgetl(fid); end
-    fclose(fid);
-    
-    c = cellfun(@epa.helper.tokenize,dat,'uni',0);
-    dat = cellfun(@matlab.lang.makeValidName,c{1},'uni',0);
-    c(1) = [];
-    v = cellfun(@str2double,c,'uni',0);
-    v = cat(2,v{:})';
-    
-    
-    % Event timings for these files are the same for all events
-    ind = ismember(dat,onsetEvent);
-    evOns = v(:,ind);
-    dat(ind) = []; v(:,ind) = [];
-    
-    ind = ismember(dat,offsetEvent);
-    evOffs = v(:,ind);
-    dat(ind) = []; v(:,ind) = [];
-    
-    % Add each field as an Event
-    for j = 1:length(dat)
-        S(i).add_Event(dat{j},[evOns evOffs],v(:,j));
-    end
-    
-    fprintf(' done\n')
-end
+epa.load.events(S,DataPath);
 

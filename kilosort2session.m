@@ -26,7 +26,7 @@ function S = kilosort2session(DataPath)
 % 
 % DJS 2021
 
-fprintf(2,'WARNING: kilosort2session will soon be removed. Please use epa.load.kilosort instead.\n')
+fprintf(2,'WARNING: kilosort2session will soon be removed.\nPlease use epa.load.kilosort instead.\n')
 
 S = epa.load.kilosort(DataPath);
 

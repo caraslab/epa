@@ -43,6 +43,6 @@ function S = phy2session(DataPath,varargin)
 % DJS 2021
 
 
-fprintf(2,'WARNING: phy2session will soon be removed. Please use epa.load.phy instead.\n')
+fprintf(2,'WARNING: phy2session will soon be removed.\nPlease use epa.load.phy instead.\n')
 
 S = epa.load.phy(DataPath);

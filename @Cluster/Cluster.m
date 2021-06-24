@@ -6,18 +6,13 @@ classdef Cluster < handle & dynamicprops
         ID       (1,1) uint16 {mustBeFinite} = -1;
         Name     string
         Type     string {mustBeMember(Type,["SU","MSU","MU","Noise",""])} = ""
-
+        
+        SamplingRate    (1,1) double {mustBePositive,mustBeFinite} = 1 % by default same as obj.Session.SamplingRate
                
-        Channel  (1,1) double {mustBeFinite,mustBeInteger} = -1;
-        Shank    (1,1) double {mustBePositive,mustBeFinite,mustBeInteger} = 1;
-        Coords   (1,3) double {mustBeFinite} = [0 0 0];
-        
-        UserData 
-        
-        Note     (:,1) string   % User notes
-        
-        TitleStr (1,1) string   % auto generated if empty
-        
+        Channel         (1,1) double {mustBeFinite,mustBeInteger} = -1;
+        Shank           (1,1) double {mustBePositive,mustBeFinite,mustBeInteger} = 1;
+        ElectrodeType   (1,1) string
+        Coords          (1,3) double {mustBeFinite} = [0 0 0];
         Waveforms       (:,:,:) single % [channels x samples x spikes]
         Samples         (:,1) single {mustBeInteger} = [] % single datatype for easier manipulation
         WaveformWindow  (1,2) double {mustBeFinite} = [0 1]
@@ -26,7 +21,11 @@ classdef Cluster < handle & dynamicprops
         
         OriginalDataFile (1,1) % could be filename or struct from dir()
         
-        SamplingRate    (1,1) double {mustBePositive,mustBeFinite} = 1 % by default same as obj.Session.SamplingRate
+        
+        Note     (:,1) string   % User notes
+        UserData
+        
+        TitleStr (1,1) string   % auto generated if empty
     end
     
     
