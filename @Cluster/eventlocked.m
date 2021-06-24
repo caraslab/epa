@@ -18,7 +18,8 @@ function [t,eidx,vid] = eventlocked(obj,varargin)
 %                     [1x1] window duration, default = 1
 %   sorton        ... Determines how trials should be sorted. 'original' or
 %                     'events'. 'events' orders the trials by event value.
-% 
+%   includeallevents ... [1x1] logical determines whether to include
+%                        events marked as invalid. default = false.
 % 
 % Output:
 %   t    ...    [Nx1] Spike timestamps adjusted by the event onset within
@@ -32,6 +33,7 @@ function [t,eidx,vid] = eventlocked(obj,varargin)
 par.eventvalue = 'all';
 par.window     = [0 1];
 par.sorton     = 'events';
+par.includeallevents = false;
 
 if isequal(varargin{1},'getdefaults'), t = par; return; end
 
@@ -47,6 +49,11 @@ E = par.event; % copy handle to Event object
 
 
 [v,oot] = E.subset(par.eventvalue);
+
+if ~par.includeallevents
+    v(~E.ValidTrials) = [];
+    oot(~E.ValidTrials,:) = [];
+end
 
 
 switch lower(par.sorton)

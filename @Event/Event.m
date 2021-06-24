@@ -4,14 +4,19 @@ classdef Event < handle
         Name          (1,1) string = "Unnamed Event"
         OnOffTimes    (:,2) single {mustBeNonnegative} % time when the event [started ended]
 
-        SamplingRate  (1,1) single = -1; % takes value of Session.SamplingRate unless specified
-        Values    % Some associated value for the event (ex stimulus frequency or sound level)
-        Units   string % Units associated with the Values (ex "Hz" for frequency)
+        SamplingRate  (1,1) single = -1 % takes value of Session.SamplingRate unless specified
+        Values           % Some associated value for the event (ex stimulus frequency or sound level)
+        Units         string % Units associated with the Values (ex "Hz" for frequency)        
     end
 
+    properties (SetObservable = true)
+        ValidTrials     (:,1) logical = true
+    end
+    
     properties (Dependent)
         OnOffSamples
         DistinctValues
+        N
     end
     
     
@@ -26,12 +31,34 @@ classdef Event < handle
             obj.Session = SessionObj;
             obj.Name = Name;
             obj.OnOffTimes = OnOffTimes;
+           
+            
             
             if nargin < 4 || isempty(Values), Values = nan; end
             if nargin < 5 || isempty(Units), Units = "";  end
             
             obj.Values = Values;
             obj.Units = Units;
+        end
+        
+        
+        function set.ValidTrials(obj,ivt)
+            assert(length(ivt) == obj.N, ...
+                'epa:Event:ValidTrials:UnequalLength', ...
+                'When specifying ValidTrials, the length must equal the number events (obj.N)')
+            
+            obj.ValidTrials = ivt(:);
+        end
+        
+        function vt = get.ValidTrials(obj)
+            if isempty(obj.ValidTrials)
+                obj.ValidTrials = true(obj.N,1);
+            end
+            vt = obj.ValidTrials;
+        end
+        
+        function n = get.N(obj)
+            n = size(obj.OnOffSamples,1);
         end
         
         function fs = get.SamplingRate(obj)
@@ -41,14 +68,17 @@ classdef Event < handle
             fs = obj.SamplingRate;
         end
         
+        
+        
+        
         function s = get.OnOffSamples(obj)
             s = round(obj.OnOffTimes .* obj.SamplingRate);
         end
         
+        
         function v = get.DistinctValues(obj)
             v = unique(obj.Values);
         end
-        
         
         
         

@@ -24,10 +24,12 @@ classdef (Abstract) PlotType < handle & dynamicprops
         info
         infofontsize    (1,1) double {mustBePositive,mustBeFinite,mustBeNonempty} = 8;
         
-        showlegend      (1,1) logical {mustBeNonempty} = false;
+        showlegend      (1,1) logical {mustBeNonempty} = false
         
         event           (1,1) %epa.Event
         eventvalue      (1,:)
+        
+        includeallevents   (1,1) logical = false
     end
     
     properties

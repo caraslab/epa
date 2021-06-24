@@ -1,8 +1,11 @@
 function events(S,DataPath)
 % events(S,DataPath)
 % 
+% Read Events from CSV files ('*trialInfo.csv') with event information.
+% Events will be added to the Session object(s), S.
 % 
-% Read Events from CSV files with event information
+% DJS 2021
+
 d = dir(fullfile(DataPath,['**' filesep '*trialInfo.csv']));
 
 if isempty(d)

@@ -38,19 +38,13 @@ classdef PSTH < epa.plot.PlotType
             cla(axe,'reset');
             
             C = obj.Cluster;
-            S = C.Session;
+
             
-            cla(axe,'reset');
-            
-            
-            
-                        
             
             [c,b,uv] = C.psth(obj);
             nvals = length(uv);
             % cm = epa.helper.colormap(obj.colormap,size(c,1));
             
-            cla(axe,'reset');
             
             b = [b; b+obj.binsize];
             b = b(:)';
