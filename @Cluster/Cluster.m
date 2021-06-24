@@ -53,11 +53,11 @@ classdef Cluster < handle & dynamicprops
         [n,lags]        = interspike_interval(obj,varargin)
         [r,lags]        = xcorr(obj,varargin)
         
-        function obj = Cluster(SessionObj,ID)
+        function obj = Cluster(SessionObj,ID,Samples)
             
             if nargin >= 1 && ~isempty(SessionObj), obj.Session = SessionObj; end
             if nargin >= 2 && ~isempty(ID),         obj.ID = ID;              end
-            
+            if nargin == 3 && ~isempty(Samples),    obj.Samples = Samples;    end
             
             obj.SamplingRate = obj.Session.SamplingRate;
         end
@@ -174,6 +174,12 @@ classdef Cluster < handle & dynamicprops
         function h = plot_waveform_mean(obj,ax)
             if nargin < 2 || isempty(ax), ax = gca; end
             
+            if obj.nWaveformSamples == 0
+                cla(ax);
+                title(ax,[obj.TitleStr '- NO SPIKE WAVEFORMS'])
+                return
+            end
+            
             w = squeeze(obj.Waveforms(obj.channelInd,:,:));
             m = mean(w,2);
             
@@ -193,6 +199,13 @@ classdef Cluster < handle & dynamicprops
         function h = plot_waveform_density(obj,ax,normalization)
             if nargin < 2 || isempty(ax), ax = gca; end
             if nargin < 3 || isempty(normalization), normalization = 'count'; end
+            
+            
+            if obj.nWaveformSamples == 0
+                cla(ax);
+                title(ax,[obj.TitleStr '- NO SPIKE WAVEFORMS'])
+                return
+            end
             
             xb = 1e3 * obj.WaveformTime(:);
             x = repmat(xb,obj.nSpikes,1);

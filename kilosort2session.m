@@ -50,15 +50,13 @@ fid = fopen(ffn,'r');
 bp = textscan(fid,'%s %d','delimiter',',','HeaderLines',1);
 fclose(fid);
 BPfileroot = cellfun(@(a) a(1:find(a=='_')-1),bp{1},'uni',0);
-BPsamples  = bp{2};
-BPtimes = double(BPsamples) ./ ops.fs;
-BPtimes = [0; BPtimes]; % makes indexing spikes later easier
-
+BPsamples  = [0; bp{2}];
 
 % load spike clusters with spike times (in secconds) from txt files
 d = dir(fullfile(DataPath,['**' filesep '*concat_cluster*.txt']));
 ffn = cellfun(@fullfile,{d.folder},{d.name},'uni',0);
 ST  = cellfun(@dlmread,ffn,'uni',0);
+ST  = cellfun(@(a) cast(ops.fs*a,'like',BPsamples),ST,'uni',0);
 
 clusterAlias = cellfun(@(a) a(find(a == '_',1,'last')+1:find(a=='.',1,'last')-1),ffn,'uni',0);
 
@@ -67,10 +65,11 @@ clusterAlias = cellfun(@(a) a(find(a == '_',1,'last')+1:find(a=='.',1,'last')-1)
 for i = 1:length(BPfileroot)
     S(i) = epa.Session(ops.fs);
     S(i).Name = BPfileroot{i};
-    for j = 1:length(ST)
-        ind = ST{j} > BPtimes(i) & ST{j} <= BPtimes(i+1);
-        xx = ST{j}(ind) - BPtimes(i); % recording block starts at 0 seconds
-        S(i).add_Cluster(j,xx);
+    for j = 1:length(BPsamples)
+        ind = ST{j} > BPsamples(i) & ST{j} <= BPsamples(i+1);
+        xx = ST{j}(ind) - BPsamples(i); % recording block starts at 0 seconds
+        if isempty(xx), continue; end
+        S(i).add_Cluster(S(i).NClusters+1,xx);
         S(i).Clusters(end).Type = "SU"; % mark as single unit
         S(i).Clusters(end).Name = clusterAlias{j};
     end
