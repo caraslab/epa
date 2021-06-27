@@ -43,6 +43,9 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
         Session      (1,1) %epa.Session
     end
     
+    events
+        Updated
+    end
     
     methods
         [t,eidx,vid]    = eventlocked(obj,varargin)
@@ -78,13 +81,13 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
 %                     'Size of dimension 3 of Waveforms must equal the number of Samples')
 %             end
             
-            if isempty(obj.ShankChannels)
-                obj.ShankChannels = 1:size(w,1);
-            else
-                assert(size(w,1) == numel(obj.ShankChannels), ...
-                    'epa:SpikeWaveforms:Waveforms:UnequalDimensions', ...
-                    'Size of dimension 2 of Waveforms must equal the number of ShankChannels')
-            end
+%             if isempty(obj.ShankChannels)
+%                 obj.ShankChannels = 1:size(w,1);
+%             else
+%                 assert(size(w,1) == numel(obj.ShankChannels), ...
+%                     'epa:SpikeWaveforms:Waveforms:UnequalDimensions', ...
+%                     'Size of dimension 2 of Waveforms must equal the number of ShankChannels')
+%             end
             
             obj.Waveforms = w;
         end
@@ -178,6 +181,8 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
             w = obj.Waveforms(:,:,~ind);
             s = obj.Samples(~ind);
             set(obj,'Samples',s,'Waveforms',w);
+            
+            notify(obj,'Updated');
         end
         
         
