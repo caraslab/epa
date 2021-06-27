@@ -1,5 +1,5 @@
-function S = phy2session(DataPath,varargin)
-% S = phy2session(DataPath)
+function S = phy(DataPath,varargin)
+% S = phy(DataPath)
 %
 % ex:   DataPath = 'C:\Path\To\Sorted\Data\';
 %       S = epa.phy2session(DataPath);
