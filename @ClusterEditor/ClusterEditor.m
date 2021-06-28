@@ -25,7 +25,7 @@ classdef ClusterEditor < handle
         h_density
         h_isi
         
-        roi
+        roi_pca
     end
     
     properties (SetAccess = immutable)
@@ -52,6 +52,8 @@ classdef ClusterEditor < handle
         end
         
         function update_selection(obj,src,event)
+            
+            obj.figure.Pointer = 'watch'; drawnow
             ind = ismember(obj.Cluster.Samples,obj.selectedSamples);
             
             if any(ind)
@@ -74,11 +76,17 @@ classdef ClusterEditor < handle
             
             drawnow limitrate
             
+            obj.figure.Pointer = 'arrow';
+            
             uistack([obj.h_meanwaveform, obj.h_waveforms(ind)],'top');
             
         end
         
-    end
+        function invert_selection(obj)
+            obj.selectedSamples = setdiff(obj.Cluster.Samples,obj.selectedSamples);
+        end
+        
+    end % methods (Access = public)
     
     methods (Access = protected)
         
@@ -111,6 +119,8 @@ classdef ClusterEditor < handle
             obj.h_pca(~ind) = [];
             
             obj.selectedSamples = [];
+            
+            obj.plot_isi;
         end
         
         function plot_density(obj)
@@ -121,14 +131,9 @@ classdef ClusterEditor < handle
         function plot_waveforms(obj)
             ax = obj.ax_waveforms;
             obj.h_waveforms = obj.Cluster.plot_waveforms(ax,inf);
-            for i = 1:length(obj.h_waveforms)
-                obj.h_waveforms(i).UserData = obj.Cluster.Samples(i);
-            end
             hold(ax,'on');
             obj.h_meanwaveform = obj.Cluster.plot_waveform_mean(ax);
             hold(ax,'off');
-            set([obj.h_waveforms(:); obj.h_meanwaveform(:)],'ButtonDownFcn',@obj.select_spike);
-            
             set(obj.h_waveforms,'ButtonDownFcn',@obj.select_spike);
         end
         
@@ -138,27 +143,67 @@ classdef ClusterEditor < handle
             smp = obj.Cluster.Samples;
             for i = 1:size(scores,1)
                 obj.h_pca(i) = line(ax,scores(i,1),scores(i,2),scores(i,3), ...
-                    'LineStyle','none','Marker','.','MarkerSize',1, ...
-                    'color','k','UserData',smp(i));
+                    'LineStyle','none','Marker','.','MarkerSize',obj.unselectedMarkerSize, ...
+                    'color',obj.unselectedColor,'UserData',smp(i));
             end
             grid(ax,'on');
+            box(ax,'on');
             xlabel(ax,'PC1');
             ylabel(ax,'PC2');
             zlabel(ax,'PC3');
             axis(ax,'tight');
             set(ax,'XTickLabel',[],'YTickLabel',[],'ZTickLabel',[]);
             view(ax,3);
+            
             set(obj.h_pca,'ButtonDownFcn',@obj.select_spike);
         end
         
         function plot_isi(obj)
-            
+            obj.h_isi = obj.Cluster.plot_interspike_interval(obj.ax_isi);
+            obj.h_isi.rpv.FaceColor = 'm';
+            box(obj.ax_isi,'on');
         end
         
         
+        function create_roi(obj)
+            
+            ax = obj.ax_pca;
+            
+            roi = drawcuboid(ax,'LineWidth',0.5,'UserData',obj, ...
+                'FaceAlpha',0.1,'LabelVisible','hover', ...
+                'LineWidth',0.5);
+            
+            addlistener(roi,'MovingROI',@obj.update_roi);
+            addlistener(roi,'ROIMoved',@obj.update_roi);
+            addlistener(roi,'DrawingStarted',@obj.update_roi);
+            addlistener(roi,'DrawingFinished',@obj.update_roi);
+            
+            
+            
+            obj.roi_pca = roi;
+            
+            obj.update_roi(roi);
+        end
+        
+        function update_roi(obj,roi,event)
+            
+            x = double(cell2mat(get(obj.h_pca,'XData')));
+            y = double(cell2mat(get(obj.h_pca,'YData')));
+            z = double(cell2mat(get(obj.h_pca,'ZData')));
+            
+            ind = inROI(roi,x,y,z);
+            
+            pcsamples = cell2mat(get(obj.h_pca,'UserData'));
+            
+            obj.selectedSamples = pcsamples(ind);
+            
+            roi.Label = sprintf('%d of %d',sum(ind),length(ind));
+            
+            drawnow limitrate
+        end
         
         
-    end
+    end % methods (Access = protected)
     
     
     methods (Access = private)
@@ -176,8 +221,7 @@ classdef ClusterEditor < handle
             
             
             % isi
-            %ax = nexttile(t);
-            %obj.ax_isi = ax;
+            obj.ax_isi = nexttile(t);
             
             
             % pca
@@ -186,13 +230,14 @@ classdef ClusterEditor < handle
             obj.plot_waveforms;
             obj.plot_density;
             obj.plot_pca;
+            obj.plot_isi;
             
+            obj.update_selection;
             
             obj.figure.WindowKeyPressFcn = @obj.key_processor;
-
-
-%             obj.els = addlistener(
+            
         end
+        
         
         
         function key_processor(obj,src,event)
@@ -202,16 +247,25 @@ classdef ClusterEditor < handle
                     
                 case 'c'
                     obj.selectedSamples = [];
+                    delete(obj.roi_pca);
                     
-                case 'r'
+                case 'd'
                     if isempty(obj.selectedSamples), return; end
-                    str = sprintf('Remove %d of %d spikes?', ...
+                    str = sprintf('Delete %d of %d spikes?', ...
                         length(obj.selectedSamples),obj.Cluster.N);
-                    b = questdlg(str,'Remove Samples','Remove','Cancel','Cancel');
-                    if isequal(b,'Remove')
+                    b = questdlg(str,'Delete Spikes','Delete','Cancel','Cancel');
+                    if isequal(b,'Delete')
                         obj.remove_spikes;
                     end
+                    
+                case 'i'
+                    obj.invert_selection;
+                    delete(obj.roi_pca);
+                    
+                case 'p'
+                    obj.create_roi;
             end
         end
-    end
+        
+    end % methods (Access = private)
 end

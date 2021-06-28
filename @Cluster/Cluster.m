@@ -112,8 +112,14 @@ classdef Cluster < epa.DataInterface
         
         
         
-        function h = edit(obj)
-            h = epa.ClusterEditor(obj);
+        function h = edit(obj,src,event)
+            pos = getpref('epa_ClusterEditor','Position',[150 150 900 500]);
+            f = figure('Color','w','Position',pos);
+            f.Pointer = 'watch'; drawnow
+            movegui(f,'onscreen');
+            h = epa.ClusterEditor(obj,f);
+            f.CloseRequestFcn = {@epa.helper.store_obj_pref,'epa_ClusterEditor','Position',@delete};
+            f.Pointer = 'arrow';
             if nargout == 0, clear h; end
         end
         
@@ -179,6 +185,54 @@ classdef Cluster < epa.DataInterface
             [coeff,score,latent,tsquared,explained,mu] = pca(w');
         end
         
+        
+        function h = plot_interspike_interval(obj,ax,varargin)
+            if nargin < 2 || isempty(ax), ax = gca; end
+            if nargin < 3, varargin = {}; end
+            
+            par = [];
+            par.maxlag = 0.1;
+            par.binsize = 0.5e-3;
+            par.rpvthreshold = 1.5e-3; % ms; refractory period violations threshold
+            
+            if nargin > 1 && isequal(ax,'getdefaults'), h = par; return; end
+            
+            par = epa.helper.parse_params(par,varargin{:});
+            
+            ind = diff(obj.SpikeTimes) < par.rpvthreshold;
+            rpvc = sum(ind);
+            
+            [n,lags] = obj.interspike_interval(par);
+            
+            ind = lags < par.rpvthreshold;
+            
+            cla(ax,'reset');
+            hold(ax,'on');
+            h.isi = bar(ax,1e3*lags,n,'BarWidth',1,'EdgeColor','none','FaceColor','k');
+            h.rpv = bar(ax,1e3*lags(ind),n(ind),'BarWidth',1,'EdgeColor','none','FaceColor','r');
+%             h.rpvthreshold = line(ax,[1 1]*par.rpvthreshold*1e3,ylim(ax),'Color','r');
+            hold(ax,'off');
+            
+            grid(ax,'on');
+            ax.Title.String = obj.TitleStr;
+            ax.YAxis.Label.String = 'count';
+            ax.XAxis.Label.String = 'inter-spike interval (ms)';
+            ax.XLim = lags([1 end])*1e3;
+            
+
+            
+            str{1} = sprintf('n < %g ms = %d',par.rpvthreshold*1e3,rpvc);
+
+            t = text(ax,.95*1e3*lags(end),.95*max(ylim),str, ...
+                'VerticalAlignment','top','HorizontalAlignment','right', ...
+                'FontName','Consolas','BackgroundColor',ax.Color);
+
+            epa.helper.setfont(ax);
+
+            if nargout == 0, clear h; end
+        end
+        
+        
         function h = plot_waveforms(obj,ax,maxw)
             if nargin < 2 || isempty(ax), ax = gca; end
             if nargin < 3 || isempty(maxw), maxw = 1000; end
@@ -200,7 +254,7 @@ classdef Cluster < epa.DataInterface
             for i = 1:length(idx)
                 h(i) = line(ax,1e3*obj.WaveformTime,w(:,i), ...
                     'color',[.4 .4 .4], ...
-                    'UserData',idx(i));
+                    'UserData',obj.Samples(idx(i)));
             end
             
             xlim(ax,obj.WaveformTime([1 end])*1e3);
@@ -265,12 +319,15 @@ classdef Cluster < epa.DataInterface
                 h = [];
                 ax.Title.String = obj.TitleStr;
                 ax.Title.FontSize = 10;
+                epa.helper.setfont(ax);
                 return
             end
             
             [n,xe,ye] = histcounts2(x,y(:),xb,yb,'Normalization',normalization);
 
+            n = interp2(n,2);
             h = imagesc(ax,xe,ye,n');
+            h.ButtonDownFcn = @obj.edit;
             ax.YDir = 'normal';
             xlim(ax,obj.WaveformTime([1 end])*1e3);
             

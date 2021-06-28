@@ -211,5 +211,12 @@ classdef helper < handle
             m = {d.name};
         end
         
+        
+        function store_obj_pref(src,event,group,pref,addfnc)
+            setpref(group,pref,src.(pref));
+            if nargin == 5
+                feval(addfnc,src);
+            end
+        end
     end
 end
