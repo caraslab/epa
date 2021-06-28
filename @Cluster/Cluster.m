@@ -1,10 +1,9 @@
-classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
+classdef Cluster < epa.DataInterface
     % C = epa.Cluster(SessionObj,[ID],[Spiketimes],[SpikeWaveforms])
     
     
     properties
-        ID       (1,1) uint16 {mustBeFinite} = -1;
-        Name     string
+        ID       (1,1) uint16 {mustBeFinite} = 0;
         Type     string {mustBeMember(Type,["SU","MSU","MU","Noise",""])} = ""
         
         SamplingRate    (1,1) double {mustBePositive,mustBeFinite} = 1 % by default same as obj.Session.SamplingRate
@@ -12,7 +11,7 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
         Channel         (1,1) double {mustBeFinite,mustBeInteger} = -1;
         Shank           (1,1) double {mustBePositive,mustBeFinite,mustBeInteger} = 1;
         ElectrodeType   (1,1) string
-        Coords          (1,3) double {mustBeFinite} = [0 0 0];
+        Coords          (:,3) double {mustBeFinite} = [0 0 0];
         Waveforms       (:,:,:) single % [channels x samples x spikes]
         Samples         (:,1) single {mustBeInteger} = [] % single datatype for easier manipulation
         WaveformWindow  (1,2) double {mustBeFinite} = [0 1]
@@ -23,7 +22,6 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
         
         
         Note     (:,1) string   % User notes
-        UserData
         
         TitleStr (1,1) string   % auto generated if empty
     end
@@ -31,17 +29,14 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
     
     properties (Dependent)
         SpikeTimes     % array of spike times from beginning of recording
-        N              % spike count
         nSpikes        % same as obj.N
         nWaveformSamples
         nChannels
         channelInd
         WaveformTime
+        N
     end
     
-    properties (SetAccess = immutable)
-        Session      (1,1) %epa.Session
-    end
     
     events
         Updated
@@ -61,7 +56,15 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
             if nargin >= 2 && ~isempty(ID),         obj.ID = ID;              end
             if nargin == 3 && ~isempty(Samples),    obj.Samples = Samples;    end
             
-            obj.SamplingRate = obj.Session.SamplingRate;
+        end
+        
+        function fs = get.SamplingRate(obj)
+            if isempty(obj.Session)
+                obj.SamplingRate = 1;
+            else
+                obj.SamplingRate = obj.Session.SamplingRate;
+            end
+            fs = obj.SamplingRate;
         end
         
         
@@ -150,26 +153,10 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
         
         
         function tstr = get.TitleStr(obj)
-            if obj.TitleStr == ""
-                tstr = sprintf('%s-%d[%d]',obj.Type,obj.ID,obj.N);
-                if obj.Name ~= ""
-                    tstr = sprintf('%s-%s',obj.Name,tstr);
-                end
-            else
-                tstr = obj.TitleStr;
-            end
+            tstr = sprintf('%s-%s-%d[%d]',obj.Name,obj.Type,obj.ID,obj.N); 
+            tstr = string(tstr);
         end
         
-        function c = copy(obj)
-            if numel(obj) > 1
-                c = arrayfun(@copy,obj);
-                return
-            end
-            p = epa.helper.obj2par(obj);
-            c = epa.Cluster(p.Session);
-            p = rmfield(p,'Session');
-            epa.helper.par2obj(c,p);
-        end
         
         
         
@@ -181,10 +168,8 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
             % Remove one or more spikes from the Cluster using the spike
             % sample (obj.Samples).
             ind = ismember(obj.Samples,s);
-            w = obj.Waveforms(:,:,~ind);
-            s = obj.Samples(~ind);
-            set(obj,'Samples',s,'Waveforms',w);
-            
+            obj.Waveforms(:,:,ind) = [];
+            obj.Samples(ind) = [];
             notify(obj,'Updated');
         end
         
@@ -302,6 +287,10 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
             
             if nargout == 0, clear h; end
         end
+        
+        
+        
+        
     end
 end
                 

@@ -54,17 +54,19 @@ classdef ClusterEditor < handle
         function update_selection(obj,src,event)
             ind = ismember(obj.Cluster.Samples,obj.selectedSamples);
             
-            set(obj.h_waveforms(ind), ...
-                'LineWidth',obj.selectedLineWidth, ...
-                'Color',obj.selectedColor);
+            if any(ind)
+                set(obj.h_waveforms(ind), ...
+                    'LineWidth',obj.selectedLineWidth, ...
+                    'Color',obj.selectedColor);
+                
+                set(obj.h_pca(ind), ...
+                    'MarkerSize',obj.selectedMarkerSize, ...
+                    'Color',obj.selectedColor);
+            end
             
             set(obj.h_waveforms(~ind), ...
                 'LineWidth',obj.unselectedLineWidth, ...
                 'Color',obj.unselectedColor);
-            
-            set(obj.h_pca(ind), ...
-                'MarkerSize',obj.selectedMarkerSize, ...
-                'Color',obj.selectedColor);
             
             set(obj.h_pca(~ind), ...
                 'MarkerSize',obj.unselectedMarkerSize, ...
@@ -102,12 +104,11 @@ classdef ClusterEditor < handle
             
             s = cell2mat(get(obj.h_waveforms,'UserData'));
             ind = ismember(obj.Cluster.Samples,s);
-            obj.h_waveforms(ind) = [];
-            
+            obj.h_waveforms(~ind) = [];
             
             s = cell2mat(get(obj.h_pca,'UserData'));
             ind = ismember(obj.Cluster.Samples,s);
-            obj.h_pca(ind) = [];
+            obj.h_pca(~ind) = [];
             
             obj.selectedSamples = [];
         end

@@ -224,11 +224,11 @@ classdef DataBrowser < handle
         
         
         
-        function select_session_updated(obj,src,event)
+        function select_session_updated(obj,src,event,init)
             
             h = obj.handles;
             
-            if nargin > 1 && isequal(src,'init')
+            if nargin == 4 && init
                 a = evalin('base','whos');
                 ind = ismember({a.class},'epa.Session');
                 
@@ -329,7 +329,7 @@ classdef DataBrowser < handle
             h.PlotButton.Enable = 'on';
             
             h.SelectClusters.Object = C;
-            h.SelectClusters.handle.Items = {C.TitleStr};
+            h.SelectClusters.handle.Items = [C.TitleStr];
             obj.select_cluster_updated;
             
             
@@ -387,7 +387,7 @@ classdef DataBrowser < handle
                         h.SelectClusters.handle.Tooltip = c.Note;
                     end
                 else
-                    h.SelectClusters.handle.Tooltip = {c.TitleStr};
+                    h.SelectClusters.handle.Tooltip = [c.TitleStr];
                 end
             end
         end

@@ -9,7 +9,7 @@ classdef Session < handle
         Date     (1,1) string       % Session date
         Time     (1,1) string       % Session start time
         
-        Researcher (1,1) string
+        Scientist (1,1) string
         
         SamplingRate  (1,1) double {mustBePositive,mustBeFinite}  = 1; % Acquisition sampling rate (Hz)
 
@@ -33,9 +33,9 @@ classdef Session < handle
         function obj = Session(SamplingRate,Clusters,Events)
             epa.helper.add_paths;
             
-            if nargin >= 1 && ~isempty(SamplingRate), obj.SamplingRate = SamplingRate; end
+            if nargin >= 1 && ~isempty(SamplingRate),      obj.SamplingRate = SamplingRate; end
             if nargin >= 2 && isa(Clusters,'epa.Cluster'), obj.Clusters = Clusters; end
-            if nargin >= 3 && isa(Events,'epa.Event'), obj.Events = Events; end
+            if nargin >= 3 && isa(Events,'epa.Event'),     obj.Events = Events; end
         end
         
         
@@ -58,7 +58,11 @@ classdef Session < handle
         end
         
         function add_Cluster(obj,varargin)
-            existingIDs = [obj.Clusters.ID];
+            if isempty(obj.Clusters)
+                existingIDs = [];
+            else
+                existingIDs = [obj.Clusters.ID];
+            end
             
             if isa(varargin{1},'epa.Cluster')
                 cid = varargin{1}.ID;
@@ -182,7 +186,7 @@ classdef Session < handle
             s{1,1} = obj.Name;
             s{2,1} = sprintf('Date: %s',obj.Date);
             s{3} = sprintf('Time: %s',obj.Time);
-            s{4} = sprintf('Research: %s',obj.Researcher);
+            s{4} = sprintf('Research: %s',obj.Scientist);
             s{5} = sprintf('Sampling Rate: %.5f Hz',obj.SamplingRate);
             s{6} = sprintf('%d Events',obj.NEvents);
             s{7} = sprintf('%d Clusters',obj.NClusters);
@@ -190,14 +194,28 @@ classdef Session < handle
         
         
         
-        function c = copy(obj)
+        function s = copy(obj)
             if numel(obj) > 1
-                c = arrayfun(@copy,obj);
+                s = arrayfun(@copy,obj);
                 return
             end
+           
+            s = epa.Session;
             p = epa.helper.obj2par(obj);
-            c = epa.Session;
-            epa.helper.par2obj(c,p);
+            epa.helper.par2obj(s,p);
+            
+            if ~isempty(obj.Streams)
+                s.Streams  = arrayfun(@copy,obj.Streams);
+            end
+            
+            if ~isempty(obj.Clusters)
+                s.Clusters = arrayfun(@copy,obj.Clusters);
+            end
+            
+            if ~isempty(obj.Events)
+                s.Events   = arrayfun(@copy,obj.Events);
+            end
+            
         end
         
     end % methods (Access = public)

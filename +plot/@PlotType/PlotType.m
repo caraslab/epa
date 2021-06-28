@@ -87,7 +87,7 @@ classdef (Abstract) PlotType < handle & dynamicprops
             if isequal(obj.Cluster,0)
                 s = {''};
             else
-                s = obj.Cluster.TitleStr;
+                s = char(obj.Cluster.TitleStr);
             end
         end
         

@@ -1,9 +1,7 @@
-classdef Stream < handle & dynamicprops
+classdef Stream < epa.DataInterface
     
     
     properties
-        Name     string
-
         Data     (1,:)
         SamplingRate    (1,1) double = 1;
         
@@ -19,16 +17,13 @@ classdef Stream < handle & dynamicprops
     
     properties (Dependent)
         SamplingInterval
-        N       % number of sampless
+        N
     end
     
     properties (SetAccess = protected)
         Time
     end
     
-    properties (SetAccess = immutable)
-        Session      (1,1) %epa.Session
-    end
     
     
     methods
@@ -74,16 +69,6 @@ classdef Stream < handle & dynamicprops
             obj.Time = t(:)';
         end
         
-        function c = copy(obj)
-            if numel(obj) > 1
-                c = arrayfun(@copy,obj);
-                return
-            end
-            p = epa.helper.obj2par(obj);
-            c = epa.Stream(p.Session);
-            p = rmfield(p,'Session');
-            epa.helper.par2obj(c,p);
-        end
     end % methods (Access = public)
 end
 

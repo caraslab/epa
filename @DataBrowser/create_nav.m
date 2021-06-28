@@ -41,13 +41,19 @@ iconPath = fullfile(matlabroot,'toolbox','matlab','icons');
 
 
 h = uibutton(TbarGrid);
+h.Icon = fullfile(iconPath,'demoicon.gif');
+h.Tooltip = 'Check workspace for Session objects';
+h.Text = 'Refresh';
+h.ButtonPushedFcn = {@obj.select_session_updated,true};
+obj.handles.LoadSessionToolbar = h;
+
+
+h = uibutton(TbarGrid);
 h.Icon = fullfile(iconPath,'file_open.png');
 h.Tooltip = 'Load Session(s) from one or multiple files';
 h.Text = 'Load Session';
 h.ButtonPushedFcn = @obj.file_open;
 obj.handles.LoadSessionToolbar = h;
-
-
 
 
 % Session
@@ -351,7 +357,7 @@ addlistener(h.SelectEvent2,  'Updated',@obj.select_event_updated);
 addlistener(h.SelectClusters,'Updated',@obj.select_cluster_updated);
 
 
-obj.select_session_updated('init');
+obj.select_session_updated([],[],true);
 
 obj.plot_style_value_changed;
 
