@@ -109,7 +109,10 @@ classdef Cluster < handle & matlab.mixin.SetGet & dynamicprops
         
         
         
-        
+        function h = edit(obj)
+            h = epa.ClusterEditor(obj);
+            if nargout == 0, clear h; end
+        end
         
         
         function t = get.WaveformTime(obj)
