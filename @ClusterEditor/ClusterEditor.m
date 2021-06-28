@@ -25,6 +25,7 @@ classdef ClusterEditor < handle
         h_density
         h_isi
         
+        roi_waveform
         roi_pca
     end
     
@@ -107,20 +108,28 @@ classdef ClusterEditor < handle
         end
         
         function remove_spikes(obj)
-            
             obj.Cluster.rem_spikes(obj.selectedSamples);
             
             s = cell2mat(get(obj.h_waveforms,'UserData'));
-            ind = ismember(obj.Cluster.Samples,s);
+            ind = ismember(s,obj.Cluster.Samples);
+            delete(obj.h_waveforms(~ind))
             obj.h_waveforms(~ind) = [];
             
             s = cell2mat(get(obj.h_pca,'UserData'));
-            ind = ismember(obj.Cluster.Samples,s);
+            ind = ismember(s,obj.Cluster.Samples);
+            delete(obj.h_pca(~ind));
             obj.h_pca(~ind) = [];
             
             obj.selectedSamples = [];
             
             obj.plot_isi;
+            
+            delete(obj.h_meanwaveform);
+            hold(obj.ax_waveforms,'on');
+            obj.h_meanwaveform = obj.Cluster.plot_waveform_mean(obj.ax_waveforms);
+            hold(obj.ax_waveforms,'off');
+            
+            obj.plot_density;
         end
         
         function plot_density(obj)
@@ -165,43 +174,85 @@ classdef ClusterEditor < handle
         end
         
         
-        function create_roi(obj)
+        function create_roi(obj,type)
             
-            ax = obj.ax_pca;
+            switch lower(type)
+                case 'waveform'                    
+                    ax = obj.ax_waveforms;
+                    roifnc = @drawrectangle;
+                case 'pca'
+                    ax = obj.ax_pca;
+                    roifnc = @drawcuboid;
+            end
             
-            roi = drawcuboid(ax,'LineWidth',0.5,'UserData',obj, ...
+            
+            roi = roifnc(ax,'LineWidth',0.5,'UserData',obj, ...
                 'FaceAlpha',0.1,'LabelVisible','hover', ...
-                'LineWidth',0.5);
+                'LineWidth',0.5,'UserData',type);
             
             addlistener(roi,'MovingROI',@obj.update_roi);
             addlistener(roi,'ROIMoved',@obj.update_roi);
             addlistener(roi,'DrawingStarted',@obj.update_roi);
             addlistener(roi,'DrawingFinished',@obj.update_roi);
+
             
-            
-            
-            obj.roi_pca = roi;
-            
+            switch lower(type)
+                case 'waveform'
+                    roi.Rotatable = true;
+                    obj.roi_waveform(end+1) = roi;
+                case 'pca'
+                    obj.roi_pca(end+1) = roi;
+            end
+
             obj.update_roi(roi);
         end
         
         function update_roi(obj,roi,event)
+            switch roi.UserData
+                case 'waveform'
+                    h = obj.h_waveforms;
+                case 'pca'
+                    h = obj.h_pca;
+            end
+            ind = obj.get_roi_samples(roi);
             
-            x = double(cell2mat(get(obj.h_pca,'XData')));
-            y = double(cell2mat(get(obj.h_pca,'YData')));
-            z = double(cell2mat(get(obj.h_pca,'ZData')));
+            h = handle(h);
+            obj.selectedSamples = [h(ind).UserData];
             
-            ind = inROI(roi,x,y,z);
-            
-            pcsamples = cell2mat(get(obj.h_pca,'UserData'));
-            
-            obj.selectedSamples = pcsamples(ind);
-            
-            roi.Label = sprintf('%d of %d',sum(ind),length(ind));
+            roi.Label = sprintf('%d of %d',length(obj.selectedSamples),length(ind));
             
             drawnow limitrate
         end
         
+        
+        function ind = get_roi_samples(obj,roi)
+            switch roi.UserData
+                case 'waveform'
+                    h = obj.h_waveforms;
+                    
+                    x = double(cell2mat(get(h,'XData')));
+                    y = double(cell2mat(get(h,'YData')));
+                    
+                    ind = true(size(x,1),1);
+                    for k = 1:length(obj.roi_waveform)
+                        k_ind = false(size(ind));
+                        k_roi = handle(obj.roi_waveform(k));
+                        for i = 1:size(x,2)
+                            k_ind = k_ind | inROI(k_roi,x(:,i),y(:,i));
+                        end
+                        ind = ind & k_ind;
+                    end
+                    
+                case 'pca'
+                    h = obj.h_pca;
+                    
+                    x = double(cell2mat(get(h,'XData')));
+                    y = double(cell2mat(get(h,'YData')));
+                    z = double(cell2mat(get(h,'ZData')));
+                    
+                    ind = inROI(roi,x,y,z);
+            end
+        end
         
     end % methods (Access = protected)
     
@@ -243,11 +294,23 @@ classdef ClusterEditor < handle
         function key_processor(obj,src,event)
             
             switch event.Character
-                case '?'
+                case {'/','?'}
+                    fprintf('\n')
+                    disp('Cluster Editor key bindings:')
+                    disp('''c'' - clear currently selected spikes')
+                    disp('''d'' - delete currently selected spikes')
+                    disp('''i'' - invert current selection')
+                    disp('''p'' - use an region of interest selection method on the PCA scatter plot')
+                    disp('''w'' - add a box threshold to select waveforms')
                     
+
+                case 'w'
+                    obj.create_roi('waveform');
+
                 case 'c'
                     obj.selectedSamples = [];
-                    delete(obj.roi_pca);
+                    delete(obj.roi_pca); obj.roi_pca = [];
+                    delete(obj.roi_waveform); obj.roi_waveform = [];
                     
                 case 'd'
                     if isempty(obj.selectedSamples), return; end
@@ -257,13 +320,17 @@ classdef ClusterEditor < handle
                     if isequal(b,'Delete')
                         obj.remove_spikes;
                     end
+                    obj.selectedSamples = [];
+                    delete(obj.roi_pca); obj.roi_pca = [];
+                    delete(obj.roi_waveform); obj.roi_waveform = [];
                     
                 case 'i'
                     obj.invert_selection;
-                    delete(obj.roi_pca);
+                    delete(obj.roi_pca); obj.roi_pca = [];
+                    delete(obj.roi_waveform); obj.roi_waveform = [];
                     
                 case 'p'
-                    obj.create_roi;
+                    obj.create_roi('pca');
             end
         end
         
