@@ -163,7 +163,7 @@ classdef ClusterEditor < handle
             axis(ax,'tight');
             set(ax,'XTickLabel',[],'YTickLabel',[],'ZTickLabel',[]);
             view(ax,3);
-            
+            epa.helper.setfont(ax);
             set(obj.h_pca,'ButtonDownFcn',@obj.select_spike);
         end
         
