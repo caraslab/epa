@@ -32,7 +32,7 @@ par.pad = 3; %Padding for the FFT. -1 corresponds to no padding,
 % par.fpass = [0 10]; %[fmin fmax]
 par.fpass = [-1 1]; % [-1 +1] octave around modfreq
 
-% par.Fs = fs;        %Sampling rate
+par.fs = 1;        %Sampling rate
 
 par.err = [1 .05];  %Theoretical errorbars (p = 0.05). For Jacknknife
 %errorbars use [2 p]. For no errorbars use [0 p].
@@ -47,6 +47,8 @@ if isequal(trials,'getdefaults'), M = par; return; end
 par = epa.helper.parse_params(par,varargin{:});
 
 par.fpass = par.modfreq .* 2 .^(par.fpass); % [-1 +1] octave around modfreq
+
+par.Fs = par.fs; % Chronux requires "Fs"
 
 %-------------------------------------------------------------------
 M = nan(size(trials));

@@ -17,6 +17,8 @@ S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
 % independent copy of the data (instead of just copying the object handle)
 % by using the "copy" function. ex: C_copied = copy(C);
 C = [S_AM.Clusters];
+% 
+% C = D.curClusters;
 
 %% 
 
@@ -40,8 +42,8 @@ par.modfreq = 5;
 % par.metric = @epa.metric.cl_calcpower;
 % par.metric = @epa.metric.tmtf; % use the temporal Modualation Transfer Function metric
 % par.metric = @epa.metric.vector_strength;
-par.metric = @epa.metric.vector_strength_phase_projected;
-% par.metric = @epa.metric.vector_strength_cycle_by_cycle;
+% par.metric = @epa.metric.vector_strength_phase_projected;
+par.metric = @epa.metric.vector_strength_cycle_by_cycle;
 
 % compute neurometric dprime for each Cluster independently
 dprimeThreshold = 1;
@@ -52,8 +54,9 @@ figure
 % clf(999)
 tiledlayout('flow');
 
-% for i = [3, 15, 26]
-for i = 1:numel(C)
+for i = [3, 15, 26]
+% C = D.curClusters;
+% for i = 1:numel(C)
     
     % compute neurometric_dprime
     [dp,v] = C(i).neurometric_dprime(par);
