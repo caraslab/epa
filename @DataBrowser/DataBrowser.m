@@ -224,11 +224,11 @@ classdef DataBrowser < handle
         
         
         
-        function select_session_updated(obj,src,event)
+        function select_session_updated(obj,src,event,init)
             
             h = obj.handles;
             
-            if nargin > 1 && isequal(src,'init')
+            if nargin == 4 && init
                 a = evalin('base','whos');
                 ind = ismember({a.class},'epa.Session');
                 
@@ -329,7 +329,7 @@ classdef DataBrowser < handle
             h.PlotButton.Enable = 'on';
             
             h.SelectClusters.Object = C;
-            h.SelectClusters.handle.Items = {C.TitleStr};
+            h.SelectClusters.handle.Items = [C.TitleStr];
             obj.select_cluster_updated;
             
             
@@ -353,12 +353,31 @@ classdef DataBrowser < handle
             h.Value     = dv;
         end
         
+        function plot_spike_waveforms(obj,src,event)
+            c = obj.curClusters;
+            
+            f = figure;
+            
+            t = tiledlayout(f,'flow');
+            for i = 1:length(c)
+                ax = nexttile(t);
+                c(i).plot_waveform_density(ax);
+                colorbar(ax);
+            end
+            
+            h = findobj(f,'-property','FontName');
+            set(h,'FontName','Consolas');
+        end
+        
         function select_cluster_updated(obj,src,event)
             h = obj.handles;
+                        
             c = obj.curClusters;
+
             if isempty(c)
                 h.PlotButton.Enable = 'off';
                 h.SelectClusters.handle.Tooltip = "";
+                
             else
                 h.PlotButton.Enable = 'on';
                 if numel(c) == 1
@@ -368,7 +387,7 @@ classdef DataBrowser < handle
                         h.SelectClusters.handle.Tooltip = c.Note;
                     end
                 else
-                    h.SelectClusters.handle.Tooltip = {c.TitleStr};
+                    h.SelectClusters.handle.Tooltip = [c.TitleStr];
                 end
             end
         end
@@ -474,7 +493,7 @@ classdef DataBrowser < handle
         end
         
         function plot_save_settings(obj,src,event)
-            plotSettings = obj.plotSettings;
+            plotSettings = obj.plotSettings; %#ok<PROPLC>
             plotStyle = obj.curPlotStyle;
             
             pth = getpref('epa_DataBrowser','PlotSettings',cd);

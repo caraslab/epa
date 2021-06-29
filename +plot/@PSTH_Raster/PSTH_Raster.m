@@ -8,9 +8,7 @@ classdef PSTH_Raster < epa.plot.PlotType
         showeventonset (1,1) logical {mustBeNonempty} = true;
         
         orientation    (1,1) string {mustBeMember(orientation,["vertical","horizontal"])} = "horizontal";
-        stacking       (1,1) string {mustBeMember(stacking,["seperate","unified"])} = "unified";
-        
-        
+        stacking       (1,1) string {mustBeMember(stacking,["seperate","unified"])} = "unified";        
     end
     
     

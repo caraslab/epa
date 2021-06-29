@@ -1,5 +1,8 @@
 classdef helper < handle
     methods (Static)
+        cc = combine_clusters(varargin)
+
+
         function add_paths(rootdir)
             % add_paths([rootdir])
             %
@@ -8,7 +11,7 @@ classdef helper < handle
             if nargin == 0 || isempty(rootdir)
                 rootdir = fullfile(epa.helper.rootdir,'+epa');
             end
-            pths = genpath(rootdir);
+            pths = genpath(fullfile(rootdir,'external'));
             if ispc
                 c = strsplit(pths,';');
             else
@@ -211,5 +214,12 @@ classdef helper < handle
             m = {d.name};
         end
         
+        
+        function store_obj_pref(src,event,group,pref,addfnc)
+            setpref(group,pref,src.(pref));
+            if nargin == 5
+                feval(addfnc,src);
+            end
+        end
     end
 end

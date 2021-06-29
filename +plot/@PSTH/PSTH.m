@@ -6,7 +6,7 @@ classdef PSTH < epa.plot.PlotType
         window         (1,2) double {mustBeNonempty,mustBeFinite} = [0 1];
         normalization  (1,:) char {mustBeNonempty,mustBeMember(normalization,{'count','firingrate','countdensity','probability','cumcount','cdf','pdf'})} = 'firingrate';
         showeventonset (1,1) logical {mustBeNonempty} = true;        
-        grid           (1,1) logical {mustBeNonempty} = true;
+        %showgrid       matlab.lang.OnOffSwitchState = 'on';
     end
     
     
@@ -38,19 +38,13 @@ classdef PSTH < epa.plot.PlotType
             cla(axe,'reset');
             
             C = obj.Cluster;
-            S = C.Session;
+
             
-            cla(axe,'reset');
-            
-            
-            
-                        
             
             [c,b,uv] = C.psth(obj);
             nvals = length(uv);
             % cm = epa.helper.colormap(obj.colormap,size(c,1));
             
-            cla(axe,'reset');
             
             b = [b; b+obj.binsize];
             b = b(:)';
@@ -101,6 +95,8 @@ classdef PSTH < epa.plot.PlotType
             ind = tvl == 0;
             tv(ind) = []; tvl(ind) = [];
             tv = [0 tv]; tvl = [0 tvl];
+            [tv,i] = unique(tv);
+            tvl = tvl(i);
             axe.YAxis.TickValues = tv;
             axe.YAxis.TickLabels = tvl;
             
@@ -112,7 +108,7 @@ classdef PSTH < epa.plot.PlotType
             axe.XAxis.FontSize = 8;
             
             
-            grid(axe,obj.grid);
+            %grid(axe,obj.showgrid);
 
             obj.standard_plot_postamble;
             

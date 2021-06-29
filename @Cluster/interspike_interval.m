@@ -25,7 +25,7 @@ par.maxlag = 0.1;
 par.binsize = 0.001;
 par.plot = false;
 
-if isequal(varargin{1},'getdefaults'), n = par; return; end
+if nargin > 1 && isequal(varargin{1},'getdefaults'), n = par; return; end
 
 par = epa.helper.parse_params(par,varargin{:});
 
@@ -51,7 +51,7 @@ h = bar(ax,lags*1e3,n);
 h.EdgeColor = 'none';
 h.BarWidth = 1;
 
-xlabel(ax,'lag (ms)');
+xlabel(ax,'inter-spike interval (ms)');
 ylabel(ax,'count');
 title(ax,obj.TitleStr);
 

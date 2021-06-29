@@ -47,9 +47,7 @@ classdef Raster < epa.plot.PlotType
                 obj.event = S.find_Event(obj.event);
             end
             
-            par = epa.helper.obj2par(obj);
-            
-            [t,eidx,v] = C.eventlocked(par);
+            [t,eidx,v] = C.eventlocked(obj);
             
             
             if isempty(eidx)
@@ -57,13 +55,11 @@ classdef Raster < epa.plot.PlotType
                 return
             end
             
-
-
             uv = unique(v);
             for i = 1:length(uv)
                 idx = find(uv(i) == v,1);
                 sep(i) = eidx(idx)-1;
-                obj.handles.seperator(i) = line(axe,par.window,[1 1].*sep(i),'color',[0.8 0.8 0.8]);
+                obj.handles.seperator(i) = line(axe,obj.window,[1 1].*sep(i),'color',[0.8 0.8 0.8]);
             end
             
             obj.handles.raster = line(axe,t,eidx, ...
@@ -72,7 +68,7 @@ classdef Raster < epa.plot.PlotType
             
             
                 
-            axe.XLim = par.window;
+            axe.XLim = obj.window;
             axe.YLim = [min(eidx)-1 max(eidx)+1];
             
             
@@ -83,14 +79,14 @@ classdef Raster < epa.plot.PlotType
             axe.XAxis.TickDirection = 'out';
             axe.YAxis.TickDirection = 'out';
             
-            tv = [diff(sep)./2 (max(eidx)-sep(end))./2+sep(end)];
-            axe.YAxis.TickValues = tv;%sep + tv;
+            tv = [diff(sep)./2 (max(eidx)-sep(end))./2];
+            axe.YAxis.TickValues = sep + tv;
             axe.YAxis.TickLabels = num2str(uv);
             
-            if isa(par.event,'epa.Event')
-                axe.YAxis.Label.String = par.event.Name;
+            if isa(obj.event,'epa.Event')
+                axe.YAxis.Label.String = obj.event.Name;
             else
-                axe.YAxis.Label.String = par.event;
+                axe.YAxis.Label.String = obj.event;
             end
             axe.YAxis.Label.FontSize = 10;
             axe.YAxis.FontSize = 8;
@@ -99,11 +95,11 @@ classdef Raster < epa.plot.PlotType
             axe.XAxis.Label.FontSize = 10;
             axe.XAxis.FontSize = 8;
             
-            if par.showlegend
-                legend([par.handles.raster],'location','EastOutside');
+            if obj.showlegend
+                legend([obj.handles.raster],'location','EastOutside');
             end
             
-%             switch lower(par.sortevents)
+%             switch lower(obj.sortevents)
 %                 case 'original'
 %                     ylabel(axe,'trial');
 %                 case 'events'
