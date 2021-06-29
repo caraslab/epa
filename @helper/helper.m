@@ -1,5 +1,8 @@
 classdef helper < handle
     methods (Static)
+        cc = combine_clusters(varargin)
+
+
         function add_paths(rootdir)
             % add_paths([rootdir])
             %
