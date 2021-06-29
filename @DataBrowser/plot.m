@@ -53,7 +53,7 @@ for s = 1:length(S)
         par.ax = ax;
         
         SC = S(s).find_Cluster(C(c).Name);
-        
+        SC = SC{1};
         pObj(c,s) = feval(ps,SC,par);
         pObj(c,s).plot;
     end

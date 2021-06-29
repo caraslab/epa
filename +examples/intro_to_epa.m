@@ -5,6 +5,10 @@ DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/210611_concat';
 
 S = epa.kilosort2session(DataPath);
 
+% par = [];
+% par.datafilestr = '*300hz.dat';
+% S = epa.load.phy(DataPath,par);
+
 TDTTankPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/Tank/210611';
 
 S.add_TDTEvents(TDTTankPath);

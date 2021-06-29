@@ -336,7 +336,7 @@ classdef Cluster < epa.DataInterface
             
             epa.helper.setfont(ax);
 
-            ax.CLim = [0 quantile(n(:),.95)];
+%             ax.CLim = [0 quantile(n(:),.95)];
             colormap(ax,flipud(hot));
 %             hc = colorbar(ax);
 %             hc.YLabel.String = normalization;

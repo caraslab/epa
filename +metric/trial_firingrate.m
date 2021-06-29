@@ -27,7 +27,7 @@ if isequal(trials,'getdefaults'), M = par; return; end
 par = epa.helper.parse_params(par,varargin{:});
 
 
-if isempty(par,'window')
+if isempty(par.window)
     x = cell2mat(trials);
     par.window = [min(x) max(x)];
 end

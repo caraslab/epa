@@ -48,7 +48,7 @@ epa.helper.add_paths;
 par.includespikewaveforms = true;
 par.spikewindow = [-0.5e-3 1.5e-3]; % seconds
 par.groups      = ["SU" "MUA"];
-par.datafilestr = '';
+par.datafilestr = '*.dat';
 
 if isequal(DataPath,'getdefaults'), S = par; return; end
 
@@ -60,9 +60,9 @@ DataPath = char(DataPath);
 
 
 
-if isempty(par.datafilestr)
-    par.datafilestr = fullfile(DataPath,'*.dat');
-end
+% if isempty(par.datafilestr)
+    par.datafilestr = fullfile(DataPath,par.datafilestr);
+% end
 
 % check that all required files are available before continuing
 cfgffn = fullfile(DataPath,'config.mat');
@@ -147,7 +147,7 @@ dataType = 'int16';
 nbytes = numel(typecast(cast(0,dataType),'uint8'));
 nSamples = d_dat.bytes/(nChannels*nbytes); % # samples per channel
 
-fprintf('Extracting spikes from dat file: %s ')
+fprintf('Extracting spikes from dat file: %s ',datffn)
 
 mmf = memmapfile(datffn, 'Format', {dataType, [nChannels nSamples], 'x'});
 
@@ -174,6 +174,9 @@ for j = 1:length(spikes)
         for i = 1:length(idx)
             % uint: subtract earlier and add later samples
             sidx = [spikeSamples(idx(i))-swvec_neg, spikeSamples(idx(i))+swvec_pos];
+            if any(sidx < 1 | sidx > nSamples)
+                continue
+            end
             wf(:,:,i) = mmf.Data.x(shankChannels,sidx);
         end
         SW(k).Waveforms = cast(wf,'single'); clear wf

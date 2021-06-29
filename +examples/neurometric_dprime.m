@@ -40,10 +40,10 @@ par.modfreq = 5;
 
 % par.metric = @epa.metric.trial_firingrate;
 % par.metric = @epa.metric.cl_calcpower;
-% par.metric = @epa.metric.tmtf; % use the temporal Modualation Transfer Function metric
+par.metric = @epa.metric.tmtf; % use the temporal Modualation Transfer Function metric
 % par.metric = @epa.metric.vector_strength;
 % par.metric = @epa.metric.vector_strength_phase_projected;
-par.metric = @epa.metric.vector_strength_cycle_by_cycle;
+% par.metric = @epa.metric.vector_strength_cycle_by_cycle;
 
 % compute neurometric dprime for each Cluster independently
 dprimeThreshold = 1;
@@ -54,10 +54,15 @@ figure
 % clf(999)
 tiledlayout('flow');
 
-for i = [3, 15, 26]
+for i = [3, 15]
 % C = D.curClusters;
 % for i = 1:numel(C)
     
+    if C(i).N < 100
+        fprintf(2,'Cluster #%d (%s) had only %d spikes, skipping\n',i,C(i).Name,C(i).N)
+        continue
+    end
+
     % compute neurometric_dprime
     [dp,v] = C(i).neurometric_dprime(par);
     
@@ -65,7 +70,7 @@ for i = [3, 15, 26]
     
     
     % fit the data with a sigmoidal function
-    [xfit,yfit,p_val] = fit_sigmoid(v,dp);
+    [xfit,yfit,p_val] = epa.analysis.fit_sigmoid(v,dp);
     
     
     

@@ -122,7 +122,7 @@ classdef Session < handle
             end
             
             cnames = [obj.Clusters.Name];
-            c = arrayfun(@(a) obj.Clusters(strcmpi(cnames,a)),name);
+            c = arrayfun(@(a) obj.Clusters(strcmpi(cnames,a)),name,'uni',0);
         end
         
         function s = find_Session(obj,name)
