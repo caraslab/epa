@@ -182,7 +182,7 @@ classdef Cluster < epa.DataInterface
         
         
         
-        function [ems,y,bins,n,thr,mv,pd] = estimate_missing_spikes(obj)
+        function [ems,y,bins,n,thr,mv] = estimate_missing_spikes(obj)
             % find the sample of the spike minimum
             [~,i] = min(squeeze(obj.Waveforms(obj.channelInd,:,:)),[],1);
             i = mode(i,'all');
@@ -190,14 +190,19 @@ classdef Cluster < epa.DataInterface
             
             [n,bins] = histcounts(mv,min(mv):5:max(mv));%,'Normalization','pdf');
             bins(1) = [];
-                        
-            pd = fitdist(mv(:),'normal');
-            y = pdf(pd,bins);
             
+            
+            mu_hat = bins(find(bins>=mean(mv),1));
+%             [~,i] = max(n);
+%             mu_hat = bins(i);
+            sigma_hat = std(mv);
+            
+            y = normpdf(bins,mu_hat,sigma_hat);
+
             y = y*obj.N*(bins(2)-bins(1)); % pdf -> count
             
             thr = bins(end - find(fliplr(n) > 0,1,'first') + 1);
-            ems = obj.N/cdf(pd,thr) - obj.N;
+            ems = obj.N/normcdf(thr,mu_hat,sigma_hat) - obj.N;
             ems = round(ems);
         end
         
@@ -230,8 +235,10 @@ classdef Cluster < epa.DataInterface
             hold(ax,'on');
             h.isi = bar(ax,1e3*lags,n,'BarWidth',1,'EdgeColor','none','FaceColor','k');
             h.rpv = bar(ax,1e3*lags(ind),n(ind),'BarWidth',1,'EdgeColor','none','FaceColor','r');
-%             h.rpvthreshold = line(ax,[1 1]*par.rpvthreshold*1e3,ylim(ax),'Color','r');
+            h.rpvthreshold = line(ax,[1 1]*par.rpvthreshold*1e3,ylim(ax),'Color',[.4 .4 .4]);
             hold(ax,'off');
+            
+            uistack(h.rpvthreshold,'bottom');
             
             grid(ax,'on');
             ax.Title.String = obj.TitleStr;
@@ -241,11 +248,12 @@ classdef Cluster < epa.DataInterface
             
 
             
-            str{1} = sprintf('n < %g ms = %d',par.rpvthreshold*1e3,rpvc);
+            str{1} = sprintf('$n < %g ms = %d$',par.rpvthreshold*1e3,rpvc);
 
             h.text = text(ax,.95*1e3*lags(end),.95*max(ylim(ax)),str, ...
                 'VerticalAlignment','top','HorizontalAlignment','right', ...
-                'FontName','Consolas','BackgroundColor',ax.Color);
+                'FontName','Consolas','BackgroundColor',ax.Color, ...
+                'Interpreter','latex');
 
             epa.helper.setfont(ax);
 
@@ -359,7 +367,7 @@ classdef Cluster < epa.DataInterface
                 n = interp2(n,par.interpn);
             end
             h = imagesc(ax,xe,ye,n');
-            h.ButtonDownFcn = @obj.edit;
+            %h.ButtonDownFcn = @obj.edit;
             ax.YDir = 'normal';
             xlim(ax,obj.WaveformTime([1 end])*1e3);
             

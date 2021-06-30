@@ -88,6 +88,10 @@ classdef ClusterEditor < handle
             
             uistack([obj.h_meanwaveform, obj.h_waveforms(ind)],'top');
             
+            
+            tstr{1} = sprintf('%s - %d spikes',obj.Cluster.Name,obj.Cluster.N);
+            tstr{2} = obj.Cluster.Session.Name;
+            sgtitle(obj.maintiles,tstr);
         end
         
         function invert_selection(obj)
@@ -152,6 +156,7 @@ classdef ClusterEditor < handle
             obj.h_meanwaveform = obj.Cluster.plot_waveform_mean(ax);
             hold(ax,'off');
             set(obj.h_waveforms,'ButtonDownFcn',@obj.select_spike);
+            title(ax,'');
         end
         
         function plot_pca(obj)
@@ -179,22 +184,24 @@ classdef ClusterEditor < handle
             obj.h_isi = obj.Cluster.plot_interspike_interval(obj.ax_isi);
             obj.h_isi.rpv.FaceColor = 'm';
             box(obj.ax_isi,'on');
-            title(obj.ax_isi,'Inter-Spike Intervals');
+            title(obj.ax_isi,char(obj.h_isi.text.String),'interpreter','latex');
+            delete(obj.h_isi.text);
         end
         
         
         function plot_amplitude(obj)
             obj.h_amplitude = obj.Cluster.plot_waveform_amplitudes(obj.ax_amplitude);
-            title(obj.ax_amplitude,'Amplitudes');
+            title(obj.ax_amplitude,'peaks','interpreter','latex');
         end
         
         function plot_missing(obj)
             obj.h_missing = obj.Cluster.plot_missing_spikes_estimate(obj.ax_missing);
-            title(obj.ax_missing,'Estimated Missing Spikes');
+            title(obj.ax_missing,char(obj.h_missing.text.String),'interpreter','latex');
+            delete(obj.h_missing.text);
         end
         function plot_firingrate(obj)
             obj.h_firingrate = obj.Cluster.plot_firingrates(obj.ax_firingrate);
-            title(obj.ax_firingrate,'Firing Rate');
+            title(obj.ax_firingrate,'','interpreter','latex');
         end
         
         
@@ -317,6 +324,7 @@ classdef ClusterEditor < handle
             obj.plot_firingrate;
             
             obj.update_selection;
+            
             
             obj.figure.WindowKeyPressFcn = @obj.key_processor;
             

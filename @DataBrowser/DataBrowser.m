@@ -361,12 +361,13 @@ classdef DataBrowser < handle
             t = tiledlayout(f,'flow');
             for i = 1:length(c)
                 ax = nexttile(t);
-                c(i).plot_waveform_density(ax);
+                C = c(i);
+                h = C.plot_waveform_density(ax);
+                h.ButtonDownFcn = @C.edit;
                 colorbar(ax);
             end
             
-            h = findobj(f,'-property','FontName');
-            set(h,'FontName','Consolas');
+            epa.helper.setfont(f);
         end
         
         function select_cluster_updated(obj,src,event)
