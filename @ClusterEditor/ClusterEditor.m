@@ -357,6 +357,10 @@ classdef ClusterEditor < handle
                     delete(obj.roi_pca); obj.roi_pca = [];
                     delete(obj.roi_waveform); obj.roi_waveform = [];
                     
+                    obj.plot_amplitude;
+                    obj.plot_missing;
+                    obj.plot_firingrate;
+                    
                 case 'i'
                     obj.invert_selection;
                     delete(obj.roi_pca); obj.roi_pca = [];

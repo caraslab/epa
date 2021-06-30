@@ -393,6 +393,8 @@ classdef Cluster < epa.DataInterface
             
             grid(ax,'on');
             box(ax,'on');
+            
+            ylabel(ax,'amplitude');
             xlabel(ax,'time (s)');
             
             title(ax,obj.TitleStr);
@@ -424,6 +426,7 @@ classdef Cluster < epa.DataInterface
             h = plot(ax,bins,h,'-k');
             
             grid(ax,'on');
+            ylabel(ax,'firing rate (Hz)');
             xlabel(ax,'time (s)');
             axis(ax,'tight');
             title(ax,obj.TitleStr);
@@ -455,9 +458,9 @@ classdef Cluster < epa.DataInterface
             
             
             str = sprintf('$\\hat{missing}$ = %d',ems);
-            h.text = text(ax,double(.95*bins(end)),.95*max(n),str, ...
+            h.text = text(ax,double(bins(1)),.95*max(n),str, ...
                 'VerticalAlignment','top', ...
-                'HorizontalAlignment','right', ...
+                'HorizontalAlignment','left', ...
                 'BackgroundColor',ax.Color, ...
                 'Interpreter','latex');
 
