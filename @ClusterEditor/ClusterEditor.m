@@ -14,16 +14,23 @@ classdef ClusterEditor < handle
     
     properties (SetAccess = private, GetAccess = protected)
         maintiles
+        
         ax_waveforms
         ax_density
         ax_pca
         ax_isi
+        ax_amplitude
+        ax_missing
+        ax_firingrate
         
         h_waveforms
         h_meanwaveform
         h_pca
         h_density
         h_isi
+        h_amplitude
+        h_missing
+        h_firingrate
         
         roi_waveform
         roi_pca
@@ -135,11 +142,12 @@ classdef ClusterEditor < handle
         function plot_density(obj)
             obj.h_density = obj.Cluster.plot_waveform_density(obj.ax_density);
             ylim(obj.ax_density,ylim(obj.ax_waveforms));
+            title(obj.ax_density,'');
         end
         
         function plot_waveforms(obj)
             ax = obj.ax_waveforms;
-            obj.h_waveforms = obj.Cluster.plot_waveforms(ax,inf);
+            obj.h_waveforms = obj.Cluster.plot_waveforms(ax,'maxwf',inf);
             hold(ax,'on');
             obj.h_meanwaveform = obj.Cluster.plot_waveform_mean(ax);
             hold(ax,'off');
@@ -171,6 +179,22 @@ classdef ClusterEditor < handle
             obj.h_isi = obj.Cluster.plot_interspike_interval(obj.ax_isi);
             obj.h_isi.rpv.FaceColor = 'm';
             box(obj.ax_isi,'on');
+            title(obj.ax_isi,'Inter-Spike Intervals');
+        end
+        
+        
+        function plot_amplitude(obj)
+            obj.h_amplitude = obj.Cluster.plot_waveform_amplitudes(obj.ax_amplitude);
+            title(obj.ax_amplitude,'Amplitudes');
+        end
+        
+        function plot_missing(obj)
+            obj.h_missing = obj.Cluster.plot_missing_spikes_estimate(obj.ax_missing);
+            title(obj.ax_missing,'Estimated Missing Spikes');
+        end
+        function plot_firingrate(obj)
+            obj.h_firingrate = obj.Cluster.plot_firingrates(obj.ax_firingrate);
+            title(obj.ax_firingrate,'Firing Rate');
         end
         
         
@@ -259,29 +283,38 @@ classdef ClusterEditor < handle
     
     methods (Access = private)
         function create(obj)
-            t = tiledlayout(2,2,'Tag','MainTiles');
+            t = tiledlayout(4,4,'Tag','MainTiles');
             obj.maintiles = t;
             
             
             % density
-            obj.ax_density = nexttile(t);
-            
+            obj.ax_density = nexttile(t,1,[2 2]);
             
             % waveforms
-            obj.ax_waveforms = nexttile(t);
-            
-            
-            % isi
-            obj.ax_isi = nexttile(t);
-            
+            obj.ax_waveforms = nexttile(t,3,[2 2]);
             
             % pca
-            obj.ax_pca = nexttile(t);
+            obj.ax_pca = nexttile(t,11,[2 2]);
+            
+            % isi
+            obj.ax_isi = nexttile(t,9);
+            
+            % waveform amplitude over time
+            obj.ax_amplitude = nexttile(t,10);
+            
+            % missing spikes estimate
+            obj.ax_missing = nexttile(t,13);
+            
+            % firing rate
+            obj.ax_firingrate = nexttile(t,14);
             
             obj.plot_waveforms;
             obj.plot_density;
             obj.plot_pca;
             obj.plot_isi;
+            obj.plot_amplitude;
+            obj.plot_missing;
+            obj.plot_firingrate;
             
             obj.update_selection;
             

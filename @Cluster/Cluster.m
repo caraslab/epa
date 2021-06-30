@@ -180,6 +180,27 @@ classdef Cluster < epa.DataInterface
         end
         
         
+        
+        
+        function [ems,y,bins,n,thr,mv,pd] = estimate_missing_spikes(obj)
+            % find the sample of the spike minimum
+            [~,i] = min(squeeze(obj.Waveforms(obj.channelInd,:,:)),[],1);
+            i = mode(i,'all');
+            mv = squeeze(obj.Waveforms(obj.channelInd,i,:));
+            
+            [n,bins] = histcounts(mv,min(mv):5:max(mv));%,'Normalization','pdf');
+            bins(1) = [];
+                        
+            pd = fitdist(mv(:),'normal');
+            y = pdf(pd,bins);
+            
+            y = y*obj.N*(bins(2)-bins(1)); % pdf -> count
+            
+            thr = bins(end - find(fliplr(n) > 0,1,'first') + 1);
+            ems = obj.N/cdf(pd,thr) - obj.N;
+            ems = round(ems);
+        end
+        
         function [coeff,score,latent,tsquared,explained,mu] = waveform_pca(obj)
             w = reshape(obj.Waveforms,obj.nChannels*obj.nWaveformSamples,obj.nSpikes);
             [coeff,score,latent,tsquared,explained,mu] = pca(w');
@@ -190,7 +211,6 @@ classdef Cluster < epa.DataInterface
             if nargin < 2 || isempty(ax), ax = gca; end
             if nargin < 3, varargin = {}; end
             
-            par = [];
             par.maxlag = 0.1;
             par.binsize = 0.5e-3;
             par.rpvthreshold = 1.5e-3; % ms; refractory period violations threshold
@@ -223,7 +243,7 @@ classdef Cluster < epa.DataInterface
             
             str{1} = sprintf('n < %g ms = %d',par.rpvthreshold*1e3,rpvc);
 
-            t = text(ax,.95*1e3*lags(end),.95*max(ylim),str, ...
+            h.text = text(ax,.95*1e3*lags(end),.95*max(ylim(ax)),str, ...
                 'VerticalAlignment','top','HorizontalAlignment','right', ...
                 'FontName','Consolas','BackgroundColor',ax.Color);
 
@@ -233,9 +253,13 @@ classdef Cluster < epa.DataInterface
         end
         
         
-        function h = plot_waveforms(obj,ax,maxw)
+        function h = plot_waveforms(obj,ax,varargin)
             if nargin < 2 || isempty(ax), ax = gca; end
-            if nargin < 3 || isempty(maxw), maxw = 1000; end
+            
+            par.maxwf = 1000;
+            
+            if nargin > 1 && isequal(ax,'getdefaults'), h = par; return; end
+            par = epa.helper.parse_params(par,varargin{:});
             
             if obj.nWaveformSamples == 0
                 cla(ax);
@@ -243,9 +267,9 @@ classdef Cluster < epa.DataInterface
                 return
             end
             
-            maxw = min(obj.nSpikes,maxw);
+            maxwf = min(obj.nSpikes,par.maxwf);
             
-            idx = randperm(obj.nSpikes,maxw);
+            idx = randperm(obj.nSpikes,maxwf);
             idx = sort(idx);
             
             w = squeeze(obj.Waveforms(obj.channelInd,:,idx));
@@ -297,9 +321,15 @@ classdef Cluster < epa.DataInterface
         end
         
         
-        function h = plot_waveform_density(obj,ax,normalization)
-            if nargin < 2 || isempty(ax), ax = gca; end
-            if nargin < 3 || isempty(normalization), normalization = 'count'; end
+        function h = plot_waveform_density(obj,ax,varargin)
+            if nargin < 2 || isempty(ax), ax = gca; end            
+            
+            
+            par.normalization = 'count';
+            par.interpn = 2;
+            
+            if nargin > 1 && isequal(ax,'getdefaults'), h = par; return; end
+            par = epa.helper.parse_params(par,varargin{:});
             
             
             if obj.nWaveformSamples == 0
@@ -323,9 +353,11 @@ classdef Cluster < epa.DataInterface
                 return
             end
             
-            [n,xe,ye] = histcounts2(x,y(:),xb,yb,'Normalization',normalization);
-
-            n = interp2(n,2);
+            [n,xe,ye] = histcounts2(x,y(:),xb,yb,'Normalization',par.normalization);
+            
+            if par.interpn > 1
+                n = interp2(n,par.interpn);
+            end
             h = imagesc(ax,xe,ye,n');
             h.ButtonDownFcn = @obj.edit;
             ax.YDir = 'normal';
@@ -345,8 +377,94 @@ classdef Cluster < epa.DataInterface
             if nargout == 0, clear h; end
         end
         
+        function h = plot_waveform_amplitudes(obj,ax)
+            if nargin < 2 || isempty(ax), ax = gca; end
+            
+            
+            minv = min(obj.Waveforms,[],2);
+            maxv = max(obj.Waveforms,[],2);
+            
+            for i = 1:obj.N
+                h.min(i) = line(ax,obj.SpikeTimes(i),minv(i),'Marker','.','Color','k');
+                h.max(i) = line(ax,obj.SpikeTimes(i),maxv(i),'Marker','.','Color','k');
+            end
+            
+            xlim(ax,[min(obj.SpikeTimes) max(obj.SpikeTimes)]);
+            
+            grid(ax,'on');
+            box(ax,'on');
+            xlabel(ax,'time (s)');
+            
+            title(ax,obj.TitleStr);
+            
+            epa.helper.setfont(ax);
+            
+            if nargout == 0, clear h; end
+        end
         
+        function h = plot_firingrates(obj,ax,varargin)
+            if nargin < 2 || isempty(ax), ax = gca; end
+            
+            
+            par.binsize = 1;
+            par.convbins = 10;
+            
+            if nargin > 1 && isequal(ax,'getdefaults'), h = par; return; end
+            
+            par = epa.helper.parse_params(par,varargin{:});
+            
+            
+            [h,bins] = histcounts(obj.SpikeTimes,min(obj.SpikeTimes):par.binsize:max(obj.SpikeTimes), ...
+                'Normalization','countdensity');
+            bins(end) = [];
+            m = max(h);
+            h = conv(h,gausswin(par.convbins),'same');
+            h = h ./ max(h) * m;
+            
+            h = plot(ax,bins,h,'-k');
+            
+            grid(ax,'on');
+            xlabel(ax,'time (s)');
+            axis(ax,'tight');
+            title(ax,obj.TitleStr);
+            
+            epa.helper.setfont(ax);
+            
+            if nargout == 0, clear h; end
+        end
         
+        function h = plot_missing_spikes_estimate(obj,ax)
+            if nargin < 2 || isempty(ax), ax = gca; end
+
+            cla(ax,'reset');
+            
+            
+            [ems,y,bins,n,thr] = obj.estimate_missing_spikes;
+            
+            h.hist = bar(ax,bins,n,'FaceColor','k','barwidth',1,'edgecolor','none');
+            hold(ax,'on')
+            h.fit = plot(ax,bins,y,'-r','linewidth',2);
+            h.threshold = plot(ax,[thr thr],ylim(ax),'-','color',[.4 .4 .4]);
+            hold(ax,'off')
+            
+            xlabel(ax,'amplitude')
+            ylabel(ax,'number of spikes')
+           
+            grid(ax,'on')
+            title(ax,obj.TitleStr)
+            
+            
+            str = sprintf('$\\hat{missing}$ = %d',ems);
+            h.text = text(ax,double(.95*bins(end)),.95*max(n),str, ...
+                'VerticalAlignment','top', ...
+                'HorizontalAlignment','right', ...
+                'BackgroundColor',ax.Color, ...
+                'Interpreter','latex');
+
+            epa.helper.setfont(ax);
+
+            if nargout == 0, clear h; end
+        end
         
     end
 end
