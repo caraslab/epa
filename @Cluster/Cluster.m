@@ -385,8 +385,8 @@ classdef Cluster < epa.DataInterface
             maxv = max(obj.Waveforms,[],2);
             
             for i = 1:obj.N
-                h.min(i) = line(ax,obj.SpikeTimes(i),minv(i),'Marker','.','Color','k');
-                h.max(i) = line(ax,obj.SpikeTimes(i),maxv(i),'Marker','.','Color','k');
+                h(i) = line(ax,[1 1]*obj.SpikeTimes(i),[minv(i) maxv(i)], ...
+                    'LineStyle','none','Marker','.','Color','k');
             end
             
             xlim(ax,[min(obj.SpikeTimes) max(obj.SpikeTimes)]);
@@ -407,23 +407,23 @@ classdef Cluster < epa.DataInterface
         function h = plot_firingrates(obj,ax,varargin)
             if nargin < 2 || isempty(ax), ax = gca; end
             
-            
             par.binsize = 1;
             par.convbins = 10;
             
-            if nargin > 1 && isequal(ax,'getdefaults'), h = par; return; end
+            if nargin > 1 && isequal(ax,'getdefaults'), y = par; return; end
             
             par = epa.helper.parse_params(par,varargin{:});
             
             
-            [h,bins] = histcounts(obj.SpikeTimes,min(obj.SpikeTimes):par.binsize:max(obj.SpikeTimes), ...
+            [y,bins] = histcounts(obj.SpikeTimes,min(obj.SpikeTimes):par.binsize:max(obj.SpikeTimes), ...
                 'Normalization','countdensity');
             bins(end) = [];
-            m = max(h);
-            h = conv(h,gausswin(par.convbins),'same');
-            h = h ./ max(h) * m;
+
+            my = max(y);
+            y = conv(y,gausswin(par.convbins),'same');
+            y = y./max(y)*my;
             
-            h = plot(ax,bins,h,'-k');
+            h = plot(ax,bins,y,'-k');
             
             grid(ax,'on');
             ylabel(ax,'firing rate (Hz)');
