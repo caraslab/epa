@@ -192,9 +192,9 @@ classdef Cluster < epa.DataInterface
             bins(1) = [];
             
             
-            mu_hat = bins(find(bins>=mean(mv),1));
-%             [~,i] = max(n);
-%             mu_hat = bins(i);
+%             mu_hat = bins(find(bins>=mean(mv),1));
+            [~,i] = max(n);
+            mu_hat = bins(i);
             sigma_hat = std(mv);
             
             y = normpdf(bins,mu_hat,sigma_hat);
@@ -282,14 +282,13 @@ classdef Cluster < epa.DataInterface
             
             w = squeeze(obj.Waveforms(obj.channelInd,:,idx));
 
-            
+            tvec = 1e3*obj.WaveformTime;
+            h = line(ax,tvec,w,'Color',[.4 .4 .4]);
             for i = 1:length(idx)
-                h(i) = line(ax,1e3*obj.WaveformTime,w(:,i), ...
-                    'color',[.4 .4 .4], ...
-                    'UserData',obj.Samples(idx(i)));
+                h(i).UserData = obj.Samples(idx(i));
             end
             
-            xlim(ax,obj.WaveformTime([1 end])*1e3);
+            xlim(ax,tvec([1 end]));
             
             grid(ax,'on');
             box(ax,'on');
@@ -367,7 +366,7 @@ classdef Cluster < epa.DataInterface
                 n = interp2(n,par.interpn);
             end
             h = imagesc(ax,xe,ye,n');
-            %h.ButtonDownFcn = @obj.edit;
+
             ax.YDir = 'normal';
             xlim(ax,obj.WaveformTime([1 end])*1e3);
             
@@ -376,11 +375,8 @@ classdef Cluster < epa.DataInterface
             
             epa.helper.setfont(ax);
 
-%             ax.CLim = [0 quantile(n(:),.95)];
             colormap(ax,flipud(hot));
-%             hc = colorbar(ax);
-%             hc.YLabel.String = normalization;
-%             hc.Visible = 'off';
+            
             
             if nargout == 0, clear h; end
         end
@@ -388,13 +384,18 @@ classdef Cluster < epa.DataInterface
         function h = plot_waveform_amplitudes(obj,ax)
             if nargin < 2 || isempty(ax), ax = gca; end
             
+            cla(ax,'reset');
+
+            minv = squeeze(min(obj.Waveforms,[],2));
+            maxv = squeeze(max(obj.Waveforms,[],2));
             
-            minv = min(obj.Waveforms,[],2);
-            maxv = max(obj.Waveforms,[],2);
+            minv = minv(obj.channelInd,:);
+            maxv = maxv(obj.channelInd,:);
             
+            h = line(ax,[1; 1]*obj.SpikeTimes',[minv; maxv], ...
+                'LineStyle','none','Marker','.','Color','k');
             for i = 1:obj.N
-                h(i) = line(ax,[1 1]*obj.SpikeTimes(i),[minv(i) maxv(i)], ...
-                    'LineStyle','none','Marker','.','Color','k');
+                h(i).UserData = obj.Samples(i);
             end
             
             xlim(ax,[min(obj.SpikeTimes) max(obj.SpikeTimes)]);
@@ -421,7 +422,8 @@ classdef Cluster < epa.DataInterface
             if nargin > 1 && isequal(ax,'getdefaults'), y = par; return; end
             
             par = epa.helper.parse_params(par,varargin{:});
-            
+           
+            cla(ax,'reset');
             
             [y,bins] = histcounts(obj.SpikeTimes,min(obj.SpikeTimes):par.binsize:max(obj.SpikeTimes), ...
                 'Normalization','countdensity');

@@ -232,9 +232,7 @@ classdef DataBrowser < handle
                 a = evalin('base','whos');
                 ind = ismember({a.class},'epa.Session');
                 
-                if isempty(ind) || ~any(ind)
-                    return
-                end
+                if isempty(ind) || ~any(ind), return; end
                 
                 an = string({a(ind).name});
                 b = cellfun(@(x) evalin('base',x),an,'uni',0);
@@ -321,7 +319,9 @@ classdef DataBrowser < handle
             
             if isempty(C)
                 h.SelectClusters.handle.Enable = 'off';
+                h.SelectClusters.handle.Items = {'< no clusters >'};
                 h.PlotButton.Enable = 'off';
+                h.SpikeWaveformButton.Enable = 'off';
                 uialert(obj.parent,'No Clusters were found to be in common across the selected Sessions.', ...
                     'No Clusters','Icon','warning','Modal',true);
                 return
@@ -375,6 +375,8 @@ classdef DataBrowser < handle
                         
             c = obj.curClusters;
 
+            obj.handles.SpikeWaveformButton.Enable = 'off';
+                                
             if isempty(c)
                 h.PlotButton.Enable = 'off';
                 h.SelectClusters.handle.Tooltip = "";
@@ -389,6 +391,10 @@ classdef DataBrowser < handle
                     end
                 else
                     h.SelectClusters.handle.Tooltip = [c.TitleStr];
+                end
+                
+                if ~all(arrayfun(@isempty,c(1).Waveforms))
+                    obj.handles.SpikeWaveformButton.Enable = 'on';
                 end
             end
         end
@@ -590,14 +596,25 @@ classdef DataBrowser < handle
             
             v = obj.curMetricParameter;
             
-            m = obj.metricPar.(v);
-            
-            if isnumeric(m) || islogical(m)
-                m = mat2str(m);
+            if isequal(v,'< no parameters or error >')
+                m = '';
+                 h.AnalysisParameterEdit.Enable = 'off';
+            else
+                m = obj.metricPar.(v);
+                
+                if isnumeric(m) || islogical(m)
+                    m = mat2str(m);
+                end
+                 h.AnalysisParameterEdit.Enable = 'on';
             end
             
             h.AnalysisParameterEdit.Value = m;
             
+            if isequal(m,'[]')
+                h.AnalysisParameterEdit.BackgroundColor = [1 .8824 .5608];
+            else
+                h.AnalysisParameterEdit.BackgroundColor = [1 1 1];
+            end
         end
         
         function metric_parameter_edit(obj,src,event)

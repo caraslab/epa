@@ -117,12 +117,12 @@ classdef Session < handle
         function c = find_Cluster(obj,name)
             name = string(name);
             if numel(obj) > 1
-                c = arrayfun(@(a) a.find_Cluster(name),obj,'uni',0);
+                c = arrayfun(@(a) a.find_Cluster(name),obj);
                 return
             end
             
             cnames = [obj.Clusters.Name];
-            c = arrayfun(@(a) obj.Clusters(strcmpi(cnames,a)),name,'uni',0);
+            c = arrayfun(@(a) obj.Clusters(strcmpi(cnames,a)),name);
         end
         
         function s = find_Session(obj,name)
