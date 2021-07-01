@@ -61,7 +61,7 @@ clusterAlias = cellfun(@(a) a(find(a == '_',1,'last')+1:find(a=='.',1,'last')-1)
 for i = 1:length(BPfileroot)
     S(i) = epa.Session(ops.fs);
     S(i).Name = BPfileroot{i};
-    for j = 1:length(BPsamples)
+    for j = 1:length(ST)
         ind = ST{j} > BPsamples(i) & ST{j} <= BPsamples(i+1);
         xx = ST{j}(ind) - BPsamples(i); % recording block starts at 0 seconds
         if isempty(xx), continue; end
