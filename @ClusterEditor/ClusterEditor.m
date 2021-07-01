@@ -94,15 +94,17 @@ classdef ClusterEditor < handle
                 'MarkerSize',obj.unselectedMarkerSize, ...
                 'Color',obj.unselectedColor);
             
-            drawnow limitrate
             
             obj.figure.Pointer = 'arrow';
-            
-            uistack([obj.h_meanwaveform; obj.h_waveforms(ind)],'top');
             
             tstr{1} = sprintf('%s - %d spikes',obj.Cluster.Name,obj.Cluster.N);
             tstr{2} = obj.Cluster.Session.Name;
             sgtitle(obj.maintiles,tstr);
+            
+            drawnow limitrate
+
+            uistack([obj.h_meanwaveform; obj.h_waveforms(ind)],'top');
+            
         end
         
         function invert_selection(obj)
