@@ -166,6 +166,7 @@ classdef ClusterEditor < handle
         function plot_density(obj)
             obj.h_density = obj.Cluster.plot_waveform_density(obj.ax_density);
             ylim(obj.ax_density,ylim(obj.ax_waveforms));
+            colorbar(obj.ax_density);
             title(obj.ax_density,'');
         end
         
