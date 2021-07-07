@@ -14,18 +14,26 @@ classdef ClusterEditor < handle
     
     properties (SetAccess = private, GetAccess = protected)
         maintiles
+        
         ax_waveforms
         ax_density
         ax_pca
         ax_isi
+        ax_amplitude
+        ax_missing
+        ax_firingrate
         
         h_waveforms
         h_meanwaveform
         h_pca
         h_density
         h_isi
+        h_amplitude
+        h_missing
+        h_firingrate
         
         roi_waveform
+        roi_amplitude
         roi_pca
     end
     
@@ -53,7 +61,9 @@ classdef ClusterEditor < handle
         end
         
         function update_selection(obj,src,event)
-            
+            tstr{1} = sprintf('%s - %d spikes',obj.Cluster.Name,obj.Cluster.N);
+            tstr{2} = 'updating ...';
+            sgtitle(obj.maintiles,tstr);
             obj.figure.Pointer = 'watch'; drawnow
             ind = ismember(obj.Cluster.Samples,obj.selectedSamples);
             
@@ -63,6 +73,10 @@ classdef ClusterEditor < handle
                     'Color',obj.selectedColor);
                 
                 set(obj.h_pca(ind), ...
+                    'MarkerSize',obj.selectedMarkerSize, ...
+                    'Color',obj.selectedColor);
+                
+                set(obj.h_amplitude(ind), ...
                     'MarkerSize',obj.selectedMarkerSize, ...
                     'Color',obj.selectedColor);
             end
@@ -75,11 +89,21 @@ classdef ClusterEditor < handle
                 'MarkerSize',obj.unselectedMarkerSize, ...
                 'Color',obj.unselectedColor);
             
-            drawnow limitrate
+            
+            set(obj.h_amplitude(~ind), ...
+                'MarkerSize',obj.unselectedMarkerSize, ...
+                'Color',obj.unselectedColor);
+            
             
             obj.figure.Pointer = 'arrow';
             
-            uistack([obj.h_meanwaveform, obj.h_waveforms(ind)],'top');
+            tstr{1} = sprintf('%s - %d spikes',obj.Cluster.Name,obj.Cluster.N);
+            tstr{2} = obj.Cluster.Session.Name;
+            sgtitle(obj.maintiles,tstr);
+            
+            drawnow limitrate
+
+            uistack([obj.h_meanwaveform; obj.h_waveforms(ind)],'top');
             
         end
         
@@ -111,49 +135,58 @@ classdef ClusterEditor < handle
             obj.Cluster.rem_spikes(obj.selectedSamples);
             
             s = cell2mat(get(obj.h_waveforms,'UserData'));
-            ind = ismember(s,obj.Cluster.Samples);
-            delete(obj.h_waveforms(~ind))
-            obj.h_waveforms(~ind) = [];
+            ind = ~ismember(s,obj.Cluster.Samples);
+            delete(obj.h_waveforms(ind))
+            obj.h_waveforms(ind) = [];
             
             s = cell2mat(get(obj.h_pca,'UserData'));
-            ind = ismember(s,obj.Cluster.Samples);
-            delete(obj.h_pca(~ind));
-            obj.h_pca(~ind) = [];
+            ind = ~ismember(s,obj.Cluster.Samples);
+            delete(obj.h_pca(ind));
+            obj.h_pca(ind) = [];
             
-            obj.selectedSamples = [];
-            
-            obj.plot_isi;
+            s = cell2mat(get(obj.h_amplitude,'UserData'));
+            ind = ~ismember(s,obj.Cluster.Samples);
+            delete(obj.h_amplitude(ind));
+            obj.h_amplitude(ind) = [];                       
             
             delete(obj.h_meanwaveform);
             hold(obj.ax_waveforms,'on');
             obj.h_meanwaveform = obj.Cluster.plot_waveform_mean(obj.ax_waveforms);
             hold(obj.ax_waveforms,'off');
             
+            obj.selectedSamples = [];
+
             obj.plot_density;
+            obj.plot_isi;
+            obj.plot_missing;
+            obj.plot_firingrate;
+            
         end
         
         function plot_density(obj)
             obj.h_density = obj.Cluster.plot_waveform_density(obj.ax_density);
             ylim(obj.ax_density,ylim(obj.ax_waveforms));
+            colorbar(obj.ax_density);
+            title(obj.ax_density,'');
         end
         
         function plot_waveforms(obj)
             ax = obj.ax_waveforms;
-            obj.h_waveforms = obj.Cluster.plot_waveforms(ax,inf);
+            obj.h_waveforms = obj.Cluster.plot_waveforms(ax,'maxwf',inf);
             hold(ax,'on');
             obj.h_meanwaveform = obj.Cluster.plot_waveform_mean(ax);
             hold(ax,'off');
             set(obj.h_waveforms,'ButtonDownFcn',@obj.select_spike);
+            title(ax,'');
         end
         
         function plot_pca(obj)
             ax = obj.ax_pca;
             [~,scores,~] = obj.Cluster.waveform_pca;
-            smp = obj.Cluster.Samples;
             for i = 1:size(scores,1)
                 obj.h_pca(i) = line(ax,scores(i,1),scores(i,2),scores(i,3), ...
                     'LineStyle','none','Marker','.','MarkerSize',obj.unselectedMarkerSize, ...
-                    'color',obj.unselectedColor,'UserData',smp(i));
+                    'color',obj.unselectedColor,'UserData',obj.Cluster.Samples(i));
             end
             grid(ax,'on');
             box(ax,'on');
@@ -171,6 +204,28 @@ classdef ClusterEditor < handle
             obj.h_isi = obj.Cluster.plot_interspike_interval(obj.ax_isi);
             obj.h_isi.rpv.FaceColor = 'm';
             box(obj.ax_isi,'on');
+            title(obj.ax_isi,char(obj.h_isi.text.String),'interpreter','latex');
+            delete(obj.h_isi.text);
+        end
+        
+        
+        function plot_amplitude(obj)
+            obj.h_amplitude = obj.Cluster.plot_waveform_amplitudes(obj.ax_amplitude);
+            set(obj.h_amplitude, ...
+                'MarkerSize',obj.unselectedMarkerSize, ...
+                'Color',obj.unselectedColor, ...
+                'ButtonDownFcn',@obj.select_spike);
+            title(obj.ax_amplitude,'peaks','interpreter','latex');
+        end
+        
+        function plot_missing(obj)
+            obj.h_missing = obj.Cluster.plot_missing_spikes_estimate(obj.ax_missing);
+            title(obj.ax_missing,char(obj.h_missing.text.String),'interpreter','latex');
+            delete(obj.h_missing.text);
+        end
+        function plot_firingrate(obj)
+            obj.h_firingrate = obj.Cluster.plot_firingrates(obj.ax_firingrate);
+            title(obj.ax_firingrate,'','interpreter','latex');
         end
         
         
@@ -179,6 +234,9 @@ classdef ClusterEditor < handle
             switch lower(type)
                 case 'waveform'                    
                     ax = obj.ax_waveforms;
+                    roifnc = @drawrectangle;
+                case 'amplitude'
+                    ax = obj.ax_amplitude;
                     roifnc = @drawrectangle;
                 case 'pca'
                     ax = obj.ax_pca;
@@ -200,6 +258,8 @@ classdef ClusterEditor < handle
                 case 'waveform'
                     roi.Rotatable = true;
                     obj.roi_waveform(end+1) = roi;
+                case 'amplitude'
+                    obj.roi_amplitude(end+1) = roi;
                 case 'pca'
                     obj.roi_pca(end+1) = roi;
             end
@@ -211,6 +271,8 @@ classdef ClusterEditor < handle
             switch roi.UserData
                 case 'waveform'
                     h = obj.h_waveforms;
+                case 'amplitude'
+                    h = obj.h_amplitude;
                 case 'pca'
                     h = obj.h_pca;
             end
@@ -227,6 +289,20 @@ classdef ClusterEditor < handle
         
         function ind = get_roi_samples(obj,roi)
             switch roi.UserData
+                case 'amplitude'
+                     h = obj.h_amplitude;
+                     
+                    x = double(cell2mat(get(h,'XData')));
+                    y = double(cell2mat(get(h,'YData')));
+                    
+                    ind = true(size(x,1),1);
+                    for k = 1:length(obj.roi_amplitude)
+                        roi = handle(obj.roi_amplitude(k));
+                        k_ind = inpolygon(x,y,roi.Vertices(:,1),roi.Vertices(:,2));
+                        k_ind = any(k_ind,2);
+                        ind = ind & k_ind;
+                    end
+                    
                 case 'waveform'
                     h = obj.h_waveforms;
                     
@@ -235,11 +311,9 @@ classdef ClusterEditor < handle
                     
                     ind = true(size(x,1),1);
                     for k = 1:length(obj.roi_waveform)
-                        k_ind = false(size(ind));
-                        k_roi = handle(obj.roi_waveform(k));
-                        for i = 1:size(x,2)
-                            k_ind = k_ind | inROI(k_roi,x(:,i),y(:,i));
-                        end
+                        roi = handle(obj.roi_waveform(k));
+                        k_ind = inpolygon(x,y,roi.Vertices(:,1),roi.Vertices(:,2));
+                        k_ind = any(k_ind,2);
                         ind = ind & k_ind;
                     end
                     
@@ -259,31 +333,41 @@ classdef ClusterEditor < handle
     
     methods (Access = private)
         function create(obj)
-            t = tiledlayout(2,2,'Tag','MainTiles');
+            t = tiledlayout(4,4,'Tag','MainTiles');
             obj.maintiles = t;
             
             
             % density
-            obj.ax_density = nexttile(t);
-            
+            obj.ax_density = nexttile(t,1,[2 2]);
             
             % waveforms
-            obj.ax_waveforms = nexttile(t);
-            
-            
-            % isi
-            obj.ax_isi = nexttile(t);
-            
+            obj.ax_waveforms = nexttile(t,3,[2 2]);
             
             % pca
-            obj.ax_pca = nexttile(t);
+            obj.ax_pca = nexttile(t,11,[2 2]);
+            
+            % isi
+            obj.ax_isi = nexttile(t,9);
+            
+            % waveform amplitude over time
+            obj.ax_amplitude = nexttile(t,10);
+            
+            % missing spikes estimate
+            obj.ax_missing = nexttile(t,13);
+            
+            % firing rate
+            obj.ax_firingrate = nexttile(t,14);
             
             obj.plot_waveforms;
             obj.plot_density;
             obj.plot_pca;
             obj.plot_isi;
+            obj.plot_amplitude;
+            obj.plot_missing;
+            obj.plot_firingrate;
             
             obj.update_selection;
+            
             
             obj.figure.WindowKeyPressFcn = @obj.key_processor;
             
@@ -297,12 +381,16 @@ classdef ClusterEditor < handle
                 case {'/','?'}
                     fprintf('\n')
                     disp('Cluster Editor key bindings:')
+                    disp('''?'' - show key bindings')
                     disp('''c'' - clear currently selected spikes')
                     disp('''d'' - delete currently selected spikes')
                     disp('''i'' - invert current selection')
                     disp('''p'' - use an region of interest selection method on the PCA scatter plot')
                     disp('''w'' - add a box threshold to select waveforms')
+                    disp('''a'' - add a box threshold to select spikes from amplitude/time plot')
                     
+                case 'a'
+                    obj.create_roi('amplitude');
 
                 case 'w'
                     obj.create_roi('waveform');
@@ -311,18 +399,23 @@ classdef ClusterEditor < handle
                     obj.selectedSamples = [];
                     delete(obj.roi_pca); obj.roi_pca = [];
                     delete(obj.roi_waveform); obj.roi_waveform = [];
+                    delete(obj.roi_amplitude); obj.roi_amplitude = [];
                     
                 case 'd'
                     if isempty(obj.selectedSamples), return; end
                     str = sprintf('Delete %d of %d spikes?', ...
                         length(obj.selectedSamples),obj.Cluster.N);
                     b = questdlg(str,'Delete Spikes','Delete','Cancel','Cancel');
-                    if isequal(b,'Delete')
-                        obj.remove_spikes;
-                    end
+                    if isequal(b,'Cancel'), return; end
+                    obj.figure.Pointer = 'watch'; 
+                    sgtitle(obj.maintiles,{'';'updating...'});
+                    drawnow
+                    obj.remove_spikes;
                     obj.selectedSamples = [];
                     delete(obj.roi_pca); obj.roi_pca = [];
                     delete(obj.roi_waveform); obj.roi_waveform = [];
+                    
+                    obj.figure.Pointer = 'arrow';
                     
                 case 'i'
                     obj.invert_selection;

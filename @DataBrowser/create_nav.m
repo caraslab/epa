@@ -129,7 +129,7 @@ h.handle.Tooltip = 'Select Clusters';
 obj.handles.SelectClusters = h;
 
 h = uilistbox(ClustGrid,'Tag','UnitTypeList');
-h.Layout.Row = 2;
+h.Layout.Row = [2 3];
 h.Layout.Column = 1;
 h.Multiselect = 'on';
 h.Items = ["SU","MSU","MU","Noise"];
@@ -138,8 +138,8 @@ h.ValueChangedFcn = @obj.select_session_updated;
 obj.handles.UnitTypeListbox = h;
 
 h = uibutton(ClustGrid);
-h.Layout.Row = 3;
-h.Layout.Column = [1 2];
+h.Layout.Row = [2 3];
+h.Layout.Column = 2;
 h.Text = 'Plot Waveforms';
 h.ButtonPushedFcn = @obj.plot_spike_waveforms;
 obj.handles.SpikeWaveformButton = h;
