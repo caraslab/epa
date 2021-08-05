@@ -61,16 +61,18 @@ classdef PSTH < epa.plot.PlotType
                 obj.handles.label(i) = text(axe,max(b),i*mc-0.05*mc,str);
             end
             
-            set(obj.handles.label,'HorizontalAlignment','right', ...
-                'VerticalAlignment','top', ...
-                'FontName','Consolas', ...
-                'FontSize',8);
-            
-            if obj.showeventonset
-                obj.handles.eventonset = line(axe,[0 0],[0 nvals*mc], ...
-                    'color',[0.6 0.6 0.6],'linewidth',1,'tag','ZeroMarker');
+            if ~isempty(obj.handles)
+                set(obj.handles.label, ...
+                    'HorizontalAlignment','right', ...
+                    'VerticalAlignment','top', ...
+                    'FontName','Consolas', ...
+                    'FontSize',8);
+                
+                if obj.showeventonset
+                    obj.handles.eventonset = line(axe,[0 0],[0 nvals*mc], ...
+                        'color',[0.6 0.6 0.6],'linewidth',1,'tag','ZeroMarker');
+                end
             end
-            
             xlabel(axe,'time (s)');
             
             switch lower(obj.normalization)
@@ -80,7 +82,9 @@ classdef PSTH < epa.plot.PlotType
                     ylabel(axe,obj.normalization);
             end
             
-            axe.YLim = [0 nvals*mc];
+            if ~isempty(mc)
+                axe.YLim = [0 nvals*mc];
+            end
             axe.XLim = obj.window;
             
             axe.XAxis.TickDirection = 'out';
