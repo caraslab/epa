@@ -22,6 +22,14 @@ classdef helper < handle
             addpath(c{:});
         end
         
+        function r = num2str(n,fmt)
+            if nargin < 2 || isempty(fmt), fmt = '%g'; end
+            if isstring(n) || ischar(n)
+                r = n;
+            else
+                r = num2str(n,fmt);
+            end
+        end
         
         function r = str2num(chr)
             % return text if chr contains letters
