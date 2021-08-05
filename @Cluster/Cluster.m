@@ -3,7 +3,7 @@ classdef Cluster < epa.DataInterface
     
     
     properties
-        ID       (1,1) uint16 {mustBeFinite} = 0;
+        ID       (1,1) uint64 {mustBeFinite} = 0;
         Type     string {mustBeMember(Type,["SU","MSU","MU","Noise",""])} = ""
         
         SamplingRate    (1,1) double {mustBePositive,mustBeFinite} = 1 % by default same as obj.Session.SamplingRate
@@ -17,6 +17,7 @@ classdef Cluster < epa.DataInterface
         WaveformWindow  (1,2) double {mustBeFinite} = [0 1]
         ShankChannels   (1,:) double {mustBeInteger,mustBeNonnegative,mustBeFinite} = []
         ShankID         (1,1) double {mustBeInteger,mustBeNonnegative,mustBeFinite} = 0
+        QualityMetrics  (1,1) struct
         
         OriginalDataFile (1,1) % could be filename or struct from dir()
         
@@ -112,7 +113,7 @@ classdef Cluster < epa.DataInterface
         
         
         
-        function h = edit(obj,src,event)
+        function h = gui(obj,src,event)
             pos = getpref('epa_ClusterEditor','Position',[150 150 900 500]);
             f = figure('Color','w','Position',pos);
             f.Pointer = 'watch'; drawnow
@@ -264,7 +265,7 @@ classdef Cluster < epa.DataInterface
         function h = plot_waveforms(obj,ax,varargin)
             if nargin < 2 || isempty(ax), ax = gca; end
             
-            par.maxwf = 1000;
+            par.maxwf = inf;
             
             if nargin > 1 && isequal(ax,'getdefaults'), h = par; return; end
             par = epa.helper.parse_params(par,varargin{:});
@@ -283,7 +284,7 @@ classdef Cluster < epa.DataInterface
             w = squeeze(obj.Waveforms(obj.channelInd,:,idx));
 
             tvec = 1e3*obj.WaveformTime;
-            h = line(ax,tvec,w,'Color',[.4 .4 .4]);
+            h = line(ax,tvec,w,'Color',[.4 .4 .4 .2]);
             for i = 1:length(idx)
                 h(i).UserData = obj.Samples(idx(i));
             end
