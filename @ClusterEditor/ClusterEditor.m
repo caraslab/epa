@@ -70,11 +70,11 @@ classdef ClusterEditor < handle
             if any(ind)
                 set(obj.h_waveforms(ind), ...
                     'LineWidth',obj.selectedLineWidth, ...
-                    'Color',obj.selectedColor);
+                    'Color',[obj.selectedColor 0.5]);
                 
                 set(obj.h_pca(ind), ...
                     'MarkerSize',obj.selectedMarkerSize, ...
-                    'Color',obj.selectedColor);
+                    'Color',[obj.selectedColor 0.5]);
                 
                 set(obj.h_amplitude(ind), ...
                     'MarkerSize',obj.selectedMarkerSize, ...
@@ -83,11 +83,11 @@ classdef ClusterEditor < handle
             
             set(obj.h_waveforms(~ind), ...
                 'LineWidth',obj.unselectedLineWidth, ...
-                'Color',obj.unselectedColor);
+                'Color',[obj.unselectedColor 0.1]);
             
             set(obj.h_pca(~ind), ...
                 'MarkerSize',obj.unselectedMarkerSize, ...
-                'Color',obj.unselectedColor);
+                'Color',[obj.unselectedColor 0.2]);
             
             
             set(obj.h_amplitude(~ind), ...
@@ -333,7 +333,8 @@ classdef ClusterEditor < handle
     
     methods (Access = private)
         function create(obj)
-            t = tiledlayout(4,4,'Tag','MainTiles');
+            
+            t = tiledlayout(obj.parent,4,4,'Tag','MainTiles');
             obj.maintiles = t;
             
             
