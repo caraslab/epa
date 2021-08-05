@@ -389,6 +389,7 @@ classdef ClusterEditor < handle
                     disp('''p'' - use an region of interest selection method on the PCA scatter plot')
                     disp('''w'' - add a box threshold to select waveforms')
                     disp('''a'' - add a box threshold to select spikes from amplitude/time plot')
+                    disp('''q'' - print quality metrics summary to command window')
                     
                 case 'a'
                     obj.create_roi('amplitude');
@@ -425,6 +426,15 @@ classdef ClusterEditor < handle
                     
                 case 'p'
                     obj.create_roi('pca');
+                    
+                case 'q'
+                    s = obj.Cluster.quality_metrics_summary;
+                    s = sprintf('%s\n', ...
+                        obj.Cluster.TitleStr, ...
+                        repmat('-',1,30), ...
+                        s,repmat('-',1,30));
+                    disp(s)
+                    commandwindow
             end
         end
         

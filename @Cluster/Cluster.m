@@ -213,6 +213,17 @@ classdef Cluster < epa.DataInterface
         end
         
         
+        function str = quality_metrics_summary(obj)
+            
+            fn = fieldnames(obj.QualityMetrics);
+            ml = max(cellfun(@length,fn));
+            str = '';
+            for i = 1:length(fn)
+                str = sprintf('%s%*s : %s\n',str,ml,fn{i},epa.helper.num2str(obj.QualityMetrics.(fn{i})));
+            end
+            str(end) = [];
+        end
+        
         function h = plot_interspike_interval(obj,ax,varargin)
             if nargin < 2 || isempty(ax), ax = gca; end
             if nargin < 3, varargin = {}; end
