@@ -415,7 +415,7 @@ classdef DataBrowser < handle
                 h.ParameterEdit.Value = mat2str(v);
             end
             
-            if ~isempty(obj.plotMeta)
+            if ~isempty(obj.plotMeta) && isvalid(obj.plotMeta)
                 p = obj.plotMeta.PropertyList;
                 p = p(ismember({p.Name},pv));
                 str = epa.helper.metaprop2str(p);
