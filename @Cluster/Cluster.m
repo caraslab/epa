@@ -207,9 +207,9 @@ classdef Cluster < epa.DataInterface
             ems = round(ems);
         end
         
-        function [coeff,score,latent,tsquared,explained,mu] = waveform_pca(obj)
+        function [coeff,score,latent] = waveform_pca(obj)
             w = reshape(obj.Waveforms,obj.nChannels*obj.nWaveformSamples,obj.nSpikes);
-            [coeff,score,latent,tsquared,explained,mu] = pca(w');
+            [coeff,score,latent] = pca(w');
         end
         
         
