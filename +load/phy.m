@@ -173,7 +173,7 @@ nSamples = d_dat.bytes/(nChannels*nbytes); % # samples per channel
 fprintf('Extracting spikes from dat file: %s ',datffn)
 
 mmf = memmapfile(datffn, 'Format', {dataType, [nChannels nSamples], 'x'});
-
+k = 1;
 for j = 1:length(spikes)
     shankChannels = channelMap(channelShanks == spikes(j).sh);
     
@@ -181,20 +181,20 @@ for j = 1:length(spikes)
     idx = find(spikes(j).cluster_id == spikeClusters);
     if isempty(idx), continue; end
 
-    SW(j).ID            = uint64(spikes(j).cluster_id);
-    SW(j).Name          = string(sprintf('cluster%d',spikes(j).cluster_id));
-    SW(j).Samples       = spikeSamples(idx);
-    SW(j).SamplingRate  = ops.fs;
-    SW(j).Window        = par.spikewindow;
-    SW(j).Channels      = shankChannels;
-    SW(j).PrimaryChannel = spikes(j).ch;
-    SW(j).ShankID       = spikes(j).sh;
-    SW(j).OriginalDataFile = dir(datffn);
-    SW(j).Type          = spikes(j).group;
+    SW(k).ID            = uint64(spikes(j).cluster_id);
+    SW(k).Name          = string(sprintf('cluster%d',spikes(j).cluster_id));
+    SW(k).Samples       = spikeSamples(idx);
+    SW(k).SamplingRate  = ops.fs;
+    SW(k).Window        = par.spikewindow;
+    SW(k).Channels      = shankChannels;
+    SW(k).PrimaryChannel = spikes(j).ch;
+    SW(k).ShankID       = spikes(j).sh;
+    SW(k).OriginalDataFile = dir(datffn);
+    SW(k).Type          = spikes(j).group;
     if isempty(clusterQualityMetrics)
-        SW(j).QualityMetrics = []; % initialize even if empty
+        SW(k).QualityMetrics = []; % initialize even if empty
     else
-        SW(j).QualityMetrics = clusterQualityMetrics(j);
+        SW(k).QualityMetrics = clusterQualityMetrics(j);
     end
     
     if par.includespikewaveforms
@@ -207,12 +207,12 @@ for j = 1:length(spikes)
             end
             wf(:,:,i) = mmf.Data.x(shankChannels+1,sidx);% convert from channels from base 0 to base 1
         end
-        SW(j).Waveforms = cast(wf,'single'); %clear wf
+        SW(k).Waveforms = cast(wf,'single');
         fprintf('.')
     end
-    
+    k = k + 1;
 end
-
+clear wf
 fprintf(' done\n')
 
 
@@ -249,7 +249,7 @@ for i = 1:length(BPfileroot)
         C.ID        = SW(j).ID;
         C.Name      = SW(j).Name;
         C.Type      = SW(j).Type;
-        C.Samples   = SW(j).Samples(ind);
+        C.Samples   = SW(j).Samples(ind) - cast(BPsamples(i),'like',SW(j).Samples);
         C.Channel   = SW(j).PrimaryChannel;
         C.Shank     = SW(j).ShankID;
         C.ShankChannels     = SW(j).Channels;
