@@ -98,7 +98,7 @@ classdef DataBrowser < handle
         end
         
         function v = get.curEvent2Values(obj)
-            v = obj.handles.SelectEvent1Values.Value;
+            v = obj.handles.SelectEvent2Values.Value;
         end
         
         
