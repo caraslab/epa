@@ -185,7 +185,11 @@ for j = 1:length(spikes)
     SW(k).ShankID       = spikes(j).sh;
     SW(k).OriginalDataFile = dir(datffn);
     SW(k).Type          = spikes(j).group;
-    SW(k).QualityMetrics = clusterQualityMetrics(k);
+    if isempty(clusterQualityMetrics)
+        SW(k).QualityMetrics = []; % initialize even if empty
+    else
+        SW(k).QualityMetrics = clusterQualityMetrics(k);
+    end
     
     if par.includespikewaveforms
         wf = zeros(length(shankChannels),length(swvec),spikes(j).n_spikes,dataType);
@@ -246,7 +250,9 @@ for i = 1:length(BPfileroot)
         C.ShankChannels     = SW(j).Channels;
         C.WaveformWindow    = SW(j).Window;
         C.OriginalDataFile  = SW(j).OriginalDataFile;
-        C.QualityMetrics    = SW(j).QualityMetrics;
+        if ~isempty(SW(j).QualityMetrics)
+            C.QualityMetrics = SW(j).QualityMetrics;
+        end
         
         if par.includespikewaveforms
             C.Waveforms = SW(j).Waveforms(:,:,ind);
