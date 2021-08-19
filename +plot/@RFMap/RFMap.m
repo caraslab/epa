@@ -78,7 +78,7 @@ classdef RFMap < epa.plot.PlotType
             uvx = unique(vx);
             uvy = unique(vy);
             
-            ss = C.SpikeSamples;
+            ss = C.Samples;
             
             data = zeros(length(uvy),length(uvx));
             for ix = 1:length(uvx)
