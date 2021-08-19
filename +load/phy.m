@@ -72,12 +72,19 @@ cfgffn = fullfile(DataPath,'config.mat');
 d = dir(cfgffn);
 assert(~isempty(d),'epa:load:phy:FileNotFound', ...
     'Config data file was not found: "%s"',cfgffn)
+
 cfgffn = fullfile(d.folder,d.name);
 
 
 d_dat = dir(par.datafilestr);
+
 assert(~isempty(d_dat),'epa:load:phy:FileNotFound', ...
     'Signal data file was not found: "%s"',par.datafilestr)
+
+if numel(d_dat) > 1
+    fprintf(2,'Found multiple *.dat files. Using "%s"\n',d_dat(1).name)
+    d_dat(2:end) = [];
+end
 datffn = fullfile(d_dat.folder,d_dat.name);
 
 
@@ -167,7 +174,6 @@ fprintf('Extracting spikes from dat file: %s ',datffn)
 
 mmf = memmapfile(datffn, 'Format', {dataType, [nChannels nSamples], 'x'});
 
-k = 1;
 for j = 1:length(spikes)
     shankChannels = channelMap(channelShanks == spikes(j).sh);
     
@@ -175,20 +181,20 @@ for j = 1:length(spikes)
     idx = find(spikes(j).cluster_id == spikeClusters);
     if isempty(idx), continue; end
 
-    SW(k).ID            = uint64(spikes(j).cluster_id);
-    SW(k).Name          = string(sprintf('cluster%d',spikes(j).cluster_id));
-    SW(k).Samples       = spikeSamples(idx);
-    SW(k).SamplingRate  = ops.fs;
-    SW(k).Window        = par.spikewindow;
-    SW(k).Channels      = shankChannels;
-    SW(k).PrimaryChannel = spikes(j).ch;
-    SW(k).ShankID       = spikes(j).sh;
-    SW(k).OriginalDataFile = dir(datffn);
-    SW(k).Type          = spikes(j).group;
+    SW(j).ID            = uint64(spikes(j).cluster_id);
+    SW(j).Name          = string(sprintf('cluster%d',spikes(j).cluster_id));
+    SW(j).Samples       = spikeSamples(idx);
+    SW(j).SamplingRate  = ops.fs;
+    SW(j).Window        = par.spikewindow;
+    SW(j).Channels      = shankChannels;
+    SW(j).PrimaryChannel = spikes(j).ch;
+    SW(j).ShankID       = spikes(j).sh;
+    SW(j).OriginalDataFile = dir(datffn);
+    SW(j).Type          = spikes(j).group;
     if isempty(clusterQualityMetrics)
-        SW(k).QualityMetrics = []; % initialize even if empty
+        SW(j).QualityMetrics = []; % initialize even if empty
     else
-        SW(k).QualityMetrics = clusterQualityMetrics(k);
+        SW(j).QualityMetrics = clusterQualityMetrics(j);
     end
     
     if par.includespikewaveforms
@@ -199,13 +205,12 @@ for j = 1:length(spikes)
             if any(sidx < 1 | sidx > nSamples)
                 continue
             end
-            wf(:,:,i) = mmf.Data.x(shankChannels,sidx);
+            wf(:,:,i) = mmf.Data.x(shankChannels+1,sidx);% convert from channels from base 0 to base 1
         end
-        SW(k).Waveforms = cast(wf,'single'); clear wf
+        SW(j).Waveforms = cast(wf,'single'); %clear wf
         fprintf('.')
     end
     
-    k = k + 1;
 end
 
 fprintf(' done\n')
