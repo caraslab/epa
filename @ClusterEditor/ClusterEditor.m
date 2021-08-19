@@ -70,11 +70,11 @@ classdef ClusterEditor < handle
             if any(ind)
                 set(obj.h_waveforms(ind), ...
                     'LineWidth',obj.selectedLineWidth, ...
-                    'Color',obj.selectedColor);
+                    'Color',[obj.selectedColor 0.5]);
                 
                 set(obj.h_pca(ind), ...
                     'MarkerSize',obj.selectedMarkerSize, ...
-                    'Color',obj.selectedColor);
+                    'Color',[obj.selectedColor 0.5]);
                 
                 set(obj.h_amplitude(ind), ...
                     'MarkerSize',obj.selectedMarkerSize, ...
@@ -83,11 +83,11 @@ classdef ClusterEditor < handle
             
             set(obj.h_waveforms(~ind), ...
                 'LineWidth',obj.unselectedLineWidth, ...
-                'Color',obj.unselectedColor);
+                'Color',[obj.unselectedColor 0.1]);
             
             set(obj.h_pca(~ind), ...
                 'MarkerSize',obj.unselectedMarkerSize, ...
-                'Color',obj.unselectedColor);
+                'Color',[obj.unselectedColor 0.2]);
             
             
             set(obj.h_amplitude(~ind), ...
@@ -333,7 +333,8 @@ classdef ClusterEditor < handle
     
     methods (Access = private)
         function create(obj)
-            t = tiledlayout(4,4,'Tag','MainTiles');
+            
+            t = tiledlayout(obj.parent,4,4,'Tag','MainTiles');
             obj.maintiles = t;
             
             
@@ -388,6 +389,7 @@ classdef ClusterEditor < handle
                     disp('''p'' - use an region of interest selection method on the PCA scatter plot')
                     disp('''w'' - add a box threshold to select waveforms')
                     disp('''a'' - add a box threshold to select spikes from amplitude/time plot')
+                    disp('''q'' - print quality metrics summary to command window')
                     
                 case 'a'
                     obj.create_roi('amplitude');
@@ -424,6 +426,15 @@ classdef ClusterEditor < handle
                     
                 case 'p'
                     obj.create_roi('pca');
+                    
+                case 'q'
+                    s = obj.Cluster.quality_metrics_summary;
+                    s = sprintf('%s\n', ...
+                        obj.Cluster.TitleStr, ...
+                        repmat('-',1,30), ...
+                        s,repmat('-',1,30));
+                    disp(s)
+                    commandwindow
             end
         end
         

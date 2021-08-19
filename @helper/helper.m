@@ -22,6 +22,23 @@ classdef helper < handle
             addpath(c{:});
         end
         
+        function r = num2str(n,fmt)
+            if nargin < 2 || isempty(fmt), fmt = '%g'; end
+            if isstring(n) || ischar(n)
+                r = n;
+            else
+                r = num2str(n,fmt);
+            end
+        end
+        
+        function r = str2num(chr)
+            % return text if chr contains letters
+            if any(chr > 57)
+                r = chr;
+            else
+                r = str2num(chr);
+            end
+        end
         
         function tok = tokenize(str,delimiters)
             if nargin < 2 || isempty(delimiters), delimiters = ','; end
@@ -219,6 +236,17 @@ classdef helper < handle
             setpref(group,pref,src.(pref));
             if nargin == 5
                 feval(addfnc,src);
+            end
+        end
+        
+        function sz = get_size(obj)
+            props = properties(obj);
+            sz = 0;
+            
+            for i = 1:length(props)
+                p = obj.(props{i});
+                s = whos('p');
+                sz = sz + s.bytes;
             end
         end
     end

@@ -363,7 +363,7 @@ classdef DataBrowser < handle
                 ax = nexttile(t);
                 C = c(i);
                 h = C.plot_waveform_density(ax);
-                h.ButtonDownFcn = @C.edit;
+                h.ButtonDownFcn = @C.gui;
                 colorbar(ax);
             end
             

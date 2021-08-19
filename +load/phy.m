@@ -37,6 +37,9 @@ function S = phy(DataPath,varargin)
 %       > [Channels x Samples] uint64
 %       > This file can be specified explicitly. default = '*.dat'
 % 
+% Optional files:
+%   *quality_metrics.csv
+%       > Comma separated value table with additional cluster quality metrics
 % Note that the asterisk, '*', is a wildcard that can stand for any string.
 %
 %
@@ -104,6 +107,19 @@ spikeClusters  = readNPY(fullfile(DataPath, 'spike_clusters.npy')); % Vector of 
 channelShanks  = readNPY(fullfile(DataPath, 'channel_shanks.npy')); % Vector of cluster shanks
 channelMap     = readNPY(fullfile(DataPath, 'channel_map.npy'));    % this is important in esp if you got rid of files.
 clusterQuality = tdfread(fullfile(DataPath, 'cluster_info.tsv'));
+fd = dir(fullfile(DataPath,'CSV files','*quality_metrics.csv'));
+clusterQualityMetrics = [];
+if ~isempty(fd)
+    opts = delimitedTextImportOptions;
+    cqm = readmatrix(fullfile(fd.folder,fd.name),opts);
+    fn = cqm(1,:);
+    cqm(1,:) = [];
+    for i = 1:length(fn)
+        for j = 1:size(cqm,1)
+            clusterQualityMetrics(j).(fn{i}) = epa.helper.str2num(cqm{j,i});
+        end
+    end
+end
 fprintf(' done\n')
 
 
@@ -159,6 +175,7 @@ for j = 1:length(spikes)
     idx = find(spikes(j).cluster_id == spikeClusters);
     if isempty(idx), continue; end
 
+    SW(k).ID            = uint64(spikes(j).cluster_id);
     SW(k).Name          = string(sprintf('cluster%d',spikes(j).cluster_id));
     SW(k).Samples       = spikeSamples(idx);
     SW(k).SamplingRate  = ops.fs;
@@ -168,6 +185,11 @@ for j = 1:length(spikes)
     SW(k).ShankID       = spikes(j).sh;
     SW(k).OriginalDataFile = dir(datffn);
     SW(k).Type          = spikes(j).group;
+    if isempty(clusterQualityMetrics)
+        SW(k).QualityMetrics = []; % initialize even if empty
+    else
+        SW(k).QualityMetrics = clusterQualityMetrics(k);
+    end
     
     if par.includespikewaveforms
         wf = zeros(length(shankChannels),length(swvec),spikes(j).n_spikes,dataType);
@@ -219,6 +241,7 @@ for i = 1:length(BPfileroot)
         
         S(i).add_Cluster(k);
         C = S(i).Clusters(end);
+        C.ID        = SW(j).ID;
         C.Name      = SW(j).Name;
         C.Type      = SW(j).Type;
         C.Samples   = SW(j).Samples(ind);
@@ -227,6 +250,9 @@ for i = 1:length(BPfileroot)
         C.ShankChannels     = SW(j).Channels;
         C.WaveformWindow    = SW(j).Window;
         C.OriginalDataFile  = SW(j).OriginalDataFile;
+        if ~isempty(SW(j).QualityMetrics)
+            C.QualityMetrics = SW(j).QualityMetrics;
+        end
         
         if par.includespikewaveforms
             C.Waveforms = SW(j).Waveforms(:,:,ind);
