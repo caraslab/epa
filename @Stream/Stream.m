@@ -1,8 +1,7 @@
 classdef Stream < epa.DataInterface
     
-    
     properties
-        Data     (1,:)
+        Data            (:,1)
         SamplingRate    (1,1) double = 1;
         
         Channel  (1,1) double {mustBeFinite,mustBeInteger} = -1;
@@ -37,13 +36,8 @@ classdef Stream < epa.DataInterface
             end
         end
         
-        
         function set.Data(obj,d)
-            if ~isempty(d)
-                assert(isvector(d),'epa:Stream:Data:InvalidSize', ...
-                    'Continous.Data must be a vector');
-            end
-            obj.Data = d(:)';
+            obj.Data = d;
             obj.Time = (0:length(d)-1) ./ obj.SamplingRate;
         end
         
