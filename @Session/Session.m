@@ -29,6 +29,7 @@ classdef Session < handle
     methods
         add_TDTStreams(obj,TDTTankPath)
         add_TDTEvents(obj,TDTTankPath)
+        data = session2fieldtrip(obj,varargin);
         
         function obj = Session(SamplingRate,Clusters,Events)
             epa.helper.add_paths;
