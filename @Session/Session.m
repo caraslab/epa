@@ -49,7 +49,7 @@ classdef Session < handle
                 en = varargin{1};
             end
             
-            if any(ismember(existingEvents,en))
+            if ~isempty(existingEvents) && any(ismember(existingEvents,en))
                 fprintf(2,'Event "%s" already eaxists for this Session object\n',en)
                 return
             end
