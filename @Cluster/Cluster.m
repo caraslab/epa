@@ -21,6 +21,7 @@ classdef Cluster < epa.DataInterface
         
         OriginalDataFile (1,1) % could be filename or struct from dir()
         
+        Electrode   (1,1) epa.electrodes.Electrode
         
         Note     (:,1) string   % User notes
         
