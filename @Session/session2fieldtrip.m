@@ -55,12 +55,11 @@ else
     trons = event.OnOffTimes(:,1);
     sData = [Strm.Data]';
     for i = 1:event.N
-        tvecs = par.trialwindow(i,1):Strm(1).SamplingInterval:par.trialwindow(i,2);
         ind = Strm(1).Time >= trons(i)+par.trialwindow(1) & Strm(1).Time <= trons(i)-par.trialwindow(2);
         data.trial{1,i} = sData(:,ind);
-        data.time{1,i}  = trons(i) + tvecs;
         data.sampleinfo(i,:) = [find(ind,1) find(ind,1,'last')];
+        data.time{1,i} = (find(ind)-1)./Strm(1).SamplingRate;
     end
-    data.trialinfo = event.Values;
+    data.trialinfo = event.Values(:);
 end
                 

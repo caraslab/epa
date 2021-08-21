@@ -13,6 +13,8 @@ classdef Session < handle
         
         SamplingRate  (1,1) double {mustBePositive,mustBeFinite}  = 1; % Acquisition sampling rate (Hz)
 
+        Electrode
+        
         Notes     (:,1) string      % User notes
         
         UserData    % whatever you want
