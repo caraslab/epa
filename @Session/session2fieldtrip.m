@@ -22,7 +22,7 @@ function data = session2fieldtrip(S,varargin)
 
 par.event = [];
 par.channels = 1:length(S.Streams);
-par.trialwindow = [-.25 1];
+par.window = [-.25 1];
 
 if isequal(varargin{1},'getdefaults'), data = par; return; end
 
@@ -33,33 +33,25 @@ Strm = S.Streams(par.channels);
 data.label   = cellfun(@(a) num2str(a,'CH%02d'),num2cell(par.channels),'uni',0)';
 data.fsample = Strm(1).SamplingRate;
 
-if isempty(par.event) % represent data as one long trial
     
     data.trial      = {[Strm.Data]'};
     data.time       = {(0:Strm(1).N-1)./data.fsample};
     data.sampleinfo = [1 Strm(par.channels(1)).N];
 
-else
+if ~isempty(par.event) % represent data as one long trial
+
     
     event = par.event;
     if isstring(event) || ischar(event)
         event = S.find_Event(event);
     end
     
-    data.trialinfo = event.Values;
     
-    if numel(par.trialwindow) == 2 % otherwise, user specified a time window for each trial
-        par.trialwindow = repmat(par.trialwindow,event.N,1);
-    end
-
-    trons = event.OnOffTimes(:,1);
-    sData = [Strm.Data]';
-    for i = 1:event.N
-        ind = Strm(1).Time >= trons(i)+par.trialwindow(1) & Strm(1).Time <= trons(i)-par.trialwindow(2);
-        data.trial{1,i} = sData(:,ind);
-        data.sampleinfo(i,:) = [find(ind,1) find(ind,1,'last')];
-        data.time{1,i} = (find(ind)-1)./Strm(1).SamplingRate;
-    end
-    data.trialinfo = event.Values(:);
+    Fs = Strm(1).SamplingRate;
+    cfg.trl = round(Fs.*([event.OnOffTimes(:,1) event.OnOffTimes(:,1)+par.window(2)]));
+    cfg.trl(:,3) = round(Fs.*par.window(1));
+    data = ft_redefinetrial(cfg,data);
+    
+    data.trialinfo = event.Values;
 end
                 

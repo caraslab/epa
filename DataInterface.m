@@ -1,7 +1,8 @@
 classdef (Abstract = true) DataInterface < handle & matlab.mixin.SetGet & dynamicprops
     
     properties
-        Name     string
+        Name           (1,1) string
+        ElectrodeIndex (1,1) double {mustBePositive,mustBeInteger} = 1;
         UserData
     end
     

@@ -4,14 +4,12 @@ classdef Cluster < epa.DataInterface
     
     properties
         ID       (1,1) uint64 {mustBeFinite} = 0;
-        Type     string {mustBeMember(Type,["SU","MSU","MU","Noise",""])} = ""
+        Type     string {mustBeMember(Type,["SU","MSU","MU","Noise",""])} = "";
         
-        SamplingRate    (1,1) double {mustBePositive,mustBeFinite} = 1 % by default same as obj.Session.SamplingRate
+        SamplingRate    (1,1) double {mustBePositive,mustBeFinite} = 1; % by default same as obj.Session.SamplingRate
                
+        
         Channel         (1,1) double {mustBeFinite,mustBeInteger} = -1;
-        Shank           (1,1) double {mustBePositive,mustBeFinite,mustBeInteger} = 1;
-        ElectrodeType   (1,1) string
-        Coords          (:,3) double {mustBeFinite} = [0 0 0];
         Waveforms       (:,:,:) single % [channels x samples x spikes]
         Samples         (:,1) single {mustBeInteger} = [] % single datatype for easier manipulation
         WaveformWindow  (1,2) double {mustBeFinite} = [0 1]
@@ -20,9 +18,7 @@ classdef Cluster < epa.DataInterface
         QualityMetrics  (1,1) struct
         
         OriginalDataFile (1,1) % could be filename or struct from dir()
-        
-        Electrode   (1,1) epa.electrodes.Electrode
-        
+                
         Note     (:,1) string   % User notes
         
         TitleStr (1,1) string   % auto generated if empty

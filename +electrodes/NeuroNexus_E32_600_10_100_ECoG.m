@@ -1,5 +1,13 @@
 classdef NeuroNexus_E32_600_10_100_ECoG < epa.electrodes.Electrode
     
+    properties
+        
+    end
+    
+    properties (Constant)
+        N = 32;
+    end
+    
     methods
         
         function obj = NeuroNexus_E32_600_10_100_ECoG()
@@ -40,17 +48,19 @@ classdef NeuroNexus_E32_600_10_100_ECoG < epa.electrodes.Electrode
                 3.0    0.6; ...   % 31
                 2.4    0.0];      % 32
             
+            obj.MaxNeighborDist = 1;
+            
             obj.ChannelMap = 1:32;
             
             obj.Labels = arrayfun(@(a) num2str(a,'CH%0d'),1:32,'uni',0);
             
             obj.Shank = ones(32,1);
             
-            obj.Diameter = 100*ones(32,1);
+            obj.ChannelMeasurements = 100*ones(32,1);
             
             obj.Marker = 'o';
            
-            obj.set_neighbours(0.7);
+            obj.set_neighbors;
         end
         
     end

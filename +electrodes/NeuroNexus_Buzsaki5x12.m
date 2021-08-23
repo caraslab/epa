@@ -1,10 +1,20 @@
 classdef NeuroNexus_Buzsaki5x12 < epa.electrodes.Electrode
+   
+    properties
+        
+    end
+    
+    properties (Constant)
+        N = 64;
+    end
     
     methods
         function obj = NeuroNexus_Buzsaki5x12()
             obj.Style = "chronic";
             obj.Manufacturer = "NeuroNexus";
             obj.Model = "BuzsakiH64LP";
+            
+            obj.Units = 'μm';
             
             obj.Marker = 's';
             
@@ -55,6 +65,8 @@ classdef NeuroNexus_Buzsaki5x12 < epa.electrodes.Electrode
                 
             obj.Coordinates = [x y];
             
+            obj.MaxNeighborDist = 120;
+            
             obj.Shank = [ ...
                 1*ones(12,1); ...
                 2*ones(12,1); ...
@@ -65,10 +77,9 @@ classdef NeuroNexus_Buzsaki5x12 < epa.electrodes.Electrode
             
             obj.Labels = arrayfun(@(a) num2str(a,'CH%0d'),1:64,'uni',0);
             
-            obj.Width  = 10*ones(64,1);
-            obj.Height = 16*ones(64,1);
+            obj.ChannelMeasurements = [10*ones(64,1) 16*ones(64,1)];
             
-            obj.set_neighbours(0.7);
+            obj.set_neighbors;
         end
     end
 end

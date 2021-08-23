@@ -13,7 +13,7 @@ classdef Session < handle
         
         SamplingRate  (1,1) double {mustBePositive,mustBeFinite}  = 1; % Acquisition sampling rate (Hz)
 
-        Electrode
+        Electrode   %epa.electrodes.Electrode
         
         Notes     (:,1) string      % User notes
         
@@ -22,8 +22,10 @@ classdef Session < handle
     
     properties (Dependent)
         EventNames
+        StreamNames
         NClusters
         NEvents
+        NStreams
         DistinctEventValues
         Summary
     end
@@ -79,6 +81,9 @@ classdef Session < handle
             obj.Clusters(end+1) = epa.Cluster(obj,varargin{:});
         end
         
+        function add_Stream(obj,varargin)
+            obj.Streams(end+1) = epa.Stream(obj,varargin{:});
+        end
        
         
         
@@ -123,9 +128,18 @@ classdef Session < handle
                 c = arrayfun(@(a) a.find_Cluster(name),obj);
                 return
             end
-            
             cnames = [obj.Clusters.Name];
             c = arrayfun(@(a) obj.Clusters(strcmpi(cnames,a)),name);
+        end
+        
+        function s = find_Stream(obj,name)
+            name = string(name);
+            if numel(obj) > 1
+                s = arrayfun(@(a) a.find_Stream(name),obj);
+                return
+            end
+            snames = [obj.Streams.Name];
+            s = arrayfun(@(a) obj.Streams(strcmpi(snames,a)),name);
         end
         
         function s = find_Session(obj,name)
@@ -151,6 +165,15 @@ classdef Session < handle
             c = C(ia(ind));
         end
         
+        function s = common_Streams(obj)
+            S = [obj.Streams];
+            [~,ia,ib] = unique([S.Name]);
+
+            s = arrayfun(@(x) sum(x == ib),ia);
+            ind = s == length(obj);
+            
+            s = S(ia(ind));
+        end
         
         function c = common_Events(obj)
             E = [obj.Events];
@@ -173,6 +196,10 @@ classdef Session < handle
             v = arrayfun(@(a) a.DistinctValues,obj.Events,'uni',0);
         end
         
+        function n = get.StreamNames(obj)
+            n = unique([obj.Streams.Name]);
+        end
+        
         function n = get.EventNames(obj)
             n = [obj.Events.Name];
         end
@@ -183,6 +210,10 @@ classdef Session < handle
         
         function n = get.NEvents(obj)
             n = numel(obj.Events);
+        end
+        
+        function n = get.NStreams(obj)
+            n = numel(obj.StreamNames);
         end
         
         function s = get.Summary(obj)

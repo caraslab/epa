@@ -92,17 +92,19 @@ tg = h;
 h = uitab(tg,'Title','Streams');
 obj.handles.StreamsTab = h;
 
+
+
 StreamGrid = uigridlayout(h);
 StreamGrid.ColumnWidth = {'1x'};
 StreamGrid.RowHeight   = {'1x'};
-obj.handles.ClustGrid = StreamGrid;
+obj.handles.StreamGrid = StreamGrid;
 
 h = epa.ui.SelectObject(StreamGrid,'epa.Stream','uilistbox');
 h.handle.Enable = 'off';
 h.handle.Tag = 'SelectStreams';
 h.handle.Multiselect = 'on';
 h.handle.Tooltip = 'Select Streams';
-obj.handles.SelectClusters = h;
+obj.handles.SelectStreams = h;
 
 
 
@@ -158,7 +160,7 @@ obj.handles.DataTypeTabGroup.SelectedTab = obj.handles.ClustersTab;
 EventGrid = uigridlayout(NavGrid);
 EventGrid.Layout.Column = 3;
 EventGrid.Layout.Row    = [2 3];
-EventGrid.ColumnWidth = {'1x'};
+EventGrid.ColumnWidth = {30,'1x'};
 EventGrid.RowHeight   = {25,'1x',25','1x'};
 EventGrid.ColumnSpacing = 0;
 EventGrid.RowSpacing = 5;
@@ -166,8 +168,12 @@ EventGrid.Padding = [0 0 0 0];
 obj.handles.EventGrid = EventGrid;
 
 % Event1
+h = uilabel(EventGrid,'Text','Event 1:');
+h.Layout.Column = 1;
+h.Layout.Row = 1;
+
 h = epa.ui.SelectObject(EventGrid,'epa.Event','uidropdown');
-h.handle.Layout.Column = 1;
+h.handle.Layout.Column = 2;
 h.handle.Layout.Row = 1;
 h.handle.Enable = 'off';
 h.handle.Tag = 'SelectEvent1';
@@ -175,7 +181,7 @@ h.handle.Tooltip = 'Select Event 1';
 obj.handles.SelectEvent1 = h;
 
 h = uilistbox(EventGrid);
-h.Layout.Column = 1;
+h.Layout.Column = [1 2];
 h.Layout.Row = 2;
 h.Enable = 'off';
 h.Tag = 'SelectEvent1Values';
@@ -183,8 +189,12 @@ h.Multiselect = 'on';
 obj.handles.SelectEvent1Values = h;
 
 % Event2
+h = uilabel(EventGrid,'Text','Event 2:');
+h.Layout.Column = 1;
+h.Layout.Row = 1;
+
 h = epa.ui.SelectObject(EventGrid,'epa.Event','uidropdown');
-h.handle.Layout.Column = 1;
+h.handle.Layout.Column = 2;
 h.handle.Layout.Row = 3;
 h.handle.Enable = 'off';
 h.handle.Tag = 'SelectEvent2';
@@ -192,7 +202,7 @@ h.handle.Tooltip = 'Select Event 2';
 obj.handles.SelectEvent2 = h;
 
 h = uilistbox(EventGrid);
-h.Layout.Column = 1;
+h.Layout.Column = [1 2];
 h.Layout.Row = 4;
 h.Enable = 'off';
 h.Tag = 'SelectEvent2Values';

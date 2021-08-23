@@ -11,8 +11,6 @@ classdef Stream < epa.DataInterface
         Note     (:,1) string   % User notes
         
         TitleStr (1,1) string   % auto generated if empty
-        
-        Electrode (1,1) epa.electrodes.Electrode
     end
     
     
@@ -28,14 +26,13 @@ classdef Stream < epa.DataInterface
     
     
     methods
-        [t,eidx,vid] = eventlocked(obj,varargin)
+        [t,eidx,vid,swin] = eventlocked(obj,varargin)
         
-        function obj = Stream(SessionObj,data)
+        function obj = Stream(SessionObj,name,data)
             obj.Session = SessionObj;
             
-            if nargin > 1 && ~isempty(data)
-                obj.Data = data;
-            end
+            if nargin > 1 && ~isempty(name), obj.Name = name; end
+            if nargin > 2 && ~isempty(data), obj.Data = data; end
         end
         
         function set.Data(obj,d)

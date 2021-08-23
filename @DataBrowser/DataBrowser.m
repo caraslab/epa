@@ -29,6 +29,7 @@ classdef DataBrowser < handle
         curEvent1Values
         curEvent2Values
         curClusters
+        curStreams
         curSession
         curPlotStyle
         curMetric
@@ -81,6 +82,9 @@ classdef DataBrowser < handle
             o = obj.handles.SelectClusters.CurrentObject;
         end
         
+        function o = get.curStreams(obj)
+            o = obj.handles.SelectStreams.CurrentObject;
+        end
         
         function o = get.curEvent1(obj)
             o = obj.handles.SelectEvent1.CurrentObject;
@@ -335,8 +339,15 @@ classdef DataBrowser < handle
             
             
             % update Streams
-            
-            
+            Strm = S.common_Streams;
+            if isempty(Strm)
+                h.SelectStreams.handle.Enable = 'off';
+            else
+                h.SelectStreams.handle.Enable = 'on';
+                h.SelectStreams.Object = Strm;
+                h.SelectStreams.handle.Items = unique([Strm.Name]);
+                obj.select_stream_updated;
+            end
             
             
             h.SelectPlotStyle.Enable = 'on';
@@ -397,6 +408,14 @@ classdef DataBrowser < handle
                     obj.handles.SpikeWaveformButton.Enable = 'on';
                 end
             end
+        end
+        
+        function select_stream_updated(obj,src,event)
+            h = obj.handles;
+            
+            s = obj.curStreams;
+            
+            
         end
         
         function plot_select_parameter(obj,src,event)
