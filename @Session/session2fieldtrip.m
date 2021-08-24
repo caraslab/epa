@@ -4,6 +4,16 @@ function data = session2fieldtrip(S,varargin)
 % Convert Session object with Stream data for use with the Fieldtrip
 % toolbox.
 % 
+% Options:
+%   event       ... an event name or epa.Event object (default = none, i.e
+%                   return continuous data)
+%   channels    ... Determines which channels to return (default = [], i.e.
+%                   return all channels in data)
+%   window      ... Specify window [1x2] around event onsets. Can also
+%                   specify [Nx2] onset, offset pairs for specifying
+%                   windows on a trial-by-trial basis. Default is
+%                   determined by the minimum difference between onsets.
+% 
 % Output:
 %   data.label      % cell-array containing strings, Nchan*1
 %   data.fsample    % sampling frequency in Hz, single number
@@ -22,9 +32,9 @@ function data = session2fieldtrip(S,varargin)
 
 par.event = [];
 par.channels = 1:length(S.Streams);
-par.window = [-.25 1];
+par.window = [];
 
-if isequal(varargin{1},'getdefaults'), data = par; return; end
+if nargin > 1 && isequal(varargin{1},'getdefaults'), data = par; return; end
 
 par = epa.helper.parse_params(par,varargin{:});
 
@@ -33,10 +43,10 @@ Strm = S.Streams(par.channels);
 data.label   = cellfun(@(a) num2str(a,'CH%02d'),num2cell(par.channels),'uni',0)';
 data.fsample = Strm(1).SamplingRate;
 
-    
-    data.trial      = {[Strm.Data]'};
-    data.time       = {(0:Strm(1).N-1)./data.fsample};
-    data.sampleinfo = [1 Strm(par.channels(1)).N];
+
+data.trial      = {[Strm.Data]'};
+data.time       = {(0:Strm(1).N-1)./data.fsample};
+data.sampleinfo = [1 Strm(par.channels(1)).N];
 
 if ~isempty(par.event) % represent data as one long trial
 
@@ -48,8 +58,20 @@ if ~isempty(par.event) % represent data as one long trial
     
     
     Fs = Strm(1).SamplingRate;
-    cfg.trl = round(Fs.*([event.OnOffTimes(:,1) event.OnOffTimes(:,1)+par.window(2)]));
-    cfg.trl(:,3) = round(Fs.*par.window(1));
+    
+    ons = event.OnOffTimes(:,1);
+    
+    if isempty(par.window)
+        md = min(diff(event.OnOffTimes,1,2));
+        par.window = [0 md-1./Fs];
+    end
+
+    cfg.trl(:,1) = ons+par.window(:,1); % trial start
+    cfg.trl(:,2) = ons+par.window(:,2); % trial end
+    cfg.trl(:,3) = par.window(:,1);     % trigger offset re trial start
+    
+    cfg.trl = round(Fs.*cfg.trl); % seconds -> samples re recording start
+    
     data = ft_redefinetrial(cfg,data);
     
     data.trialinfo = event.Values;
