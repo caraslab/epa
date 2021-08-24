@@ -28,9 +28,8 @@ classdef Stream < epa.DataInterface
     methods
         [t,eidx,vid,swin] = eventlocked(obj,varargin)
         
-        function obj = Stream(SessionObj,name,channel,data)
-            obj.Session = SessionObj;
-            
+        function obj = Stream(SessionObj,name,channel,data)            
+            if nargin >= 1 && ~isempty(SessionObj), obj.Session = SessionObj; end
             if nargin > 1 && ~isempty(name), obj.Name = name; end
             if nargin > 2 && ~isempty(channel), obj.Channel = channel; end
             if nargin > 3 && ~isempty(data), obj.Data = data; end
