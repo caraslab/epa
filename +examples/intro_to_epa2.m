@@ -6,7 +6,7 @@ S = epa.load.phy(DataPath);
 
 %% Save Session object(s) to quickly load for later analysis
 % Since Matlab uses compression for saved .mat files, the original data
-% total file size went from > 8GB to ~256 MB on disk
+% total file size went from > 8GB to <300 MB on disk
 
 dataFilename = 'C:\Users\Daniel\Documents\MATLAB\TestEPhysData\SUBJ-ID-202\Session_210613_concat.mat';
 
@@ -21,3 +21,32 @@ load(dataFilename)
 %% The DataBrowser GUI is useful for quickly accessing Session data
 
 D = epa.DataBrowser;
+
+%% Manually plot
+
+% copy handle to the currently selected Cluster object
+C = D.curClusters;
+
+
+figure
+h = epa.plot.PSTH_Raster(C,'event',"AMDepth"); % create the plot object
+h.plot
+
+%% Programmatically use currently selected data in the DataBrowser
+
+% copy handle to the currently selected Cluster object
+C = D.curClusters;
+
+% copy handle to the currently selected Event object
+E = D.curEvent1;
+
+figure
+h = epa.plot.PSTH_Raster(C,'event',E); % create the plot object
+
+% update property of the plot object
+h.eventvalue = D.curEvent1Values; 
+
+% actually plot the data
+h.plot
+
+

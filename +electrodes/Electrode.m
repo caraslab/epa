@@ -1,4 +1,4 @@
-classdef Electrode < handle & matlab.mixin.Heterogeneous
+classdef (Hidden) Electrode < handle & matlab.mixin.Heterogeneous
 
     
     properties
@@ -6,11 +6,14 @@ classdef Electrode < handle & matlab.mixin.Heterogeneous
         Location    (1,1) string
         ChannelMap  (:,1) double {mustBeInteger,mustBeFinite}
         Marker      (1,1) char   {mustBeMember(Marker,{'.','o','s','d','h'})} = 'o';
-        MaxNeighborDist (1,1) {mustBeNonnegative}
+        MaxNeighborDist  (1,1) {mustBeNonnegative}
+        ChannelImpedance (:,1) double
+        
+        Name
     end
     
     properties (SetAccess = protected)
-        Shank           (:,1) double {mustBeInteger,mustBeNonnegative}
+        Group           (:,1) double {mustBeInteger,mustBeNonnegative}
         Coordinates     (:,2) double {mustBeFinite}
         Labels          (:,1) string
         ChannelMeasurements   double {mustBePositive} % diameter if one value per channel; width, height if two values per channel
@@ -21,13 +24,26 @@ classdef Electrode < handle & matlab.mixin.Heterogeneous
         Neighbours      (:,1) cell
     end
     
-    properties (Constant,Abstract)
-        N
+    properties (SetAccess = immutable,Abstract)
+        N % number of channels
     end
     
     
     methods
         
+        function n = get.Name(obj)
+            if isempty(obj.Name)
+                obj.Name = sprintf('%s %s - %s',obj.Manufacturer,obj.Model,obj.Style);
+            end
+            n = obj.Name;
+        end
+        
+        function m = get.ChannelMap(obj)
+            if isempty(obj.ChannelMap)
+                obj.ChannelMap = 1:obj.N;
+            end
+            m = obj.ChannelMap;
+        end
         
         function lay = ft_layout(obj)
             lay.pos = obj.Coordinates;
@@ -59,14 +75,24 @@ classdef Electrode < handle & matlab.mixin.Heterogeneous
             
             x = obj.Coordinates(:,1);
             y = obj.Coordinates(:,2);
-            h = plot(ax,x,y, ...
-                'k','linestyle','none', ...
-                'marker',obj.Marker, ...
-                'markerfacecolor',[.6 .6 .6]);
             
+            ug = unique(obj.Group);
+            cm = jet(length(ug));
+            
+            for i = 1:length(ug)
+                ind = obj.Group == ug(i);
+                h(i) = line(ax,x(ind),y(ind), ...
+                    'color','k', ...
+                    'linestyle','none', ...
+                    'marker',obj.Marker, ...
+                    'markerfacecolor',cm(i,:));
+            end
             
             axis(ax,'image')
             axis(ax,'off')
+            
+            title(ax,obj.Name);
+            
             if nargout == 0, clear h; end
         end
         

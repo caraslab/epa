@@ -4,6 +4,11 @@ classdef Session < handle
         Clusters (1,:) epa.Cluster  % An array of Cluster objects
         Streams  (1,:) epa.Stream   % An array of Stream objects
         Events   (1,:) epa.Event    % An array of Event objects
+        Electrodes  % one or more Electrode objects (i.e, class that inherits from the abstract class epa.electrodes.Electrode)
+                    % Note: user must subsequently set ElectrodeIndex in
+                    % obj.Clusters and/or obj.Streams using
+                    % set(obj.Clusters,'ElectrodeIndex',1) .. or whatever
+                    % is the appropriate electrode index.
         
         Name     (1,1) string       % Session name
         Date     (1,1) string       % Session date
@@ -13,7 +18,7 @@ classdef Session < handle
         
         SamplingRate  (1,1) double {mustBePositive,mustBeFinite}  = 1; % Acquisition sampling rate (Hz)
 
-        Electrode   %epa.electrodes.Electrode
+        
         
         Notes     (:,1) string      % User notes
         

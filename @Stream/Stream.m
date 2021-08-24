@@ -5,7 +5,7 @@ classdef Stream < epa.DataInterface
         SamplingRate    (1,1) double = 1;
         
         Channel  (1,1) double {mustBeFinite,mustBeInteger} = -1;
-        Shank    (1,1) double {mustBePositive,mustBeFinite,mustBeInteger} = 1;
+
         Coords   (1,3) double {mustBeFinite} = [0 0 0];
         
         Note     (:,1) string   % User notes
@@ -66,7 +66,7 @@ classdef Stream < epa.DataInterface
         
         function s = get.TitleStr(obj)
             if obj.TitleStr == ""
-                obj.TitleStr = sprintf('%s_CH%d',obj.Name,obj.Channel);
+                obj.TitleStr = sprintf('%s_CH%03d',obj.Name,obj.Channel);
             end
             s = obj.TitleStr;
         end

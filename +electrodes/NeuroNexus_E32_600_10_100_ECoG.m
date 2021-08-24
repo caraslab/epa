@@ -4,7 +4,7 @@ classdef NeuroNexus_E32_600_10_100_ECoG < epa.electrodes.Electrode
         
     end
     
-    properties (Constant)
+    properties (SetAccess = immutable)
         N = 32;
     end
     
@@ -54,7 +54,7 @@ classdef NeuroNexus_E32_600_10_100_ECoG < epa.electrodes.Electrode
             
             obj.Labels = arrayfun(@(a) num2str(a,'CH%0d'),1:32,'uni',0);
             
-            obj.Shank = ones(32,1);
+            obj.Group = ones(32,1);
             
             obj.ChannelMeasurements = 100*ones(32,1);
             
