@@ -652,6 +652,15 @@ classdef DataBrowser < handle
             obj.metricPar.(v) = m;
         end
         
+        function convert_streams(obj,src,event)
+            S = obj.curSession;
+            Strm = obj.curStreams;
+            Ev1  = obj.curEvent1;
+            data = S.session2fieldtrip("event",Ev1.Name,"channels",[Strm.Channel]);
+            assignin('base','data',data);
+            whos data
+        end
+        
         function run_analysis(obj,src,event)
             h = obj.handles.RunAnalysisButton;
             

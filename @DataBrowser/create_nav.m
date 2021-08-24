@@ -93,10 +93,9 @@ h = uitab(tg,'Title','Streams');
 obj.handles.StreamsTab = h;
 
 
-
 StreamGrid = uigridlayout(h);
 StreamGrid.ColumnWidth = {'1x'};
-StreamGrid.RowHeight   = {'1x'};
+StreamGrid.RowHeight   = {'1x',100};
 obj.handles.StreamGrid = StreamGrid;
 
 h = epa.ui.SelectObject(StreamGrid,'epa.Stream','uilistbox');
@@ -107,7 +106,12 @@ h.handle.Tooltip = 'Select Streams';
 obj.handles.SelectStreams = h;
 
 
-
+h = uibutton(StreamGrid);
+h.Layout.Row = 2;
+h.Layout.Column = 1;
+h.Text = 'Convert for FieldTrip';
+h.ButtonPushedFcn = @obj.convert_streams;
+obj.handles.ConvertStreams = h;
 
 
 
@@ -160,9 +164,9 @@ obj.handles.DataTypeTabGroup.SelectedTab = obj.handles.ClustersTab;
 EventGrid = uigridlayout(NavGrid);
 EventGrid.Layout.Column = 3;
 EventGrid.Layout.Row    = [2 3];
-EventGrid.ColumnWidth = {30,'1x'};
+EventGrid.ColumnWidth = {55,'1x'};
 EventGrid.RowHeight   = {25,'1x',25','1x'};
-EventGrid.ColumnSpacing = 0;
+EventGrid.ColumnSpacing = 5;
 EventGrid.RowSpacing = 5;
 EventGrid.Padding = [0 0 0 0];
 obj.handles.EventGrid = EventGrid;
@@ -191,7 +195,7 @@ obj.handles.SelectEvent1Values = h;
 % Event2
 h = uilabel(EventGrid,'Text','Event 2:');
 h.Layout.Column = 1;
-h.Layout.Row = 1;
+h.Layout.Row = 3;
 
 h = epa.ui.SelectObject(EventGrid,'epa.Event','uidropdown');
 h.handle.Layout.Column = 2;
