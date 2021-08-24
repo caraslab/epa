@@ -1,4 +1,4 @@
-classdef (Abstract = true) DataInterface < handle & matlab.mixin.SetGet & dynamicprops
+classdef (Abstract,Hidden) DataInterface < handle & matlab.mixin.SetGet & dynamicprops
     
     properties
         Name           (1,1) string
@@ -12,6 +12,10 @@ classdef (Abstract = true) DataInterface < handle & matlab.mixin.SetGet & dynami
     
     properties (Dependent)
         thisfunc
+    end
+    
+    events
+        Updated
     end
     
     methods (Abstract)
