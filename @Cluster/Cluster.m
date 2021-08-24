@@ -13,8 +13,6 @@ classdef Cluster < epa.DataInterface
         Waveforms       (:,:,:) single % [channels x samples x spikes]
         Samples         (:,1) single {mustBeInteger} = [] % single datatype for easier manipulation
         WaveformWindow  (1,2) double {mustBeFinite} = [0 1]
-        ShankChannels   (1,:) double {mustBeInteger,mustBeNonnegative,mustBeFinite} = []
-        ShankID         (1,1) double {mustBeInteger,mustBeNonnegative,mustBeFinite} = 0
         QualityMetrics  (1,1) struct
         
         OriginalDataFile (1,1) % could be filename or struct from dir()
@@ -22,6 +20,7 @@ classdef Cluster < epa.DataInterface
         Note     (:,1) string   % User notes
         
         TitleStr (1,1) string   % auto generated if empty
+
     end
     
     
@@ -35,10 +34,6 @@ classdef Cluster < epa.DataInterface
         N
     end
     
-    
-    events
-        Updated
-    end
     
     methods
         [t,eidx,vid]    = eventlocked(obj,varargin)
@@ -94,19 +89,19 @@ classdef Cluster < epa.DataInterface
         end
         
         
-        function set.ShankChannels(obj,ch)
-            assert(numel(unique(ch)) == numel(ch), ...
-                'epa:SpikeWaveforms:ShankChannels:RepeatedValues', ...
-                'All values of ShankChannels must be unique')
-            
-            if ~isempty(obj.Waveforms)
-                assert(size(obj.Waveforms,1) == numel(ch), ...
-                    'epa:SpikeWaveforms:ShankChannels:UnequalDimensions', ...
-                    'Size of dimension 2 of Waveforms must equal the number of ShankChannels')
-            end
-            
-            obj.ShankChannels = ch;
-        end
+%         function set.ShankChannels(obj,ch)
+%             assert(numel(unique(ch)) == numel(ch), ...
+%                 'epa:SpikeWaveforms:ShankChannels:RepeatedValues', ...
+%                 'All values of ShankChannels must be unique')
+%             
+%             if ~isempty(obj.Waveforms)
+%                 assert(size(obj.Waveforms,1) == numel(ch), ...
+%                     'epa:SpikeWaveforms:ShankChannels:UnequalDimensions', ...
+%                     'Size of dimension 2 of Waveforms must equal the number of ShankChannels')
+%             end
+%             
+%             obj.ShankChannels = ch;
+%         end
         
         
         
@@ -139,9 +134,9 @@ classdef Cluster < epa.DataInterface
             n = size(obj.Waveforms,2);
         end
         
-        function i = get.channelInd(obj)
-            i = obj.ShankChannels == obj.Channel;
-        end
+%         function i = get.channelInd(obj)
+%             i = obj.ShankChannels == obj.Channel;
+%         end
         
         function t = get.SpikeTimes(obj)
             t = obj.Samples/obj.SamplingRate;
