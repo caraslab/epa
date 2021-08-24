@@ -70,32 +70,64 @@ classdef (Hidden) Electrode < handle & matlab.mixin.Heterogeneous
             end
         end
         
-        function h = plot(obj,ax)
+        function h = plot(obj,ax,channelColors,showlabels)
             if nargin < 2 || isempty(ax), ax = gca; end
+            if nargin < 3, channelColors = []; end
+            if nargin < 4 || isempty(showlabels), showlabels = true; end
             
             x = obj.Coordinates(:,1);
             y = obj.Coordinates(:,2);
             
-            ug = unique(obj.Group);
-            cm = jet(length(ug));
             
-            for i = 1:length(ug)
-                ind = obj.Group == ug(i);
-                h(i) = line(ax,x(ind),y(ind), ...
+            if isempty(channelColors) % by group
+                ug = unique(obj.Group);
+                cm = jet(length(ug));
+                tmpc = nan(obj.N,3);
+                for i = 1:length(ug)
+                    ind = obj.Group == ug(i);
+                    tmpc(ind,:) = repmat(cm(i,:),sum(ind),1);
+                end
+                channelColors = tmpc;
+                
+            elseif size(channelColors,1) == 1
+                channelColors = repmat(channelColors,obj.N,1);
+            end
+            
+            assert(all(size(channelColors) == [obj.N 3]),'epa:electrodes:Electrode:plot:SizeMismatch', ...
+                'the size of channelColors must be [obj.N x 3]');
+            
+            for i = 1:obj.N
+                h(i) = line(ax,x(i),y(i), ...
                     'color','k', ...
                     'linestyle','none', ...
                     'marker',obj.Marker, ...
-                    'markerfacecolor',cm(i,:));
+                    'markerfacecolor',channelColors(i,:));
             end
-            
+            title(ax,obj.Name,'interpreter','none');
             axis(ax,'image')
             axis(ax,'off')
             
-            title(ax,obj.Name);
+            if showlabels
+                ht = obj.channel_text(ax);
+                set(ht,'VerticalAlignment','top');
+            end
+            
             
             if nargout == 0, clear h; end
         end
         
+        function h = channel_text(obj,ax)
+            if nargin < 2 || isempty(ax), ax = gca; end
+            
+            str = [obj.Labels];
+            str = str(obj.ChannelMap);
+            txt = arrayfun(@num2str,str,'uni',0);
+            h = text(ax,obj.Coordinates(:,1),obj.Coordinates(:,2),txt, ...
+                'FontName','Consolas', ...
+                'HorizontalAlignment','center');
+            
+            if nargout == 0, clear h; end
+        end
         
     end
     
