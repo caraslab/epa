@@ -192,14 +192,30 @@ classdef Session < handle
         
         
         
-        function s = get_streams_by_ElectrodeIndex(obj,eidx)
+        function s = get_streams_by_Electrode(obj,e)
+            if isstring(e) || ischar(e)
+                e = char(e);
+                ind = arrayfun(@(a) isa(a,['epa.electrodes.' e]),obj.Electrodes);
+                e = find(ind);
+            elseif ~isnumeric(e)
+                ind = arrayfun(@(a) isa(a,class(e)),obj.Electrodes);
+                e = find(ind);
+            end
             i = [obj.Streams.ElectrodeIndex];
-            s = obj.Streams(ismember(i,eidx));
+            s = obj.Streams(ismember(i,e));
         end
                 
-        function s = get_clusters_by_ElectrodeIndex(obj,eidx)
+        function s = get_clusters_by_Electrode(obj,e)
+            if isstring(e) || ischar(e)
+                e = char(e);
+                ind = arrayfun(@(a) isa(a,['epa.electrodes.' e]),obj.Electrodes);
+                e = find(ind);
+            elseif ~isnumeric(e)
+                ind = arrayfun(@(a) isa(a,class(e)),obj.Electrodes);
+                e = find(ind);
+            end
             i = [obj.Clusters.ElectrodeIndex];
-            s = obj.Clusters(ismember(i,eidx));
+            s = obj.Clusters(ismember(i,e));
         end
         
         
