@@ -61,50 +61,6 @@ classdef Cluster < epa.DataInterface
         end
         
         
-%         function set.Samples(obj,s)
-%             if ~isempty(obj.Waveforms)
-%                 assert(numel(s) == obj.nSpikes, ...
-%                     'epa:SpikeWaveforms:Samples:UnequalDimensions', ...
-%                     'Number of Samples must equal the number of spikes')
-%             end
-%             obj.Samples = s(:);
-%         end
-        
-        function set.Waveforms(obj,w)
-%             if ~isempty(obj.Samples)
-%                 assert(size(w,3) == length(obj.Samples), ...
-%                     'epa:SpikeWaveforms:Waveforms:UnequalDimensions', ...
-%                     'Size of dimension 3 of Waveforms must equal the number of Samples')
-%             end
-            
-%             if isempty(obj.ShankChannels)
-%                 obj.ShankChannels = 1:size(w,1);
-%             else
-%                 assert(size(w,1) == numel(obj.ShankChannels), ...
-%                     'epa:SpikeWaveforms:Waveforms:UnequalDimensions', ...
-%                     'Size of dimension 2 of Waveforms must equal the number of ShankChannels')
-%             end
-            
-            obj.Waveforms = w;
-        end
-        
-        
-%         function set.ShankChannels(obj,ch)
-%             assert(numel(unique(ch)) == numel(ch), ...
-%                 'epa:SpikeWaveforms:ShankChannels:RepeatedValues', ...
-%                 'All values of ShankChannels must be unique')
-%             
-%             if ~isempty(obj.Waveforms)
-%                 assert(size(obj.Waveforms,1) == numel(ch), ...
-%                     'epa:SpikeWaveforms:ShankChannels:UnequalDimensions', ...
-%                     'Size of dimension 2 of Waveforms must equal the number of ShankChannels')
-%             end
-%             
-%             obj.ShankChannels = ch;
-%         end
-        
-        
-        
         function h = gui(obj,src,event)
             pos = getpref('epa_ClusterEditor','Position',[150 150 900 500]);
             f = figure('Color','w','Position',pos);
