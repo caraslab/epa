@@ -192,6 +192,15 @@ classdef Session < handle
         
         
         
+        function s = get_streams_by_ElectrodeIndex(obj,eidx)
+            i = [obj.Streams.ElectrodeIndex];
+            s = obj.Streams(ismember(i,eidx));
+        end
+                
+        function s = get_clusters_by_ElectrodeIndex(obj,eidx)
+            i = [obj.Clusters.ElectrodeIndex];
+            s = obj.Clusters(ismember(i,eidx));
+        end
         
         
         
