@@ -66,7 +66,7 @@ classdef Stream < epa.DataInterface
         
         function s = get.TitleStr(obj)
             if obj.TitleStr == ""
-                obj.TitleStr = sprintf('%s_CH%02d',obj.Name,obj.Channel);
+                obj.TitleStr = sprintf('%s_CH%d',obj.Name,obj.Channel);
             end
             s = obj.TitleStr;
         end
