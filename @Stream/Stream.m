@@ -28,11 +28,12 @@ classdef Stream < epa.DataInterface
     methods
         [t,eidx,vid,swin] = eventlocked(obj,varargin)
         
-        function obj = Stream(SessionObj,name,data)
+        function obj = Stream(SessionObj,name,channel,data)
             obj.Session = SessionObj;
             
             if nargin > 1 && ~isempty(name), obj.Name = name; end
-            if nargin > 2 && ~isempty(data), obj.Data = data; end
+            if nargin > 2 && ~isempty(channel), obj.Channel = channel; end
+            if nargin > 3 && ~isempty(data), obj.Data = data; end
         end
         
         function set.Data(obj,d)
@@ -60,6 +61,14 @@ classdef Stream < epa.DataInterface
                 'Time vector length must equal the length of Data');
 
             obj.Time = t(:)';
+        end
+        
+        
+        function s = get.TitleStr(obj)
+            if obj.TitleStr == ""
+                obj.TitleStr = sprintf('%s_CH%02d',obj.Name,obj.Channel);
+            end
+            s = obj.TitleStr;
         end
         
     end % methods (Access = public)

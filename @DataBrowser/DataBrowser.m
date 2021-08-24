@@ -345,7 +345,7 @@ classdef DataBrowser < handle
             else
                 h.SelectStreams.handle.Enable = 'on';
                 h.SelectStreams.Object = Strm;
-                h.SelectStreams.handle.Items = unique([Strm.Name]);
+                h.SelectStreams.handle.Items = unique([Strm.TitleStr]);
                 obj.select_stream_updated;
             end
             
@@ -415,7 +415,11 @@ classdef DataBrowser < handle
             
             s = obj.curStreams;
             
-            
+            if isempty(s)
+                h.Plotbutton.Enable = 'off';
+            else
+                h.Plotbutton.Enable = 'on';
+            end
         end
         
         function plot_select_parameter(obj,src,event)

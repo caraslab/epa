@@ -105,6 +105,15 @@ classdef Session < handle
         end
         
         
+        function remove_Stream(obj,name)
+            name = string(name);
+            for i = 1:length(obj)
+                ind = strcmpi([obj(i).Streams.Name],name);
+                obj(i).Streams(ind) = [];
+            end
+        end
+        
+        
         
         
         
@@ -158,34 +167,23 @@ classdef Session < handle
         function c = common_Clusters(obj)
             C = [obj.Clusters];
             [~,ia,ib] = unique([C.Name]);
-            
-            s = arrayfun(@(x) sum(x == ib),ia);
-            ind = s == length(obj);
-            
+            ind = arrayfun(@(x) sum(x == ib),ia) == numel(obj);
             c = C(ia(ind));
         end
         
         function s = common_Streams(obj)
             S = [obj.Streams];
-            [~,ia,ib] = unique([S.Name]);
-
-            s = arrayfun(@(x) sum(x == ib),ia);
-            ind = s == length(obj);
-            
+            [~,ia,ib] = unique([S.TitleStr]);
+            ind = arrayfun(@(x) sum(x == ib),ia) == numel(obj);
             s = S(ia(ind));
         end
         
-        function c = common_Events(obj)
+        function e = common_Events(obj)
             E = [obj.Events];
             [~,ia,ib] = unique([E.Name]);
-            
-            s = arrayfun(@(x) sum(x == ib),ia);
-            ind = s == length(obj);
-            
-            c = E(ia(ind));
+            ind = arrayfun(@(x) sum(x == ib),ia) == numel(obj);
+            e = E(ia(ind));
         end
-        
-        
         
         
         
