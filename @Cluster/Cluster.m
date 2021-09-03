@@ -90,9 +90,10 @@ classdef Cluster < epa.DataInterface
             n = size(obj.Waveforms,2);
         end
         
-%         function i = get.channelInd(obj)
-%             i = obj.ShankChannels == obj.Channel;
-%         end
+        function i = get.channelInd(obj)
+            %i = obj.ShankChannels == obj.Channel;
+            [~,i] = max(abs(squeeze(mean(obj.Waveforms(:,17,:),3))));
+        end
         
         function t = get.SpikeTimes(obj)
             t = obj.Samples/obj.SamplingRate;
