@@ -1,15 +1,6 @@
 %% Example: Compute neurometric dprime and fit a sigmoidal function.
 %  Add the result as a new property to each Cluster object
 
-% first select only the relevant Session objects
-
-X = D.curClusters;
-S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
-
-for i = 1:length(X)
-    C(i,:) = S_AM.find_Cluster(X(i).Name);
-end
-
 % process all Clusters independently.
 % the following statement simplifies accessing all of the clusters from all
 % "S_AM" Session objects.  you can always access the original Session
@@ -18,12 +9,22 @@ end
 % in "C" will will change the original data as well.  you could make an
 % independent copy of the data (instead of just copying the object handle)
 % by using the "copy" function. ex: C_copied = copy(C);
-% C = [S_AM.Clusters];
 
-%% 
+% first select only the relevant Session objects
 
+S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
+C = [S_AM.Clusters];
 
+%%
+% for selected clusters in the browser only
+clear C
+X = D.curClusters;
+S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
+for i = 1:length(X)
+    C(i,:) = S_AM.find_Cluster(X(i).Name);
+end
 
+%%
 % add a new property, called "neurodprime" only if it doesn't already exist
 % note: you don't need to add a property in this way.  You could just make
 % a new variable in the workspace of course, but it's often convenient to
@@ -39,16 +40,15 @@ par.window = [0 1];
 par.modfreq = 5;
 
 % par.metric = @epa.metric.trial_firingrate;
-% par.metric = @epa.metric.cl_calcpower;
+par.metric = @epa.metric.cl_calcpower;
 % par.metric = @epa.metric.tmtf; % use the temporal Modualation Transfer Function metric
 % par.metric = @epa.metric.vector_strength;
 % par.metric = @epa.metric.vector_strength_phase_projected;
-par.metric = @epa.metric.vector_strength_cycle_by_cycle;
+% par.metric = @epa.metric.vector_strength_cycle_by_cycle;
 
 % compute neurometric dprime for each Cluster independently
 dprimeThreshold = 1;
 
-%% 
 
 figure
 % clf(999)
@@ -131,12 +131,12 @@ S_AM(1).Clusters(1).neurodprime
 
 
 
-%%
+%% Save all clusters
 
 parentDir = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/Sessions';
-mkdir(parentDir,'Sorted')
+% mkdir(parentDir,'VSPP')
 
-fullFileName = fullfile(parentDir,'Sorted','210611.mat');
+fullFileName = fullfile(parentDir,'CalcPower','210620.mat');
 
 fprintf('Saving %s ...',fullFileName)
 
@@ -144,7 +144,17 @@ save(fullFileName,'C');
 
 fprintf(' done\n')
 
+%% Save selected clusters
 
+parentDir = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/Sessions/FiringRate';
+mkdir(parentDir,'Sorted')
 
+fullFileName = fullfile(parentDir,'Sorted','210613.mat');
+
+fprintf('Saving %s ...',fullFileName)
+
+save(fullFileName,'C');
+
+fprintf(' done\n')
 
 
