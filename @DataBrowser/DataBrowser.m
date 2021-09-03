@@ -324,6 +324,7 @@ classdef DataBrowser < handle
             if isempty(C)
                 h.SelectClusters.handle.Enable = 'off';
                 h.SelectClusters.handle.Items = {'< no clusters >'};
+                h.UnitTypeListbox.Enable = 'off';
                 h.PlotButton.Enable = 'off';
                 h.SpikeWaveformButton.Enable = 'off';
                 uialert(obj.parent,'No Clusters were found to be in common across the selected Sessions.', ...
@@ -331,6 +332,9 @@ classdef DataBrowser < handle
                 return
             end
             h.PlotButton.Enable = 'on';
+            h.UnitTypeListbox.Enable = 'on';
+            h.UnitTypeListbox.Items = unique([C.Type]);
+
             
             h.SelectClusters.Object = C;
             h.SelectClusters.handle.Items = [C.TitleStr];
@@ -407,6 +411,7 @@ classdef DataBrowser < handle
                 if ~all(arrayfun(@isempty,c(1).Waveforms))
                     obj.handles.SpikeWaveformButton.Enable = 'on';
                 end
+                
             end
         end
         
