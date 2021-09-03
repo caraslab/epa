@@ -23,8 +23,6 @@ function add_TDTEvents(obj,TDTTankPath)
 
 narginchk(2,2)
 
-addpath(fullfile(epa.helper.rootdir,'+epa','TDTbin2mat'));
-
 d = dir(fullfile(TDTTankPath,['**' filesep '*.tsq']));
 sn = cellstr([obj.Name]);
 for t = 1:length(d)

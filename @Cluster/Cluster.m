@@ -4,7 +4,7 @@ classdef Cluster < epa.DataInterface
     
     properties
         ID       (1,1) uint64 {mustBeFinite} = 0;
-        Type     string {mustBeMember(Type,["SU","MSU","MU","Noise",""])} = ""
+        Type     string {mustBeMember(Type,["SU","MSU","MUA","NOISE",""])} = ""
         
         SamplingRate    (1,1) double {mustBePositive,mustBeFinite} = 1 % by default same as obj.Session.SamplingRate
                

@@ -1,15 +1,16 @@
 %% Create a new Session object(s)
 
 
-DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/210611_concat';
+% DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-224/210805_concat';
+DataPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/210620_concat';
 
-S = epa.kilosort2session(DataPath);
+S = epa.load.phy(DataPath);
 
 % par = [];
 % par.datafilestr = '*300hz.dat';
 % S = epa.load.phy(DataPath,par);
 
-TDTTankPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/Tank/210611';
+TDTTankPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/Tank/210620';
 
 S.add_TDTEvents(TDTTankPath);
 
@@ -30,9 +31,6 @@ E1vals = D.curEvent1Values
 E2vals = D.curEvent2Values
 
 curSession = D.curSession
-
-
-
 
 
 %% we can use S.find_Session to return a Session based on a substring
@@ -78,5 +76,18 @@ load('MyFigure.mat')
 disp(h)
 figure;
 h.plot
+
+%% Save session
+
+parentDir = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/';
+mkdir(parentDir,'Sessions')
+
+fullFileName = fullfile(parentDir,'Sessions','210611.mat');
+
+fprintf('Saving %s ...',fullFileName)
+
+save(fullFileName,'S');
+
+fprintf(' done\n')
 
 
