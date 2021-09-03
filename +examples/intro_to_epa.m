@@ -82,7 +82,7 @@ h.plot
 parentDir = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/';
 mkdir(parentDir,'Sessions')
 
-fullFileName = fullfile(parentDir,'Sessions','210611.mat');
+fullFileName = fullfile(parentDir,'Sessions','210620.mat');
 
 fprintf('Saving %s ...',fullFileName)
 
@@ -90,4 +90,9 @@ save(fullFileName,'S');
 
 fprintf(' done\n')
 
+%% Load session from disk
+
+load(fullFileName);
+
+whos S
 
