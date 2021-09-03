@@ -223,7 +223,23 @@ fprintf(' done\n')
 fid = fopen(bpffn,'r');
 bp = textscan(fid,'%s %d','delimiter',',','HeaderLines',1);
 fclose(fid);
-BPfileroot = cellfun(@(a) a(1:find(a=='_')-1),bp{1},'uni',0);
+
+
+
+% dat filenames in the breakpoints csv file are named differently if Intan
+% vs TDT is used.  Here we try to detect which system was used by looking
+% to see if the date is first in the filename (Intan) vs at the end of the
+% filename (TDT)
+if bp{1}{1}(1) <= 57 % first character is a number : Intan
+    BPfileroot = cellfun(@(a) a(find(a>=65&a~=95):find(a=='_',1,'last')-1),bp{1},'uni',0);
+else % first character is a letter : TDT 
+    BPfileroot = cellfun(@(a) a(1:find(a=='.',1,'last')-1),bp{1},'uni',0);
+end
+
+
+
+
+% BPfileroot = cellfun(@(a) a(1:find(a=='_')-1),bp{1},'uni',0);
 BPsamples  = [0; bp{2}]; % makes indexing spikes later easier
 BPsamples  = cast(BPsamples,'single'); 
 
