@@ -4,6 +4,11 @@ classdef Session < handle
         Clusters (1,:) epa.Cluster  % An array of Cluster objects
         Streams  (1,:) epa.Stream   % An array of Stream objects
         Events   (1,:) epa.Event    % An array of Event objects
+        Electrodes  % one or more Electrode objects (i.e, class that inherits from the abstract class epa.electrodes.Electrode)
+                    % Note: user must subsequently set ElectrodeIndex in
+                    % obj.Clusters and/or obj.Streams using
+                    % set(obj.Clusters,'ElectrodeIndex',1) .. or whatever
+                    % is the appropriate electrode index.
         
         Name     (1,1) string       % Session name
         Date     (1,1) string       % Session date
@@ -13,6 +18,8 @@ classdef Session < handle
         
         SamplingRate  (1,1) double {mustBePositive,mustBeFinite}  = 1; % Acquisition sampling rate (Hz)
 
+        
+        
         Notes     (:,1) string      % User notes
         
         UserData    % whatever you want
@@ -20,8 +27,10 @@ classdef Session < handle
     
     properties (Dependent)
         EventNames
+        StreamNames
         NClusters
         NEvents
+        NStreams
         DistinctEventValues
         Summary
     end
@@ -29,6 +38,7 @@ classdef Session < handle
     methods
         add_TDTStreams(obj,TDTTankPath)
         add_TDTEvents(obj,TDTTankPath)
+        data = session2fieldtrip(obj,varargin);
         
         function obj = Session(SamplingRate,Clusters,Events)
             epa.helper.add_paths;
@@ -49,7 +59,7 @@ classdef Session < handle
                 en = varargin{1};
             end
             
-            if any(ismember(existingEvents,en))
+            if ~isempty(existingEvents) && any(ismember(existingEvents,en))
                 fprintf(2,'Event "%s" already eaxists for this Session object\n',en)
                 return
             end
@@ -76,6 +86,9 @@ classdef Session < handle
             obj.Clusters(end+1) = epa.Cluster(obj,varargin{:});
         end
         
+        function add_Stream(obj,varargin)
+            obj.Streams(end+1) = epa.Stream(obj,varargin{:});
+        end
        
         
         
@@ -93,6 +106,15 @@ classdef Session < handle
             for i = 1:length(obj)
                 ind = strcmpi([obj(i).Clusters.Name],name);
                 obj(i).Clusters(ind) = [];
+            end
+        end
+        
+        
+        function remove_Stream(obj,name)
+            name = string(name);
+            for i = 1:length(obj)
+                ind = strcmpi([obj(i).Streams.Name],name);
+                obj(i).Streams(ind) = [];
             end
         end
         
@@ -120,9 +142,18 @@ classdef Session < handle
                 c = arrayfun(@(a) a.find_Cluster(name),obj);
                 return
             end
-            
             cnames = [obj.Clusters.Name];
             c = arrayfun(@(a) obj.Clusters(strcmpi(cnames,a)),name);
+        end
+        
+        function s = find_Stream(obj,name)
+            name = string(name);
+            if numel(obj) > 1
+                s = arrayfun(@(a) a.find_Stream(name),obj);
+                return
+            end
+            snames = [obj.Streams.Name];
+            s = arrayfun(@(a) obj.Streams(strcmpi(snames,a)),name);
         end
         
         function s = find_Session(obj,name)
@@ -141,33 +172,60 @@ classdef Session < handle
         function c = common_Clusters(obj)
             C = [obj.Clusters];
             [~,ia,ib] = unique([C.Name]);
-            
-            s = arrayfun(@(x) sum(x == ib),ia);
-            ind = s == length(obj);
-            
+            ind = arrayfun(@(x) sum(x == ib),ia) == numel(obj);
             c = C(ia(ind));
         end
         
+        function s = common_Streams(obj)
+            S = [obj.Streams];
+            [~,ia,ib] = unique([S.TitleStr]);
+            ind = arrayfun(@(x) sum(x == ib),ia) == numel(obj);
+            s = S(ia(ind));
+        end
         
-        function c = common_Events(obj)
+        function e = common_Events(obj)
             E = [obj.Events];
             [~,ia,ib] = unique([E.Name]);
-            
-            s = arrayfun(@(x) sum(x == ib),ia);
-            ind = s == length(obj);
-            
-            c = E(ia(ind));
+            ind = arrayfun(@(x) sum(x == ib),ia) == numel(obj);
+            e = E(ia(ind));
         end
         
         
         
-        
-        
+        function s = get_streams_by_Electrode(obj,e)
+            if isstring(e) || ischar(e)
+                e = char(e);
+                ind = arrayfun(@(a) isa(a,['epa.electrodes.' e]),obj.Electrodes);
+                e = find(ind);
+            elseif ~isnumeric(e)
+                ind = arrayfun(@(a) isa(a,class(e)),obj.Electrodes);
+                e = find(ind);
+            end
+            i = [obj.Streams.ElectrodeIndex];
+            s = obj.Streams(ismember(i,e));
+        end
+                
+        function s = get_clusters_by_Electrode(obj,e)
+            if isstring(e) || ischar(e)
+                e = char(e);
+                ind = arrayfun(@(a) isa(a,['epa.electrodes.' e]),obj.Electrodes);
+                e = find(ind);
+            elseif ~isnumeric(e)
+                ind = arrayfun(@(a) isa(a,class(e)),obj.Electrodes);
+                e = find(ind);
+            end
+            i = [obj.Clusters.ElectrodeIndex];
+            s = obj.Clusters(ismember(i,e));
+        end
         
         
         
         function v = get.DistinctEventValues(obj)
             v = arrayfun(@(a) a.DistinctValues,obj.Events,'uni',0);
+        end
+        
+        function n = get.StreamNames(obj)
+            n = unique([obj.Streams.Name]);
         end
         
         function n = get.EventNames(obj)
@@ -180,6 +238,10 @@ classdef Session < handle
         
         function n = get.NEvents(obj)
             n = numel(obj.Events);
+        end
+        
+        function n = get.NStreams(obj)
+            n = numel(obj.StreamNames);
         end
         
         function s = get.Summary(obj)

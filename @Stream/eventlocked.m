@@ -1,6 +1,6 @@
-function [data,eidx,v] = eventlocked(obj,varargin)
-% [data,eidx,v] = eventlocked(StreamObj,par)
-% [data,eidx,v] = eventlocked(StreamObj,'Name',Value,...)
+function [data,eidx,v,swin] = eventlocked(obj,varargin)
+% [data,eidx,v,swin] = eventlocked(StreamObj,par)
+% [data,eidx,v,swin] = eventlocked(StreamObj,'Name',Value,...)
 %  
 % Input:
 %   eventname     ... char event name
@@ -16,7 +16,7 @@ function [data,eidx,v] = eventlocked(obj,varargin)
 %               samples.
 %   eidx ...    [Nx1] Indices of Events corresponding to each trial in data
 %   vid  ...    [Nx1] Values of Events corresponding to each trial in data
-% 
+%   swin ...    [NxP] Samples matching data output
 % 
 % DJS 2021
 
@@ -51,6 +51,7 @@ switch lower(par.sorton)
         error('epa:Stream:eventlocked','Unknown sorton method: ''%s''',par.sorton)
 end
 oos = oos(vidx);
+oos = oos(:);
 
 if numel(par.window) == 1
     par.window = sort([0 par.window]);
@@ -73,7 +74,6 @@ for i = 1:length(uv)
     ind = v == uv(i);
     eidx(ind) = i;
 end
-
 
 
 

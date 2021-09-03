@@ -246,13 +246,14 @@ for i = 1:length(BPfileroot)
         
         S(i).add_Cluster(k);
         C = S(i).Clusters(end);
+
         C.ID        = SW(j).ID;
         C.Name      = SW(j).Name;
         C.Type      = SW(j).Type;
         C.Samples   = SW(j).Samples(ind) - cast(BPsamples(i),'like',SW(j).Samples);
         C.Channel   = SW(j).PrimaryChannel;
-        C.Shank     = SW(j).ShankID;
-        C.ShankChannels     = SW(j).Channels;
+        %C.Electrode.Shank   = SW(j).ShankID;
+        % C.ShankChannels     = SW(j).Channels;
         C.WaveformWindow    = SW(j).Window;
         C.OriginalDataFile  = SW(j).OriginalDataFile;
         if ~isempty(SW(j).QualityMetrics)

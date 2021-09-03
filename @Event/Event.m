@@ -2,7 +2,7 @@ classdef Event < epa.DataInterface
     
     properties
         OnOffTimes    (:,2) single {mustBeNonnegative} = [] % time when the event [started ended]
-
+        
         SamplingRate  (1,1) single {mustBePositive,mustBeFinite} = 1 % takes value of Session.SamplingRate unless specified
         Values           % Some associated value for the event (ex stimulus frequency or sound level)
         Units         string % Units associated with the Values (ex "Hz" for frequency)        

@@ -29,6 +29,7 @@ classdef DataBrowser < handle
         curEvent1Values
         curEvent2Values
         curClusters
+        curStreams
         curSession
         curPlotStyle
         curMetric
@@ -81,6 +82,9 @@ classdef DataBrowser < handle
             o = obj.handles.SelectClusters.CurrentObject;
         end
         
+        function o = get.curStreams(obj)
+            o = obj.handles.SelectStreams.CurrentObject;
+        end
         
         function o = get.curEvent1(obj)
             o = obj.handles.SelectEvent1.CurrentObject;
@@ -320,6 +324,7 @@ classdef DataBrowser < handle
             if isempty(C)
                 h.SelectClusters.handle.Enable = 'off';
                 h.SelectClusters.handle.Items = {'< no clusters >'};
+                h.UnitTypeListbox.Enable = 'off';
                 h.PlotButton.Enable = 'off';
                 h.SpikeWaveformButton.Enable = 'off';
                 uialert(obj.parent,'No Clusters were found to be in common across the selected Sessions.', ...
@@ -327,6 +332,9 @@ classdef DataBrowser < handle
                 return
             end
             h.PlotButton.Enable = 'on';
+            h.UnitTypeListbox.Enable = 'on';
+            h.UnitTypeListbox.Items = unique([C.Type]);
+
             
             h.SelectClusters.Object = C;
             h.SelectClusters.handle.Items = [C.TitleStr];
@@ -335,8 +343,15 @@ classdef DataBrowser < handle
             
             
             % update Streams
-            
-            
+            Strm = S.common_Streams;
+            if isempty(Strm)
+                h.SelectStreams.handle.Enable = 'off';
+            else
+                h.SelectStreams.handle.Enable = 'on';
+                h.SelectStreams.Object = Strm;
+                h.SelectStreams.handle.Items = unique([Strm.TitleStr]);
+                obj.select_stream_updated;
+            end
             
             
             h.SelectPlotStyle.Enable = 'on';
@@ -396,6 +411,19 @@ classdef DataBrowser < handle
                 if ~all(arrayfun(@isempty,c(1).Waveforms))
                     obj.handles.SpikeWaveformButton.Enable = 'on';
                 end
+                
+            end
+        end
+        
+        function select_stream_updated(obj,src,event)
+            h = obj.handles;
+            
+            s = obj.curStreams;
+            
+            if isempty(s)
+                h.Plotbutton.Enable = 'off';
+            else
+                h.Plotbutton.Enable = 'on';
             end
         end
         
@@ -627,6 +655,15 @@ classdef DataBrowser < handle
             end
             
             obj.metricPar.(v) = m;
+        end
+        
+        function convert_streams(obj,src,event)
+            S = obj.curSession;
+            Strm = obj.curStreams;
+            Ev1  = obj.curEvent1;
+            data = S.session2fieldtrip("event",Ev1.Name,"channels",[Strm.Channel]);
+            assignin('base','data',data);
+            whos data
         end
         
         function run_analysis(obj,src,event)
