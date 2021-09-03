@@ -314,12 +314,12 @@ classdef DataBrowser < handle
             % update Clusters
             C = S.common_Clusters;
             
-            selectedUnitTypes = string(h.UnitTypeListbox.Value);
-            if isempty(selectedUnitTypes)
-                selectedUnitTypes = h.UnitTypeListbox.Items;
-            end
-            ind = ismember([C.Type],selectedUnitTypes);
-            C(~ind) = [];
+%             selectedUnitTypes = string(h.UnitTypeListbox.Value);
+%             if isempty(selectedUnitTypes)
+%                 selectedUnitTypes = h.UnitTypeListbox.Items;
+%             end
+%             ind = ismember([C.Type],selectedUnitTypes);
+%             C(~ind) = [];
             
             if isempty(C)
                 h.SelectClusters.handle.Enable = 'off';
