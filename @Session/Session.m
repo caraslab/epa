@@ -14,6 +14,7 @@ classdef Session < handle
         Date     (1,1) string       % Session date
         Time     (1,1) string       % Session start time
         
+        Subject   (1,1) string
         Scientist (1,1) string
         
         SamplingRate  (1,1) double {mustBePositive,mustBeFinite}  = 1; % Acquisition sampling rate (Hz)
