@@ -233,7 +233,7 @@ fclose(fid);
 if bp{1}{1}(1) <= 57 % first character is a number : Intan
     BPfileroot = cellfun(@(a) a(find(a>=65&a~=95):find(a=='_',1,'last')-1),bp{1},'uni',0);
 else % first character is a letter : TDT 
-    BPfileroot = cellfun(@(a) a(1:find(a=='.',1,'last')-1),bp{1},'uni',0);
+    BPfileroot = cellfun(@(a) a(1:find(a=='_',1,'last')-1),bp{1},'uni',0);
 end
 
 
