@@ -221,7 +221,7 @@ fprintf(' done\n')
 
 % determine spike breakpoints (in samples) from csv file
 fid = fopen(bpffn,'r');
-bp = textscan(fid,'%s %d','delimiter',',','HeaderLines',1);
+bp = textscan(fid,'%s %d%*[^\n]','delimiter',',','HeaderLines',1);
 fclose(fid);
 
 
@@ -285,9 +285,4 @@ for i = 1:length(BPfileroot)
     end
     fprintf(' done\n')
 end
-
-
-
-
-epa.load.events(S,DataPath);
 
