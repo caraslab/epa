@@ -230,6 +230,7 @@ classdef Cluster < epa.DataInterface
             if nargin > 1 && isequal(ax,'getdefaults'), h = par; return; end
             par = epa.helper.parse_params(par,varargin{:});
             
+            h = nan;
             if obj.nWaveformSamples == 0
                 cla(ax);
                 title(ax,[obj.TitleStr '- NO SPIKE WAVEFORMS'])
