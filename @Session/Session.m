@@ -144,7 +144,11 @@ classdef Session < handle
                 return
             end
             cnames = [obj.Clusters.Name];
-            c = arrayfun(@(a) obj.Clusters(strcmpi(cnames,a)),name);
+            try
+                c = arrayfun(@(a) obj.Clusters(strcmpi(cnames,a)),name);
+            catch
+                c = nan;
+            end
         end
         
         function s = find_Stream(obj,name)
