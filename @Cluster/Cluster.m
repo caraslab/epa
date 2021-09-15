@@ -73,6 +73,10 @@ classdef Cluster < epa.DataInterface
         end
         
         
+        function remove_waveforms(obj)
+            obj.Waveforms = [];
+        end
+        
         function t = get.WaveformTime(obj)
             if any(isnan(obj.WaveformWindow))
                 t = 0:obj.nSpikes-1;
