@@ -1,15 +1,19 @@
-function [xfit,yfit,p_val] = fit_sigmoid(x,y,beta0)
+function [xfit,yfit,p_val] = fit_sigmoid(x,y,weights,beta0)
 % 
-% [xfit,yfit,p_val] = fit_sigmoid(x,y,[beta0])
+% [xfit,yfit,p_val] = fit_sigmoid(x,y,[weights],[beta0])
 % 
 % Adapted from caraslab/ephys-analysis/cl_fitneurometric.m
 
 
+if nargin < 3 || isempty(weights)
+    weights = ones(size(y));
+end
 
-if nargin < 3 || isempty(beta0)
+if nargin < 4 || isempty(beta0)
     %Establish s vector of initial coefficients (beta0)
     beta0 = [0 20 50 5]; 
 end
+
 
 
 %We will fit our data with a sigmoidal function. To do
@@ -33,7 +37,7 @@ options = statset('MaxIter',10000);
 
 %Estimate the coefficients of a nonlinear regression using
 %least squares estimation
-p = nlinfit(x,y,f,beta0,options);
+p = nlinfit(x,y,f,beta0,options,'Weights',weights);
 xfit = linspace(x(1),x(end),1000);
 yfit = f(p,xfit);
 yfit_corr = f(p,x);
