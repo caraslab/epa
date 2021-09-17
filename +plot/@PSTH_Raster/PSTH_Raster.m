@@ -52,7 +52,7 @@ classdef PSTH_Raster < epa.plot.PlotType
             
             %obj.setup_plot; % do not call here
             if isempty(obj.handles)
-                obj.ax = gca;
+                if isempty(obj.ax), obj.ax = gca; end
                 
                 cla(obj.ax,'reset');
                 
@@ -72,7 +72,7 @@ classdef PSTH_Raster < epa.plot.PlotType
                 
                 t = tiledlayout(obj.ax.Parent,r,c);
                 
-                t.Padding = 'none';
+%                 t.Padding = 'none';
                 t.TileSpacing = 'none';
                 
                 if isa(t.Parent,'matlab.graphics.layout.TiledChartLayout')
