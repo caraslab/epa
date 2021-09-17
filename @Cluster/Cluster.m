@@ -32,6 +32,8 @@ classdef Cluster < epa.DataInterface
         channelInd
         WaveformTime
         N
+        SessionName
+        Subject
     end
     
     
@@ -75,6 +77,14 @@ classdef Cluster < epa.DataInterface
         
         function remove_waveforms(obj)
             obj.Waveforms = [];
+        end
+        
+        function n = get.SessionName(obj)
+            n = obj.Session.Name;
+        end
+        
+        function s = get.Subject(obj)
+            s = obj.Session.Subject;
         end
         
         function t = get.WaveformTime(obj)
