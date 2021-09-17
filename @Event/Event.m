@@ -50,6 +50,22 @@ classdef Event < epa.DataInterface
             vt = obj.ValidTrials;
         end
         
+        
+        function remove_trials(obj,ind)
+            if isnumeric(ind)
+                x = false(obj.N,1);
+                x(ind) = true;
+                ind = x;
+            end
+            
+            assert(numel(ind) == obj.N, 'epa:Event:remove_trials:DimMismatch', ...
+                'numel(ind) must equal obj.N');
+            
+            obj.Values(ind) = [];
+            obj.OnOffTimes(ind,:) = [];
+            obj.ValidTrials(ind) = [];
+        end
+        
         function n = get.N(obj)
             n = size(obj.OnOffSamples,1);
         end
