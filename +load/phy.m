@@ -160,6 +160,8 @@ swvec_pos = cast(1:swWinSamps(2),'like',spikeSamples);
 
 groupIdx = find(ismember(clusterQuality.group,upper(par.groups)));
 
+
+
 for j = 1:length(groupIdx)
     spikes(j) = structfun(@(a) a(groupIdx(j)),clusterQuality,'uni',0);
 end
@@ -170,9 +172,12 @@ dataType = 'int16';
 nbytes = numel(typecast(cast(0,dataType),'uint8'));
 nSamples = d_dat.bytes/(nChannels*nbytes); % # samples per channel
 
-fprintf('Extracting spikes from dat file: %s ',datffn)
-
-mmf = memmapfile(datffn, 'Format', {dataType, [nChannels nSamples], 'x'});
+if par.includespikewaveforms
+    
+    fprintf('Extracting spikes from dat file: %s ',datffn)
+    
+    mmf = memmapfile(datffn, 'Format', {dataType, [nChannels nSamples], 'x'});
+end
 k = 1;
 for j = 1:length(spikes)
     shankChannels = channelMap(channelShanks == spikes(j).sh);
