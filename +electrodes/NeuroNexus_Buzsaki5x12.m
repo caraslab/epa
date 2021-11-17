@@ -15,6 +15,7 @@ classdef NeuroNexus_Buzsaki5x12 < epa.electrodes.Electrode
             obj.Model = "BuzsakiH64LP";
             
             obj.Units = 'μm';
+            obj.PhysicalScaleFactor = 1e6;
             
             obj.Marker = 's';
             

@@ -5,9 +5,11 @@ classdef (Hidden) Electrode < handle & matlab.mixin.Heterogeneous
         ID          (1,1) string
         Location    (1,1) string
         ChannelMap  (:,1) double {mustBeInteger,mustBeFinite}
-        Marker      (1,1) char   {mustBeMember(Marker,{'.','o','s','d','h'})} = 'o';
+        Marker      (1,1) char   {mustBeMember(Marker,{'.','o','s','d','h','p'})} = 'o';
         MaxNeighborDist  (1,1) {mustBeNonnegative}
         ChannelImpedance (:,1) double
+        
+        PhysicalScaleFactor  (1,1) double = 1
         
         Name
     end
@@ -46,8 +48,8 @@ classdef (Hidden) Electrode < handle & matlab.mixin.Heterogeneous
         end
         
         function lay = ft_layout(obj)
-            lay.pos = obj.Coordinates;
-            lay.label = obj.Labels;
+            lay.pos = obj.Coordinates./obj.PhysicalScaleFactor;
+            lay.label = cellstr(obj.Labels);
             lay.width = obj.ChannelMeasurements(1);
             switch size(obj.ChannelMeasurements,2)
                 case 1
@@ -55,19 +57,45 @@ classdef (Hidden) Electrode < handle & matlab.mixin.Heterogeneous
                 case 2
                     lay.height = obj.ChannelMeasurements(2);
             end
+            
+            lay.width  = lay.width *ones(obj.N+2,1)./obj.PhysicalScaleFactor;
+            lay.height = lay.height*ones(obj.N+2,1)./obj.PhysicalScaleFactor;
+            
+            % add COMNT and SCALE
+            x = lay.pos(:,1);
+            y = lay.pos(:,2);
+            
+            mx = [min(x) max(x)];
+            my = [min(y) max(y)];
+            
+            dy = y-y';
+            dy = min(abs(dy(dy~=0)));
+            
+            lay.pos(end+1,:) = [mx(1) my(1)-dy];
+            lay.label{end+1} = 'COMNT';
+            lay.pos(end+1,:) = [mx(2) my(1)-dy];
+            lay.label{end+1} = 'SCALE';
+            
+            cfg.layout = lay;
+            lay = ft_prepare_layout(cfg);
+            lay.outline = {};
+        end
+        
+        function nbr = ft_neighbours(obj)
+            for i = 1:length(obj.Neighbours)
+                nbr(i).label = obj.Labels{i};
+                nbr(i).neighblabel = cellstr(obj.Labels(obj.Neighbours{i}))';
+            end
         end
         
         
-        function set_neighbors(obj)
-            x = obj.Coordinates(:,1);
-            y = obj.Coordinates(:,2);
+        function n = set_neighbors(obj)
             for i = 1:obj.N
-                dx = x - x(i);
-                dy = y - y(i);
-                a = sqrt(dx.^2+dy.^2);
+                a = vecnorm(obj.Coordinates - obj.Coordinates(i,:),2,2);
                 ind = a > 0 & a <= obj.MaxNeighborDist;
                 obj.Neighbours{i} = find(ind);
             end
+            if nargout == 1, n = obj.Neighbours; end
         end
         
         function h = plot(obj,ax,channelColors,showlabels)

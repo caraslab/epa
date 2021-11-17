@@ -56,7 +56,10 @@ classdef NeuroNexus_E32_600_10_100_ECoG < epa.electrodes.Electrode
             
             obj.Group = ones(32,1);
             
-            obj.ChannelMeasurements = 100*ones(32,1);
+            obj.ChannelMeasurements = 0.1*ones(32,1);
+            
+            obj.Units = 'mm';
+            obj.PhysicalScaleFactor = 1e3;
             
             obj.Marker = 'o';
            
