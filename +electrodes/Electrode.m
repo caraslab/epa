@@ -158,5 +158,17 @@ classdef (Hidden) Electrode < handle & matlab.mixin.Heterogeneous
         end
         
     end
+
+    methods (Static)
+        function e = list
+            p = which('epa.electrodes.Electrode');
+            [p,~] = fileparts(p);
+            d = dir(fullfile(p,'*.m'));
+            e = {d.name};
+            e(ismember(e,{'Electrode.m'})) = [];
+            e = cellfun(@(a) a(1:end-2),e,'uni',0);
+            e = string(e)';
+        end
+    end
     
 end

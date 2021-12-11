@@ -17,9 +17,6 @@ classdef Stream < epa.DataInterface
     properties (Dependent)
         SamplingInterval
         N
-    end
-    
-    properties (SetAccess = protected)
         Time
     end
     
@@ -27,6 +24,7 @@ classdef Stream < epa.DataInterface
     
     methods
         [t,eidx,vid,swin] = eventlocked(obj,varargin)
+        newdata = chunkwiseDeline(obj,freqs,freqrange,chunksize,showOutput)
         
         function obj = Stream(SessionObj,name,channel,data)            
             if nargin >= 1 && ~isempty(SessionObj), obj.Session = SessionObj; end
@@ -37,13 +35,14 @@ classdef Stream < epa.DataInterface
         
         function set.Data(obj,d)
             obj.Data = d;
-            obj.Time = (0:length(d)-1) ./ obj.SamplingRate;
         end
         
         function set.SamplingRate(obj,fs)
-            obj.SamplingRate = fs;
-            
-            obj.Time = (0:obj.N-1) ./ obj.SamplingRate;
+            obj.SamplingRate = fs;            
+        end
+
+        function t = get.Time(obj)
+            t = (0:obj.N-1) ./ obj.SamplingRate;
         end
         
         function n = get.N(obj)
@@ -65,7 +64,7 @@ classdef Stream < epa.DataInterface
         
         function s = get.TitleStr(obj)
             if obj.TitleStr == ""
-                obj.TitleStr = sprintf('%s_CH%03d',obj.Name,obj.Channel);
+                obj.TitleStr = sprintf('CH%03d',obj.Channel);
             end
             s = obj.TitleStr;
         end

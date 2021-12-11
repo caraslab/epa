@@ -1,5 +1,5 @@
-function add_TDTEvents(obj,TDTTankPath)
-% S.add_TDTEvents(TDTTankPath)
+function add_TDTEvents(obj,TDTTankPath,excludeEvents)
+% S.add_TDTEvents(TDTTankPath,[excludeEvents])
 % 
 % Add Event data from TDT tank block(s) located at the TDTTankPath.
 % 
@@ -21,8 +21,10 @@ function add_TDTEvents(obj,TDTTankPath)
 % 
 % DJS 2021
 
-narginchk(2,2)
+narginchk(2,3)
 
+if nargin < 3, excludeEvents = {}; end
+excludeEvents = cellstr(excludeEvents);
 
 d = dir(fullfile(TDTTankPath,['**' filesep '*.tsq']));
 sn = cellstr([obj.Name]);
@@ -41,9 +43,12 @@ for t = 1:length(d)
     fprintf('Adding Events from TDT Tank for Session "%s" ... ',obj(ind).Name)
     
     data = TDTbin2mat(blockPth,'TYPE',2,'VERBOSE',0);
-    
+
     eventInfo = data.epocs;
     eventNames = fieldnames(eventInfo);
+    if ~isempty(excludeEvents)
+        eventNames(ismember(eventNames,excludeEvents)) = [];
+    end
     for i = 1:length(eventNames)
         e = eventInfo.(eventNames{i});
         onoffs = [e.onset e.offset];

@@ -107,5 +107,14 @@ classdef Event < epa.DataInterface
             end
         end
         
+
+        function trl = ft_trialdef(obj,toi)
+            trialStart = obj.OnOffSamples(:,1) + round(obj.SamplingRate .* toi(1));
+            trialStop  = trialStart + diff(round(obj.SamplingRate .* toi));
+            trialOffset = ones(size(trialStart)) * round(obj.SamplingRate .* toi(1));
+%             trialOffset = zeros(size(trialStart));
+
+            trl = [trialStart, trialStop, trialOffset, obj.Values(:)];
+        end
     end
 end

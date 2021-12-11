@@ -37,8 +37,8 @@ classdef Session < handle
     end
     
     methods
-        add_TDTStreams(obj,TDTTankPath)
-        add_TDTEvents(obj,TDTTankPath)
+        add_TDTStreams(obj,TDTTankPath,varargin)
+        add_TDTEvents(obj,TDTTankPath,excludeEvents)
         data = session2fieldtrip(obj,varargin);
         
         function obj = Session(SamplingRate,Clusters,Events)
@@ -154,11 +154,13 @@ classdef Session < handle
         function s = find_Stream(obj,name)
             name = string(name);
             if numel(obj) > 1
-                s = arrayfun(@(a) a.find_Stream(name),obj);
+                s = arrayfun(@(a) a.find_Stream(name),obj,'uni',0);
                 return
             end
             snames = [obj.Streams.Name];
-            s = arrayfun(@(a) obj.Streams(strcmpi(snames,a)),name);
+            
+            ind = snames == name;
+            s = obj.Streams(ind);
         end
         
         function s = find_Session(obj,name)
@@ -250,13 +252,14 @@ classdef Session < handle
         end
         
         function s = get.Summary(obj)
-            s{1,1} = obj.Name;
+            s{1,1} = char(obj.Name);
             s{2,1} = sprintf('Date: %s',obj.Date);
             s{3} = sprintf('Time: %s',obj.Time);
             s{4} = sprintf('Research: %s',obj.Scientist);
             s{5} = sprintf('Sampling Rate: %.5f Hz',obj.SamplingRate);
             s{6} = sprintf('%d Events',obj.NEvents);
             s{7} = sprintf('%d Clusters',obj.NClusters);
+            s{8} = sprintf('%d Streams',obj.NStreams);
         end
         
         
@@ -283,6 +286,18 @@ classdef Session < handle
                 s.Events   = arrayfun(@copy,obj.Events);
             end
             
+        end
+
+        function data = export_fieldtrip_data(obj,streamName)
+            if nargin < 2 || isempty(streamName), streamName = obj.StreamNames(1); end
+
+            S = obj.find_Stream(streamName);
+
+            data.trial   = {[S.Data]'};
+            data.fsample = S(1).SamplingRate;
+            data.time    = {(0:size(data.trial{1},2)-1) ./ data.fsample};
+            data.label   = cellfun(@char,{S.TitleStr},'uni',0);
+            data.sampleinfo = [1 length(data.time{1})];
         end
         
     end % methods (Access = public)
