@@ -1,5 +1,5 @@
 function newdata = chunkwiseDeline(obj,freqs,freqrange,chunksize,showOutput)
-% newdata = chunkwiseDeline(StreamObj,freqs,chunksize)
+% newdata = chunkwiseDeline(StreamObj,freqs,chunksize,showOutput)
 % Removes line noise from a signal in small chunks of data.
 % data - an n x 1 vector containing continuous data
 % sr - scalar, the sampling rate of the signal
@@ -25,6 +25,10 @@ function newdata = chunkwiseDeline(obj,freqs,freqrange,chunksize,showOutput)
 data = obj.Data(:);
 sr = obj.SamplingRate;
 
+if nargin < 2 || isempty(freqs)
+    freqs = 60;
+end
+
 if nargin < 3 || isempty(freqrange)
     freqrange = .5;
 end
@@ -36,12 +40,7 @@ end
 if nargin < 5 || isempty(showOutput)
     showOutput = false;
 end
-
-%     chunksize = chunksize*sr;
-chunksize = round(chunksize*sr);
-if mod(chunksize,2) == 1, chunksize = chunksize-1; end
-if chunksize > length(data), chunksize = length(data); end % DJS 5/2016
-lsamp = data(end);
+chunksize = chunksize*sr;
 
 %zero pad
 origlen = length(data);
@@ -71,9 +70,10 @@ if nargout == 0
     obj.Data = newdata;
     clear newdata
 end
+end
 
 %Deline a single chunk of data
-function [y, pss] = delineChunk(dat,sr,showoutput,freqs,freqrange,pss)
+function [y pss] = delineChunk(dat,sr,showoutput,freqs,freqrange,pss)
 ae = [];
 if mod(length(dat),2) == 1
     ae = dat(end);
@@ -95,52 +95,52 @@ opts = optimset('Display','Off','Jacobian','on','Algorithm','levenberg-marquardt
 
 n = 1;
 for tgtr = freqs
-    
+
     peak = tgtr/sr*length(dat);
-    
+
     rg = round(((peak-winlen):(peak+winlen)))';
     datrg = a(rg);
-    
+
     x = (-winlen:winlen)'/winlen*freqrange;
-    
-    
+
+
     %Only adjust a few parameters at a time
     %convergence is better this way
     %everything but the exponent
     %Find the peak
     datrgsm = conv(datrg,ones(21,1),'same');
     [~,peakloc] = max(datrgsm);
-    
+
     %Set the initial parameters
     x0 = [max(datrg)-median(datrg),1/.2^2,median(datrg),(peakloc-1-winlen)/winlen*freqrange,1]';
-    
+
     if ~any(isnan(pss(:,n)))
         x0([2,4,5]) = pss([2,4,5],n);
     end
-    
-    
+
+
     [ps] = lsqcurvefit(@(x,y) thefun([x;x0(5)],y,[1;1;1;1;0]),x0(1:4),x,datrg,[],[],opts);
     xd = ps(4);
-    
+
     %Everything but the center
     [ps] = lsqcurvefit(@(x,y) thefun([x(1:3);xd;x(4)],y,[1;1;1;0;1]),[ps(1:3);x0(5)],x,datrg,[],[],opts);
-    
+
     %Everything
     [ps] = lsqcurvefit(@(x,y) thefun(x,y,[1;1;1;1;1]),[ps(1:3);xd;ps(4)],x,datrg,[],[],opts);
-    
+
     pss(:,n) = ps;
-    
+
     %Good, now adjust the filter in this range accordingly
     thefilt(rg) = ps(3)./thefun(ps,x);
     b = thefilt(rg);
     thefilt(end-rg+2) = b;
-    
+
     if showoutput
         subplot(length(freqs),1,n);
         plot(x+tgtr,datrg,x+tgtr,thefun(ps,x));
         title(sprintf('%3.1f Hz',tgtr));
         drawnow;
-        
+
         [ps(2),ps(4),ps(5)]
     end
     n=n+1;
@@ -150,7 +150,7 @@ end
 a = fftdat.*thefilt;
 y = [real(ifft(a));ae];
 
-
+end
 
 function [y,J] = thefun(p,x,mask)
 E = abs(x-p(4)).^(p(5));
@@ -164,4 +164,4 @@ if nargout > 1
         -p(1)*p(2)*p(5)*E.*log(abs(x-p(4))+1e-6).*M];
     J = J(:,mask==1);
 end
-
+end
