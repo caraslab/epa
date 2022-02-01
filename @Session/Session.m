@@ -137,6 +137,10 @@ classdef Session < handle
             e = obj.Events(strcmpi([obj.Events.Name],name));
         end
         
+        function e = f_E(obj,name)
+            e = obj.find_Event(name);
+        end
+        
         function c = find_Cluster(obj,name)
             name = string(name);
             if numel(obj) > 1
@@ -151,6 +155,10 @@ classdef Session < handle
             end
         end
         
+        function c = f_C(obj,name)
+            c = obj.find_Cluster(name);
+        end
+        
         function s = find_Stream(obj,name)
             name = string(name);
             if numel(obj) > 1
@@ -161,6 +169,10 @@ classdef Session < handle
             
             ind = snames == name;
             s = obj.Streams(ind);
+        end
+      
+        function s = f_S(obj,name)
+            s = obj.find_Stream(name);
         end
         
         function s = find_Session(obj,name)
