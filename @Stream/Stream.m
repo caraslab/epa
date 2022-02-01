@@ -1,6 +1,6 @@
 classdef Stream < epa.DataInterface
     
-    properties
+    properties (SetObservable, AbortSet)
         Data            (:,1)
         SamplingRate    (1,1) double = 1;
         
@@ -11,6 +11,8 @@ classdef Stream < epa.DataInterface
         Note     (:,1) string   % User notes
         
         TitleStr (1,1) string   % auto generated if empty
+        
+        Include  (1,1) logical = true;
     end
     
     
