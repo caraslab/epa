@@ -69,6 +69,11 @@ for i = 1:length(trials)
     %Calculate the power across frequencies
     [spectra,f] = mtspectrumpt(trials{i},par,par.fscorr); 
     
+    if isempty(spectra)
+        fprintf(2,' spectra returned empty, skipping\n')
+        continue
+    end
+    
     %Find the index value closest to MF
     [~,idx] = min(abs(f-par.modfreq));
     
