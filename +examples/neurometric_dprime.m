@@ -1,4 +1,13 @@
-%% Example: Compute neurometric dprime and fit a sigmoidal function.
+%%
+% for selected clusters in the browser only
+% clear C
+% X = D.curClusters;
+% S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
+% for i = 1:length(X)
+%     C(i,:) = S_AM.find_Cluster(X(i).Name);
+% end
+
+%% Compute neurometric dprime and fit a sigmoidal function.
 %  Add the result as a new property to each Cluster object
 
 % process all Clusters independently.
@@ -15,16 +24,6 @@
 S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
 C = [S_AM.Clusters];
 
-%%
-% for selected clusters in the browser only
-clear C
-X = D.curClusters;
-S_AM = [S.find_Session("Pre") S.find_Session("AM") S.find_Session("Post")];
-for i = 1:length(X)
-    C(i,:) = S_AM.find_Cluster(X(i).Name);
-end
-
-%%
 % add a new property, called "neurodprime" only if it doesn't already exist
 % note: you don't need to add a property in this way.  You could just make
 % a new variable in the workspace of course, but it's often convenient to
@@ -40,22 +39,21 @@ par.window = [0 1];
 par.modfreq = 5;
 
 % par.metric = @epa.metric.trial_firingrate;
-par.metric = @epa.metric.cl_calcpower;
+% par.metric = @epa.metric.cl_calcpower;
 % par.metric = @epa.metric.tmtf; % use the temporal Modualation Transfer Function metric
 % par.metric = @epa.metric.vector_strength;
 % par.metric = @epa.metric.vector_strength_phase_projected;
-% par.metric = @epa.metric.vector_strength_cycle_by_cycle;
+par.metric = @epa.metric.vector_strength_cycle_by_cycle;
 
 % compute neurometric dprime for each Cluster independently
 dprimeThreshold = 1;
 
-
 figure
-% clf(999)
 tiledlayout('flow');
 
 % for i = [4, 12, 20]
 % C = D.curClusters;
+
 for i = 1:numel(C)
     
     if C(i).N < 100
@@ -66,7 +64,9 @@ for i = 1:numel(C)
     % compute neurometric_dprime
     [dp,v] = C(i).neurometric_dprime(par);
     
-    
+    if isempty(dp)
+        continue
+    end
     
     
     % fit the data with a sigmoidal function
@@ -140,7 +140,7 @@ fullFileName = fullfile(parentDir,'CalcPower','210620.mat');
 
 fprintf('Saving %s ...',fullFileName)
 
-save(fullFileName,'C');
+save(fullFileName,'S');
 
 fprintf(' done\n')
 
