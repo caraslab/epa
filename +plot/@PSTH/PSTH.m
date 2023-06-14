@@ -38,23 +38,23 @@ classdef PSTH < epa.plot.PlotType
             cla(axe,'reset');
             
             C = obj.Cluster;
-
-            
             
             [c,b,uv] = C.psth(obj);
             nvals = length(uv);
             % cm = epa.helper.colormap(obj.colormap,size(c,1));
-            
             
             b = [b; b+obj.binsize];
             b = b(:)';
             b = [b b(end) b(1)];
             
             mc = max(c(:));
+            
             for i = 1:nvals
                 x = [c(i,:); c(i,:)];
                 x = [x(:)' 0 0];
                 x = (i-1)*mc+x;
+                
+%               
                 obj.handles.plot(i) = patch(axe,b,x,[0 0 0]);
                 
                 str = sprintf('%s = %g%s',obj.event.Name,uv(i),obj.event.Units);
@@ -82,9 +82,6 @@ classdef PSTH < epa.plot.PlotType
                     ylabel(axe,obj.normalization);
             end
             
-            if ~isempty(mc)
-                axe.YLim = [0 nvals*mc];
-            end
             axe.XLim = obj.window;
             
             axe.XAxis.TickDirection = 'out';
@@ -92,7 +89,7 @@ classdef PSTH < epa.plot.PlotType
             
             tv = []; tvl = [];
             for i = 1:nvals
-                y = floor(linspace(0,mc,5));
+                y = f*floor(linspace(0,mc,5));
                 tvl = [tvl y];
                 tv  = [tv y+(i-1)*mc];
             end

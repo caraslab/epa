@@ -10,14 +10,14 @@ S = epa.load.phy(DataPath);
 % par.datafilestr = '*300hz.dat';
 % S = epa.load.phy(DataPath,par);
 
-TDTTankPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/Tank/210620';
+% TDTTankPath = '/mnt/CL_4TB_2/Rose/IC recording/SUBJ-ID-202/Tank/210620';
 
-S.add_TDTEvents(TDTTankPath);
+% S.add_TDTEvents(TDTTankPath);
 
 % S.add_TDTStreams(TDTTankPath);
 
 %% DataBrowser GUI finds valid Session objects in the base workspace
-S.remove_Event("Cam1")
+% S.remove_Event("Cam1")
 D = epa.DataBrowser;
 
 %% Access currently selected data in the DataBrowser
