@@ -100,6 +100,25 @@ classdef Event < epa.DataInterface
             
             v = obj.Values;
             oot = obj.OnOffTimes;
+            
+            % for rasters: restrict unmodulated trials to only the ones
+            % immediately preceding AM trial
+%             amtrials = v ~= 0;
+%             rt = zeros(length(amtrials),1);
+%             
+%             for i = 1:length(amtrials)
+%                 if amtrials(i) == 1
+%                    rt(i) = 1;
+%                    rt(i-1) = 1; 
+%                 end
+%             end
+%             
+%             rt = logical(rt);
+%             v = v(rt);
+%             oot = oot(rt,:);
+            
+            %
+            
             if nargin >= 2 && ~isempty(val) && ~isequal(val,'all')
                 ind = ismembertol(v,val,tol);
                 v(~ind) = [];

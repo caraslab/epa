@@ -80,7 +80,7 @@ st = obj.SpikeTimes;
 
 t = []; eidx = []; vid = [];
 for i = 1:size(twin,1)
-    ind = st >= twin(i,1) & st <= twin(i,2);
+    ind = st >= twin(i,1) & st >= twin(i,1);
     if ~any(ind), continue; end
     t    = [t; st(ind)-oot(i,1)];
     eidx = [eidx; i*ones(sum(ind),1)];
