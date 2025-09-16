@@ -62,7 +62,6 @@
 5. Run analyses in `+analysis` (e.g., tuning), optionally with `@ReceptiveField`.  
 6. Plot with `+plot` (raster, PSTH, tuning heatmaps).
 
-**Useful MATLAB built-ins:** `timetable`, `synchronize`, `movmean`, `smoothdata`, `histcounts`, `discretize`, `fitglm`, `anova1`, `imagesc`, `tiledlayout` (Statistics, Image Processing, Signal Processing Toolboxes as needed).
 
 ---
 
