@@ -71,8 +71,6 @@
 3. Plot psychometric/performance with `+plot`.  
 4. Join with physiology via `@Session` + event timestamps.
 
-**Useful MATLAB built-ins:** `readtable`, `datetime`, `groupsummary`, `fitnlm`, `glmfit`.
-
 ---
 
 ## UI quickstart
